@@ -124,8 +124,7 @@ components:
           description: Event name (max 256 chars)
           example: page_view
         properties:
-          type: object
-          nullable: true
+          type: ['object', 'null']
           description: Arbitrary key-value properties (max 8KB JSON). The tracker auto-populates `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, and `utm_*` params.
           example:
             path: /pricing
@@ -133,18 +132,15 @@ components:
             browser: Chrome
             os: macOS
         user_id:
-          type: string
-          nullable: true
+          type: ['string', 'null']
           description: Anonymous user identifier (max 256 chars). The tracker auto-generates one via localStorage.
           example: usr_abc123
         session_id:
-          type: string
-          nullable: true
+          type: ['string', 'null']
           description: Session identifier (max 256 chars). The tracker auto-generates one via sessionStorage with 30-min inactivity timeout.
           example: ses_xyz789
         timestamp:
-          type: number
-          nullable: true
+          type: ['number', 'null']
           description: Unix timestamp in milliseconds. Defaults to `Date.now()`. Must be within 30 days ago to 5 minutes in the future.
           example: 1706745600000
 
@@ -168,17 +164,13 @@ components:
                 type: string
                 example: page_view
               properties:
-                type: object
-                nullable: true
+                type: ['object', 'null']
               user_id:
-                type: string
-                nullable: true
+                type: ['string', 'null']
               session_id:
-                type: string
-                nullable: true
+                type: ['string', 'null']
               timestamp:
-                type: number
-                nullable: true
+                type: ['number', 'null']
 
     StatsResponse:
       type: object
@@ -259,14 +251,11 @@ components:
         event:
           type: string
         properties:
-          type: object
-          nullable: true
+          type: ['object', 'null']
         user_id:
-          type: string
-          nullable: true
+          type: ['string', 'null']
         session_id:
-          type: string
-          nullable: true
+          type: ['string', 'null']
         timestamp:
           type: number
         date:
@@ -366,8 +355,7 @@ components:
         session_id:
           type: string
         user_id:
-          type: string
-          nullable: true
+          type: ['string', 'null']
         project_id:
           type: string
         start_time:
@@ -378,11 +366,9 @@ components:
           type: integer
           description: Duration in milliseconds
         entry_page:
-          type: string
-          nullable: true
+          type: ['string', 'null']
         exit_page:
-          type: string
-          nullable: true
+          type: ['string', 'null']
         event_count:
           type: integer
         is_bounce:
@@ -400,8 +386,7 @@ components:
           type: string
           example: path
         event:
-          type: string
-          nullable: true
+          type: ['string', 'null']
         values:
           type: array
           items:
@@ -467,8 +452,7 @@ components:
         change:
           type: number
         change_pct:
-          type: integer
-          nullable: true
+          type: ['integer', 'null']
           description: Percentage change. Null when previous period was 0 but current is > 0.
 
     PagesResponse:
@@ -527,8 +511,7 @@ components:
                 type: number
                 description: Percentage of total sessions
         median_bucket:
-          type: string
-          nullable: true
+          type: ['string', 'null']
         engaged_pct:
           type: number
           description: Percentage of sessions >= 30 seconds
@@ -557,8 +540,7 @@ components:
               users:
                 type: integer
         peak:
-          type: object
-          nullable: true
+          type: ['object', 'null']
           properties:
             day:
               type: integer
@@ -571,12 +553,10 @@ components:
             users:
               type: integer
         busiest_day:
-          type: string
-          nullable: true
+          type: ['string', 'null']
           example: Monday
         busiest_hour:
-          type: integer
-          nullable: true
+          type: ['integer', 'null']
           example: 14
 
     Project:
@@ -606,8 +586,7 @@ components:
         email:
           type: string
         github_login:
-          type: string
-          nullable: true
+          type: ['string', 'null']
         tier:
           type: string
           enum: [free, pro]
@@ -629,8 +608,7 @@ components:
             rate_limit_rpm:
               type: integer
         monthly_spend_cap_dollars:
-          type: number
-          nullable: true
+          type: ['number', 'null']
 
   parameters:
     ProjectParam:
@@ -672,6 +650,7 @@ paths:
 
         **CLI equivalent:** `npx @agent-analytics/cli track my-site page_view --properties '{"path":"/pricing"}'`
       tags: [Ingestion]
+      security: []
       requestBody:
         required: true
         content:
@@ -734,6 +713,7 @@ paths:
 
         **CLI equivalent:** Not available via CLI. Use the API directly.
       tags: [Ingestion]
+      security: []
       requestBody:
         required: true
         content:
@@ -1657,8 +1637,9 @@ paths:
     get:
       operationId: healthCheck
       summary: Health check
-      description: Returns `{ "status": "ok" }` if the API is running.
+      description: 'Returns `{ "status": "ok" }` if the API is running.'
       tags: [Utility]
+      security: []
       responses:
         '200':
           description: Healthy
@@ -1687,6 +1668,7 @@ paths:
 
         The tracker auto-collects: page views, path, URL, hostname, title, referrer, screen size, browser, OS, device type, language, and UTM parameters. No cookies are used.
       tags: [Utility]
+      security: []
       responses:
         '200':
           description: JavaScript file
