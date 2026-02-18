@@ -7,13 +7,21 @@ info:
 
     ## Getting Started
 
-    1. **Sign up** at [app.agentanalytics.sh](https://app.agentanalytics.sh) and create a project
-    2. **Add the tracking snippet** to your site:
+    1. **Sign up** at [app.agentanalytics.sh](https://app.agentanalytics.sh) and get your API key
+    2. **Give the API key to your AI agent** — it can do everything from here: create projects, add tracking, and query stats
+    3. **Your agent creates a project:**
+       ```bash
+       curl -X POST "https://api.agentanalytics.sh/projects" \
+         -H "X-API-Key: aak_..." \
+         -H "Content-Type: application/json" \
+         -d '{"name": "my-site"}'
+       ```
+    4. **Your agent adds the tracking snippet** (returned in the response above):
        ```html
        <script src="https://api.agentanalytics.sh/tracker.js"
                data-project="my-site" data-token="aat_..."></script>
        ```
-    3. **Query your stats** with your API key:
+    5. **Your agent queries stats:**
        ```bash
        curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
          -H "X-API-Key: aak_..."
