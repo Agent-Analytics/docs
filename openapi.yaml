@@ -661,6 +661,13 @@ paths:
         The response is `202 Accepted` — events are queued and written asynchronously.
       tags: [Ingestion]
       security: []
+      x-codeSamples:
+        - lang: html
+          label: Tracker Snippet
+          source: |
+            <script src="https://api.agentanalytics.sh/tracker.js"
+                    data-project="my-site"
+                    data-token="aat_..."></script>
       requestBody:
         required: true
         content:
@@ -716,6 +723,14 @@ paths:
         Like `/track`, this is called by the browser tracker — not by agents or CLI.
       tags: [Ingestion]
       security: []
+      x-codeSamples:
+        - lang: html
+          label: Tracker Snippet
+          source: |
+            <!-- The tracker batches events automatically -->
+            <script src="https://api.agentanalytics.sh/tracker.js"
+                    data-project="my-site"
+                    data-token="aat_..."></script>
       requestBody:
         required: true
         content:
