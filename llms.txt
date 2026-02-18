@@ -1,0 +1,64 @@
+# Agent Analytics
+
+> Web analytics platform with an HTTP API that AI agents can query.
+
+API base URL: https://api.agentanalytics.sh
+
+## Docs
+
+- [Full API Reference (LLM-friendly)](https://docs.agentanalytics.sh/llms-full.txt): Complete endpoint documentation
+- [OpenAPI Spec](https://docs.agentanalytics.sh/openapi.yaml): Machine-readable OpenAPI 3.1 spec
+- [Interactive Docs](https://docs.agentanalytics.sh): Scalar-rendered API reference
+
+## MCP Server
+
+URL: https://mcp.agentanalytics.sh/mcp (Streamable HTTP transport)
+
+Add to Claude Code:
+```
+claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
+```
+
+## Quick Start
+
+1. Sign up at https://app.agentanalytics.sh and get your API key
+2. Create a project: `POST /projects` with `X-API-Key` header
+3. Add the tracking snippet (returned in project creation response)
+4. Query stats: `GET /stats?project=my-site` with `X-API-Key` header
+
+## Authentication
+
+- **API Key** (`aak_*`): Secret key for reading data and project management. Pass via `X-API-Key` header or `?key=` query param.
+- **Project Token** (`aat_*`): Public token for event ingestion. Passed in request body.
+
+## Endpoints
+
+### Ingestion (project token)
+- `POST /track` — Track a single event
+- `POST /track/batch` — Track up to 100 events
+
+### Analytics (API key)
+- `GET /stats` — Aggregated overview (time series, top events, sessions)
+- `GET /events` — Raw event log
+- `POST /query` — Flexible analytics query (metrics, group_by, filters)
+- `GET /properties` — Discover event names and property keys
+- `GET /breakdown` — Top property values (pages, referrers, UTM sources)
+- `GET /insights` — Period-over-period comparison with trend
+- `GET /pages` — Entry/exit page stats with bounce rate
+- `GET /sessions/distribution` — Session duration histogram
+- `GET /heatmap` — Day-of-week x hour traffic grid
+
+### Projects (API key)
+- `GET /projects` — List all projects
+- `POST /projects` — Create a project
+- `GET /projects/{id}` — Get project details
+- `PATCH /projects/{id}` — Update a project
+- `DELETE /projects/{id}` — Delete a project
+
+### Account (API key)
+- `GET /account` — Get account info
+- `POST /account/revoke-key` — Revoke and regenerate API key
+
+### Utility
+- `GET /health` — Health check
+- `GET /tracker.js` — JavaScript tracker script
