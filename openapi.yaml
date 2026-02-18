@@ -37,6 +37,32 @@ info:
     Passed in the request body as `token`. This is a **public** identifier embedded in your site's HTML — not a secret.
     Used only for `POST /track` and `POST /track/batch`.
 
+    ## MCP Server (Claude, Cursor, etc.)
+
+    Connect Agent Analytics directly to Claude, Cursor, or any MCP-compatible AI client — no API key management needed.
+
+    **URL:** `https://mcp.agentanalytics.sh/mcp`
+
+    ### Add to Claude Desktop / claude.ai
+    Click **Settings → Connectors → Add → Custom** and enter `https://mcp.agentanalytics.sh/mcp`. You'll sign in with GitHub or Google (must match your Agent Analytics account).
+
+    ### Add to Claude Code
+    ```bash
+    claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
+    ```
+
+    ### Available MCP Tools
+
+    | Tool | Description |
+    |------|-------------|
+    | `list_projects` | List all your projects |
+    | `analytics_overview` | Time series chart + KPIs (events, users) over N days |
+    | `analytics_insights` | Period-over-period comparison with trend |
+    | `analytics_breakdown` | Top property values (pages, referrers, UTM sources) |
+    | `analytics_pages` | Entry/exit page stats with bounce rate |
+    | `analytics_sessions` | Session duration histogram |
+    | `analytics_heatmap` | Day-of-week x hour traffic grid |
+
     ## CLI vs API
 
     You can use the [CLI](https://www.npmjs.com/package/@agent-analytics/cli) or call the API directly. Every CLI command maps to an API endpoint.
