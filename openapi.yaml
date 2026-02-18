@@ -21,15 +21,13 @@ info:
 
     ## Authentication
 
-    There are two authentication methods depending on the endpoint type:
+    ### API Key (`aak_*`) — for reading data & project management
+    Passed via the `X-API-Key` header or `?key=` query parameter. **Keep this secret.**
+    Used for all read endpoints (`/stats`, `/events`, `/query`, etc.) and project management (`/projects`, `/account`).
 
     ### Project Token (`aat_*`) — for event ingestion
-    Passed in the request body as `token`. Public-safe, embedded in your site's HTML.
-    Used for `POST /track` and `POST /track/batch`.
-
-    ### API Key (`aak_*`) — for reading data & project management
-    Passed via the `X-API-Key` header or `?key=` query parameter. Keep this secret.
-    Used for all read endpoints (`/stats`, `/events`, `/query`, etc.) and project management (`/projects`, `/account`).
+    Passed in the request body as `token`. This is a **public** identifier embedded in your site's HTML — not a secret.
+    Used only for `POST /track` and `POST /track/batch`.
 
     ## CLI vs API
 
@@ -88,14 +86,14 @@ components:
       in: header
       name: X-API-Key
       description: |
-        API key (`aak_*`). Can also be passed as `?key=` query parameter.
+        Secret API key (`aak_*`) for reading data and managing projects. Can also be passed as `?key=` query parameter.
     ProjectToken:
       type: apiKey
       in: query
       name: token
       description: |
-        Project token (`aat_*`) passed in the request body, not as a query parameter.
-        Shown here for documentation purposes only.
+        Public project token (`aat_*`) for event ingestion. Passed in the request body (not a query parameter).
+        This is not a secret — it's embedded in your site's HTML.
 
   schemas:
     Error:
