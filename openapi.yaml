@@ -77,7 +77,7 @@ servers:
 
 tags:
   - name: Ingestion
-    description: Track events from your site or app. Requires a project token (`aat_*`) in the request body.
+    description: Event tracking endpoints called by the browser `tracker.js` script. These use a public project token (`aat_*`) — not your API key. You don't call these directly; the tracker handles it.
   - name: Analytics
     description: Query analytics data. Requires an API key (`aak_*`) via `X-API-Key` header or `?key=` param.
   - name: Projects
@@ -650,11 +650,15 @@ paths:
       operationId: trackEvent
       summary: Track a single event
       description: |
-        Record an event from your site or app.
+        Record an event. Called automatically by the `tracker.js` script running in your visitors' browsers — you don't need to call this directly.
 
-        The response is `202 Accepted` — events are queued and written asynchronously for performance.
+        Add the tracker to your site and it handles everything:
+        ```html
+        <script src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."></script>
+        ```
 
-        **CLI equivalent:** `npx @agent-analytics/cli track my-site page_view --properties '{"path":"/pricing"}'`
+        The response is `202 Accepted` — events are queued and written asynchronously.
       tags: [Ingestion]
       security: []
       requestBody:
@@ -663,14 +667,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/TrackRequest'
-            example:
-              token: aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b
-              event: page_view
-              properties:
-                path: /pricing
-                referrer: https://google.com
-              user_id: usr_abc123
-              session_id: ses_xyz789
       responses:
         '202':
           description: Event queued
@@ -717,7 +713,7 @@ paths:
       description: |
         Record up to 100 events in a single request. All events must use the same project token.
 
-        **CLI equivalent:** Not available via CLI. Use the API directly.
+        Like `/track`, this is called by the browser tracker — not by agents or CLI.
       tags: [Ingestion]
       security: []
       requestBody:
