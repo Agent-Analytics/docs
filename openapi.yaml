@@ -116,7 +116,53 @@ tags:
   - name: Account
     description: Account information and key management. Requires an API key.
   - name: Experiments
-    description: A/B testing experiments. Create experiments, assign variants client-side via tracker.js, and query results with Bayesian significance. Pro tier only.
+    description: |
+      A/B testing experiments. Create experiments, assign variants client-side via tracker.js, and query results with Bayesian significance. Pro tier only.
+
+      ## Declarative Experiments (recommended)
+
+      The simplest way to run experiments — no custom JavaScript needed. Mark elements with HTML attributes and tracker.js handles variant assignment automatically.
+
+      ### Anti-Flicker Snippet
+
+      Add this in `<head>` **before** the tracker.js script tag to prevent flash of control content:
+
+      ```html
+      <style>.aa-loading [data-aa-experiment]{visibility:hidden!important}</style>
+      <script>document.documentElement.classList.add('aa-loading');
+      setTimeout(function(){document.documentElement.classList.remove('aa-loading')},3000)</script>
+      ```
+
+      - Uses `visibility: hidden` to preserve layout (not `display: none`)
+      - Only hides `[data-aa-experiment]` elements, not the entire page
+      - 3-second timeout fallback shows control content if config fetch fails
+      - tracker.js removes the `aa-loading` class after applying variants
+
+      ### Declarative Attributes
+
+      ```html
+      <h1 data-aa-experiment="hero_text"
+          data-aa-variant-b="Try it free today!">
+        Start your free trial
+      </h1>
+      ```
+
+      - Original element content = control variant
+      - `data-aa-variant-{key}` attributes provide replacement text for non-control variants
+      - Multiple elements can share the same experiment name (same variant assigned to all)
+      - Variant keys are lowercased for attribute lookup
+      - Requires a server-side experiment config (created via `POST /experiments`)
+
+      ### Programmatic API
+
+      For complex cases that can't be expressed as text swaps:
+
+      ```js
+      var variant = window.aa?.experiment('signup_cta', ['control', 'new_cta']);
+      if (variant === 'new_cta') {
+        document.querySelector('.cta').style.backgroundColor = 'green';
+      }
+      ```
   - name: Utility
     description: Health check and tracker script.
 
