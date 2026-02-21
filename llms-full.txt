@@ -706,3 +706,7 @@ Embed in your HTML:
 ```
 
 Auto-collects: page views, path, URL, hostname, title, referrer, screen size, browser, OS, device type, language, and UTM parameters. No cookies.
+
+**Script attributes:** `data-project` (required), `data-token` (required), `data-link-domains` (optional — enables cross-subdomain identity linking).
+
+**Cross-subdomain tracking:** To track users across subdomains (e.g. for funnels spanning `example.com` → `app.example.com`), add `data-link-domains="example.com"` to the script tag and use the same project/token on all subdomains. The tracker links anonymous IDs via URL decoration on cross-subdomain clicks — no cookies involved. The `hostname` property on each event still lets you filter by subdomain.

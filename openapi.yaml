@@ -2784,6 +2784,31 @@ paths:
         ```
 
         The tracker auto-collects: page views, path, URL, hostname, title, referrer, screen size, browser, OS, device type, language, and UTM parameters. No cookies are used.
+
+        ## Script Attributes
+
+        | Attribute | Required | Description |
+        |-----------|----------|-------------|
+        | `data-project` | Yes | Project name |
+        | `data-token` | Yes | Project token (`aat_*`) |
+        | `data-link-domains` | No | Enable cross-subdomain identity linking (see below) |
+
+        ## Cross-Subdomain Tracking
+
+        By default, each subdomain has its own anonymous user ID (stored in `localStorage`, which is per-origin). To track users across subdomains — e.g. for funnels spanning `example.com` → `docs.example.com` → `app.example.com` — add `data-link-domains`:
+
+        ```html
+        <script src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."
+                data-link-domains="example.com"></script>
+        ```
+
+        **How it works:** When a user clicks a link to a sibling subdomain, the tracker appends `?_aa=<user_id>` to the URL. The tracker on the destination page adopts that ID and strips the parameter from the URL. No cookies are involved.
+
+        - Load the **same tracker snippet** (same project + token) on all subdomains you want to link
+        - The `hostname` property is collected on every event, so you can still filter/breakdown by subdomain
+        - Multiple root domains can be comma-separated: `data-link-domains="example.com, other.com"`
+        - Without this attribute, no click listener is registered and there is zero overhead
       tags: [Utility]
       security: []
       responses:
