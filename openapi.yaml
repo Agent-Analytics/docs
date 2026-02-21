@@ -49,6 +49,14 @@ info:
     Click **Settings → Connectors → Add → Custom** and enter `https://mcp.agentanalytics.sh/mcp`. You'll sign in with GitHub or Google (must match your Agent Analytics account).
 
     ### Add to Claude Code
+
+    **Plugin (recommended)** — installs MCP server + analytics skill in one step:
+    ```bash
+    /plugin marketplace add Agent-Analytics/agent-analytics-plugin
+    /plugin install agent-analytics
+    ```
+
+    **Manual** — MCP server only:
     ```bash
     claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
     ```
