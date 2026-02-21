@@ -63,6 +63,14 @@ info:
     | `analytics_pages` | Entry/exit page stats with bounce rate |
     | `analytics_sessions` | Session duration histogram |
     | `analytics_heatmap` | Day-of-week x hour traffic grid |
+    | `properties` | Discover event names and property keys |
+    | `properties_received` | Property keys by event name (sampled) |
+    | `sessions` | List individual session records |
+    | `list_experiments` | List A/B experiments |
+    | `create_experiment` | Create an A/B experiment |
+    | `get_experiment` | Get experiment details with results |
+    | `update_experiment` | Update experiment status (pause/resume/complete) |
+    | `delete_experiment` | Delete an experiment |
 
     ## CLI vs API
 
