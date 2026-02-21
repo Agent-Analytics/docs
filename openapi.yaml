@@ -87,6 +87,7 @@ info:
     | `npx @agent-analytics/cli query --project my-site --metrics event_count` | `POST /query` |
     | `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
     | `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
+    | `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
     | `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
     | `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
     | `npx @agent-analytics/cli projects` | `GET /projects` |
