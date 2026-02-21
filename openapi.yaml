@@ -773,6 +773,50 @@ components:
           description: Fraction of step 1 users that completed the final step
           example: 0.12
 
+    RetentionResponse:
+      type: object
+      properties:
+        period:
+          type: string
+          enum: [day, week, month]
+          example: week
+        cohorts:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                description: Start date of this cohort period
+                example: "2026-01-27"
+              users:
+                type: integer
+                description: Number of users who first appeared in this period
+                example: 142
+              retained:
+                type: array
+                items:
+                  type: integer
+                description: "Users active in each subsequent period (index 0 = full cohort)"
+                example: [142, 64, 55, 46]
+              rates:
+                type: array
+                items:
+                  type: number
+                description: "Retention rate per period (retained[i] / users, rounded to 3 decimals)"
+                example: [1.0, 0.451, 0.387, 0.324]
+        average_rates:
+          type: array
+          items:
+            type: number
+          description: Weighted average retention rate per period offset (weighted by cohort size)
+          example: [1.0, 0.441, 0.373, 0.324]
+        users_analyzed:
+          type: integer
+          description: Total users across all cohorts (capped at 10K per query)
+          example: 560
+
     Project:
       type: object
       properties:
@@ -1706,6 +1750,101 @@ paths:
                 $ref: '#/components/schemas/FunnelResponse'
         '400':
           description: Validation error (invalid steps, filters, window, or count_by)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /retention:
+    get:
+      operationId: getRetention
+      summary: Cohort retention analysis
+      description: |
+        Track what percentage of users return over time using cohort analysis.
+        "Of users who first appeared in week X, what % came back in subsequent weeks?"
+
+        By default, uses the sessions table (any activity = returned). When `event` is specified,
+        uses the events table and only counts that specific event for first-seen and return.
+
+        Capped at 10,000 users per query. Older cohorts appear first (top-down).
+
+        **CLI:** `npx @agent-analytics/cli retention my-site --period week --cohorts 8`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: week
+          description: Cohort grouping period
+        - name: cohorts
+          in: query
+          schema:
+            type: integer
+            default: 8
+            minimum: 1
+            maximum: 30
+          description: "Number of cohort periods (max: day=30, week=12, month=12)"
+        - name: event
+          in: query
+          schema:
+            type: string
+          description: First-seen event filter (e.g. `signup`). Switches to event-based retention.
+        - name: returning_event
+          in: query
+          schema:
+            type: string
+          description: What counts as "returned" (defaults to same as `event`)
+        - $ref: '#/components/parameters/SinceParam'
+      responses:
+        '200':
+          description: Cohort retention data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetentionResponse'
+              examples:
+                weeklyRetention:
+                  summary: 4-week retention
+                  value:
+                    period: week
+                    cohorts:
+                      - date: "2026-01-27"
+                        users: 142
+                        retained: [142, 64, 55, 46]
+                        rates: [1.0, 0.451, 0.387, 0.324]
+                      - date: "2026-02-03"
+                        users: 128
+                        retained: [128, 54, 46]
+                        rates: [1.0, 0.422, 0.359]
+                      - date: "2026-02-10"
+                        users: 156
+                        retained: [156, 70]
+                        rates: [1.0, 0.449]
+                      - date: "2026-02-17"
+                        users: 134
+                        retained: [134]
+                        rates: [1.0]
+                    average_rates: [1.0, 0.441, 0.373, 0.324]
+                    users_analyzed: 560
+        '400':
+          description: Invalid period or cohorts value
           content:
             application/json:
               schema:
