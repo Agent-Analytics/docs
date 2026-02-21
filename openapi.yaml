@@ -354,6 +354,10 @@ components:
           type: number
         date:
           type: string
+        country:
+          type: ['string', 'null']
+          description: ISO 3166-1 alpha-2 country code derived from the request IP at ingestion time
+          example: US
 
     QueryRequest:
       type: object
@@ -384,7 +388,7 @@ components:
             properties:
               field:
                 type: string
-                description: "Field to filter on. Built-in: `event`, `user_id`, `date`. Property fields: `properties.path`, `properties.browser`, etc."
+                description: "Field to filter on. Built-in: `event`, `user_id`, `date`, `country`. Property fields: `properties.path`, `properties.browser`, etc."
                 example: event
               op:
                 type: string
@@ -1051,7 +1055,7 @@ paths:
 
         **Filter operators:** `eq`, `neq`, `gt`, `lt`, `gte`, `lte`
 
-        **Filterable fields:** `event`, `user_id`, `date`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`)
+        **Filterable fields:** `event`, `user_id`, `date`, `country`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`)
 
         **CLI:** `npx @agent-analytics/cli query --project my-site --metrics event_count unique_users --group-by event --since 7d`
       tags: [Analytics]
@@ -1268,7 +1272,9 @@ paths:
       summary: Top property values
       description: |
         Breaks down events by a specific property, showing the top values by count.
-        Useful for top pages, referrers, browsers, UTM sources, etc.
+        Useful for top pages, referrers, browsers, countries, UTM sources, etc.
+
+        Use `property=country` to see visitor geography (ISO 3166-1 alpha-2 codes). Country is stored as a dedicated column for fast queries.
 
         **CLI:** `npx @agent-analytics/cli breakdown my-site --property path --event page_view`
       tags: [Analytics]
@@ -1279,7 +1285,7 @@ paths:
         - name: property
           in: query
           required: true
-          description: Property key to break down by (alphanumeric + underscores, max 128 chars)
+          description: "Property key to break down by (alphanumeric + underscores, max 128 chars). Use `country` for visitor geography."
           schema:
             type: string
           example: path
