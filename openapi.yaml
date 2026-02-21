@@ -71,6 +71,7 @@ info:
     | `get_experiment` | Get experiment details with results |
     | `update_experiment` | Update experiment status (pause/resume/complete) |
     | `delete_experiment` | Delete an experiment |
+    | `live_now` | Real-time snapshot (active visitors, events/min) |
 
     ## CLI vs API
 
@@ -93,7 +94,16 @@ info:
     | Free | 10 | 100 lifetime | 7 days |
     | Pro  | 1,000 | Unlimited | 365 days |
 
-    Experiments (A/B testing) are a **pro-only** feature. Free tier accounts receive `PRO_REQUIRED` when creating experiments.
+    Experiments (A/B testing) and real-time streaming (`/stream`, `/live`) are **pro-only** features. Free tier accounts receive `PRO_REQUIRED`.
+
+    ### Streaming Limits (Pro only)
+
+    | Limit | Value |
+    |-------|-------|
+    | Concurrent SSE streams | 10 per account |
+    | `/live` rate | Standard API rate limit |
+    | Inactivity timeout | 30 minutes |
+    | Ring buffer | 5 minutes / 10,000 events |
 
     ## Error Format
 
@@ -102,7 +112,7 @@ info:
     { "error": "AUTH_REQUIRED", "message": "API key required" }
     ```
 
-    Common error codes: `AUTH_REQUIRED`, `FORBIDDEN`, `PROJECT_REQUIRED`, `MISSING_FIELDS`, `RATE_LIMITED`, `INVALID_TOKEN`, `BATCH_TOO_LARGE`, `INVALID_METRIC`, `INVALID_GROUP_BY`, `INVALID_FILTER_OP`, `INVALID_PROPERTY_KEY`, `NOT_FOUND`, `EXPERIMENT_NOT_FOUND`, `EXPERIMENT_NAME_EXISTS`, `INVALID_VARIANTS`, `INVALID_EXPERIMENT_STATUS`, `PRO_REQUIRED`.
+    Common error codes: `AUTH_REQUIRED`, `FORBIDDEN`, `PROJECT_REQUIRED`, `MISSING_FIELDS`, `RATE_LIMITED`, `INVALID_TOKEN`, `BATCH_TOO_LARGE`, `INVALID_METRIC`, `INVALID_GROUP_BY`, `INVALID_FILTER_OP`, `INVALID_PROPERTY_KEY`, `NOT_FOUND`, `EXPERIMENT_NOT_FOUND`, `EXPERIMENT_NAME_EXISTS`, `INVALID_VARIANTS`, `INVALID_EXPERIMENT_STATUS`, `PRO_REQUIRED`, `STREAM_LIMIT`.
 
   contact:
     email: support@agentanalytics.sh
@@ -172,6 +182,11 @@ tags:
         document.querySelector('.cta').style.backgroundColor = 'green';
       }
       ```
+  - name: Streaming
+    description: |
+      Real-time event streaming. **Pro tier only.**
+
+      Two endpoints: `/stream` for continuous SSE event delivery, and `/live` for a point-in-time snapshot of active visitors and recent events. Both read from an in-memory ring buffer — no D1 query.
   - name: Utility
     description: Health check and tracker script.
 
@@ -675,6 +690,66 @@ components:
           type: integer
         total_reads:
           type: integer
+
+    LiveSnapshotResponse:
+      type: object
+      properties:
+        project:
+          type: string
+          example: my-site
+        window_seconds:
+          type: integer
+          example: 60
+        timestamp:
+          type: number
+          example: 1708000060000
+        active_visitors:
+          type: integer
+          description: Unique user_ids in the time window
+          example: 12
+        active_sessions:
+          type: integer
+          description: Unique session_ids in the time window
+          example: 8
+        events_per_minute:
+          type: integer
+          example: 47
+        top_pages:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                example: /
+              visitors:
+                type: integer
+                example: 5
+        top_events:
+          type: array
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+                example: page_view
+              count:
+                type: integer
+                example: 32
+        recent_events:
+          type: array
+          description: Last 10 events, newest first
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+              properties:
+                type: ['object', 'null']
+              user_id:
+                type: ['string', 'null']
+              timestamp:
+                type: number
 
     AccountResponse:
       type: object
@@ -1471,6 +1546,144 @@ paths:
                 $ref: '#/components/schemas/HeatmapResponse'
         '401':
           description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /stream:
+    get:
+      operationId: streamEvents
+      summary: Live event stream (SSE)
+      description: |
+        Server-Sent Events stream of real-time events as they arrive. **Pro tier only.**
+
+        Events are delivered as `event: track` SSE messages. Optionally filter by event name and/or property values.
+
+        The stream sends a `:heartbeat` comment every 30 seconds as a keepalive. Auto-disconnects after 30 minutes of no matching events.
+
+        **curl example:**
+        ```bash
+        curl -N "https://api.agentanalytics.sh/stream?project=my-site&events=page_view,signup" \
+          -H "X-API-Key: aak_..."
+        ```
+      tags: [Streaming]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: project
+          in: query
+          required: false
+          description: Project name. Defaults to first project.
+          schema:
+            type: string
+          example: my-site
+        - name: events
+          in: query
+          required: false
+          description: Comma-separated event name filter. Omit for all events.
+          schema:
+            type: string
+          example: page_view,signup
+        - name: filter
+          in: query
+          required: false
+          description: "Property filter as `key:value` pairs separated by `;`. Multiple filters use AND logic."
+          schema:
+            type: string
+          example: "path:/pricing;browser:Chrome"
+      responses:
+        '200':
+          description: SSE event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  SSE stream with events:
+                  - `event: connected` — sent once on connection with active filters
+                  - `event: track` — each matching event with `id` for reconnection
+                  - `:heartbeat` — keepalive comment every 30s
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Pro tier required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many concurrent streams (max 10 per account)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /live:
+    get:
+      operationId: getLiveSnapshot
+      summary: Live snapshot (real-time)
+      description: |
+        Returns a point-in-time snapshot of active visitors, sessions, events per minute, top pages, top events, and recent events. **Pro tier only.**
+
+        Reads from an in-memory ring buffer — no D1 query. Data is available only while events are being streamed (the ring buffer evicts events older than 5 minutes).
+
+        **curl example:**
+        ```bash
+        curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
+          -H "X-API-Key: aak_..."
+        ```
+      tags: [Streaming]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: project
+          in: query
+          required: false
+          description: Project name. Defaults to first project.
+          schema:
+            type: string
+          example: my-site
+        - name: window
+          in: query
+          required: false
+          description: Time window in seconds (10-300, default 60)
+          schema:
+            type: integer
+            default: 60
+            minimum: 10
+            maximum: 300
+      responses:
+        '200':
+          description: Live snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveSnapshotResponse'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Pro tier required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
           content:
             application/json:
               schema:
