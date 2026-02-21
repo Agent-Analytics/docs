@@ -18,11 +18,11 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci && npm run build
+      - run: npm ci && npm run build && rm -rf node_modules
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy . --project-name=agent-analytics-docs --exclude node_modules
+          command: pages deploy . --project-name=agent-analytics-docs
