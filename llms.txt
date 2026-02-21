@@ -19,6 +19,8 @@ Add to Claude Code:
 claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
 ```
 
+Tools: `list_projects`, `create_project`, `analytics_overview`, `analytics_insights`, `analytics_breakdown`, `analytics_pages`, `analytics_sessions`, `analytics_heatmap`
+
 ## Quick Start
 
 1. Sign up at https://app.agentanalytics.sh and get your API key

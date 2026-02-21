@@ -56,6 +56,7 @@ info:
     | Tool | Description |
     |------|-------------|
     | `list_projects` | List all your projects |
+    | `create_project` | Create a new project (returns tracker snippet) |
     | `analytics_overview` | Time series chart + KPIs (events, users) over N days |
     | `analytics_insights` | Period-over-period comparison with trend |
     | `analytics_breakdown` | Top property values (pages, referrers, UTM sources) |
