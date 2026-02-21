@@ -6,8 +6,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/png" href="https://agentanalytics.sh/logo-v2.png">
   <meta name="description" content="API reference for Agent Analytics — web analytics platform with an HTTP API that AI agents can query.">
+  <style>
+    .aa-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 10px 20px;
+      background: #1a1a2e;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .aa-nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      margin-right: auto;
+    }
+    .aa-nav-logo img {
+      height: 22px;
+      width: 22px;
+    }
+    .aa-nav a:not(.aa-nav-logo) {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .aa-nav a:not(.aa-nav-logo):hover {
+      color: #fff;
+    }
+    .aa-nav-active {
+      color: #fff !important;
+    }
+  </style>
 </head>
 <body>
+  <nav class="aa-nav">
+    <a class="aa-nav-logo" href="https://agentanalytics.sh">
+      <img src="https://agentanalytics.sh/logo-v2.png" alt="">
+      Agent Analytics
+    </a>
+    <a href="https://app.agentanalytics.sh">Dashboard</a>
+    <a href="https://docs.agentanalytics.sh" class="aa-nav-active">Docs</a>
+    <a href="https://blog.agentanalytics.sh">Blog</a>
+    <a href="https://github.com/Agent-Analytics">GitHub</a>
+  </nav>
   <script id="api-reference" data-url="./openapi.yaml"></script>
   <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   <script src="https://api.agentanalytics.sh/tracker.js" data-project="aa-docs" data-token="aat_cf7e12abb79bfdaddae7d88590c5fd5c74e8119973479568"></script>

@@ -5,6 +5,8 @@ info:
   description: |
     Web analytics platform with an HTTP API that AI agents can query.
 
+    **[Homepage](https://agentanalytics.sh)** · **[Dashboard](https://app.agentanalytics.sh)** · **[Blog](https://blog.agentanalytics.sh)** · **[GitHub](https://github.com/Agent-Analytics)**
+
     ## Getting Started
 
     1. **Sign up** at [app.agentanalytics.sh](https://app.agentanalytics.sh) and get your API key
@@ -63,6 +65,7 @@ info:
     | `analytics_pages` | Entry/exit page stats with bounce rate |
     | `analytics_sessions` | Session duration histogram |
     | `analytics_heatmap` | Day-of-week x hour traffic grid |
+    | `analytics_funnel` | Funnel analysis: where users drop off |
     | `properties` | Discover event names and property keys |
     | `properties_received` | Property keys by event name (sampled) |
     | `sessions` | List individual session records |
@@ -83,6 +86,7 @@ info:
     | `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
     | `npx @agent-analytics/cli query --project my-site --metrics event_count` | `POST /query` |
     | `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
+    | `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
     | `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
     | `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
     | `npx @agent-analytics/cli projects` | `GET /projects` |
@@ -112,7 +116,7 @@ info:
     { "error": "AUTH_REQUIRED", "message": "API key required" }
     ```
 
-    Common error codes: `AUTH_REQUIRED`, `FORBIDDEN`, `PROJECT_REQUIRED`, `MISSING_FIELDS`, `RATE_LIMITED`, `INVALID_TOKEN`, `BATCH_TOO_LARGE`, `INVALID_METRIC`, `INVALID_GROUP_BY`, `INVALID_FILTER_OP`, `INVALID_PROPERTY_KEY`, `NOT_FOUND`, `EXPERIMENT_NOT_FOUND`, `EXPERIMENT_NAME_EXISTS`, `INVALID_VARIANTS`, `INVALID_EXPERIMENT_STATUS`, `PRO_REQUIRED`, `STREAM_LIMIT`.
+    Common error codes: `AUTH_REQUIRED`, `FORBIDDEN`, `PROJECT_REQUIRED`, `MISSING_FIELDS`, `RATE_LIMITED`, `INVALID_TOKEN`, `BATCH_TOO_LARGE`, `INVALID_METRIC`, `INVALID_GROUP_BY`, `INVALID_FILTER_OP`, `INVALID_PROPERTY_KEY`, `NOT_FOUND`, `EXPERIMENT_NOT_FOUND`, `EXPERIMENT_NAME_EXISTS`, `INVALID_VARIANTS`, `INVALID_EXPERIMENT_STATUS`, `PRO_REQUIRED`, `STREAM_LIMIT`, `INVALID_FUNNEL_STEPS`.
 
   contact:
     email: support@agentanalytics.sh
@@ -182,6 +186,10 @@ tags:
         document.querySelector('.cta').style.backgroundColor = 'green';
       }
       ```
+  - name: Funnels
+    description: |
+      Ad-hoc funnel analysis — track where users drop off across a sequence of events.
+      No saved funnels — agents query in one shot via `POST /funnel`.
   - name: Streaming
     description: |
       Real-time event streaming. Available on all tiers.
@@ -671,6 +679,99 @@ components:
         busiest_hour:
           type: ['integer', 'null']
           example: 14
+
+    FunnelRequest:
+      type: object
+      required: [project, steps]
+      properties:
+        project:
+          type: string
+          description: Project name
+          example: my-site
+        steps:
+          type: array
+          description: "Funnel steps (2-8). Each step has an event name and optional property filters."
+          minItems: 2
+          maxItems: 8
+          items:
+            type: object
+            required: [event]
+            properties:
+              event:
+                type: string
+                description: Event name for this step
+                example: page_view
+              filters:
+                type: array
+                description: Optional property filters for this step
+                items:
+                  type: object
+                  required: [property, op, value]
+                  properties:
+                    property:
+                      type: string
+                      description: Property key (alphanumeric + underscores, max 128 chars)
+                      example: path
+                    op:
+                      type: string
+                      enum: [eq, neq, contains]
+                      description: Filter operator
+                      example: eq
+                    value:
+                      type: string
+                      description: Filter value
+                      example: /pricing
+        conversion_window_hours:
+          type: number
+          description: "Max hours from step 1 entry to final step (1-8760, default 168 = 7 days)"
+          default: 168
+          minimum: 1
+          maximum: 8760
+        since:
+          type: string
+          description: "Lookback period (ISO date or shorthand like '30d'). Default: 30d"
+          default: 30d
+          example: 30d
+        count_by:
+          type: string
+          enum: [user_id, session_id]
+          default: user_id
+          description: Count by unique users or sessions
+
+    FunnelResponse:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              step:
+                type: integer
+                example: 1
+              event:
+                type: string
+                example: page_view
+              users:
+                type: integer
+                description: Number of users (or sessions) that reached this step
+                example: 500
+              conversion_rate:
+                type: number
+                description: "Fraction of users from previous step that reached this step (step 1 is always 1.0)"
+                example: 0.6
+              drop_off_rate:
+                type: number
+                description: "Fraction of users lost from previous step (step 1 is always 0)"
+                example: 0.4
+              avg_time_to_next_ms:
+                type: ['number', 'null']
+                description: Average time in ms from this step to the next step (null for last step)
+                example: 3600000
+        overall_conversion_rate:
+          type: number
+          description: Fraction of step 1 users that completed the final step
+          example: 0.12
 
     Project:
       type: object
@@ -1546,6 +1647,77 @@ paths:
                 $ref: '#/components/schemas/HeatmapResponse'
         '401':
           description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /funnel:
+    post:
+      operationId: getFunnel
+      summary: Funnel analysis
+      description: |
+        Ad-hoc funnel analysis: track where users drop off across a sequence of 2-8 events.
+
+        Each step can have optional property filters (e.g. only count `page_view` events where `path=/pricing`).
+        The conversion window limits how long users have from entering step 1 to completing the final step.
+
+        Step 1 is capped at 10,000 users to prevent unbounded scans.
+
+        **CLI:** `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase" --window 168`
+      tags: [Funnels]
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FunnelRequest'
+            examples:
+              basicFunnel:
+                summary: Basic 3-step funnel
+                value:
+                  project: my-site
+                  steps:
+                    - event: page_view
+                    - event: signup
+                    - event: purchase
+              filteredFunnel:
+                summary: Funnel with per-step filters
+                value:
+                  project: my-site
+                  steps:
+                    - event: page_view
+                      filters:
+                        - property: path
+                          op: eq
+                          value: /pricing
+                    - event: signup
+                    - event: purchase
+                  conversion_window_hours: 72
+                  since: 30d
+      responses:
+        '200':
+          description: Funnel analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunnelResponse'
+        '400':
+          description: Validation error (invalid steps, filters, window, or count_by)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
           content:
             application/json:
               schema:
