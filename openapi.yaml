@@ -738,6 +738,16 @@ components:
           enum: [user_id, session_id]
           default: user_id
           description: Count by unique users or sessions
+        breakdown:
+          type: string
+          description: "Optional property key to segment funnel by (e.g. 'variant', 'country'). Extracted from step 1 events only."
+          example: country
+        breakdown_limit:
+          type: number
+          description: "Max breakdown groups, ordered by step 1 users descending (1-50, default 10)"
+          default: 10
+          minimum: 1
+          maximum: 50
 
     FunnelResponse:
       type: object
@@ -773,6 +783,38 @@ components:
           type: number
           description: Fraction of step 1 users that completed the final step
           example: 0.12
+        breakdowns:
+          type: array
+          description: "Per-group funnel results (only present when `breakdown` param is set). Ordered by step 1 users descending."
+          items:
+            type: object
+            properties:
+              value:
+                type: ['string', 'null']
+                description: "Breakdown property value (null for events missing the property)"
+                example: US
+              steps:
+                type: array
+                description: Same shape as top-level steps array
+                items:
+                  type: object
+                  properties:
+                    step:
+                      type: integer
+                    event:
+                      type: string
+                    users:
+                      type: integer
+                    conversion_rate:
+                      type: number
+                    drop_off_rate:
+                      type: number
+                    avg_time_to_next_ms:
+                      type: ['number', 'null']
+              overall_conversion_rate:
+                type: number
+                description: End-to-end conversion for this group
+                example: 0.15
 
     RetentionResponse:
       type: object
@@ -1709,7 +1751,7 @@ paths:
 
         Step 1 is capped at 10,000 users to prevent unbounded scans.
 
-        **CLI:** `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase" --window 168`
+        **CLI:** `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase" --window 168 --breakdown country`
       tags: [Funnels]
       security:
         - ApiKey: []
@@ -1742,6 +1784,16 @@ paths:
                     - event: purchase
                   conversion_window_hours: 72
                   since: 30d
+              breakdownFunnel:
+                summary: Funnel segmented by country
+                value:
+                  project: my-site
+                  steps:
+                    - event: page_view
+                    - event: signup
+                    - event: purchase
+                  breakdown: country
+                  breakdown_limit: 5
       responses:
         '200':
           description: Funnel analysis results
