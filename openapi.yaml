@@ -94,9 +94,9 @@ info:
     | Free | 10 | 100 lifetime | 7 days |
     | Pro  | 1,000 | Unlimited | 365 days |
 
-    Experiments (A/B testing) and real-time streaming (`/stream`, `/live`) are **pro-only** features. Free tier accounts receive `PRO_REQUIRED`.
+    Experiments (A/B testing) are **pro-only** features. Free tier accounts receive `PRO_REQUIRED`.
 
-    ### Streaming Limits (Pro only)
+    ### Streaming Limits
 
     | Limit | Value |
     |-------|-------|
@@ -184,7 +184,7 @@ tags:
       ```
   - name: Streaming
     description: |
-      Real-time event streaming. **Pro tier only.**
+      Real-time event streaming. Available on all tiers.
 
       Two endpoints: `/stream` for continuous SSE event delivery, and `/live` for a point-in-time snapshot of active visitors and recent events. Both read from an in-memory ring buffer — no D1 query.
   - name: Utility
@@ -1556,7 +1556,7 @@ paths:
       operationId: streamEvents
       summary: Live event stream (SSE)
       description: |
-        Server-Sent Events stream of real-time events as they arrive. **Pro tier only.**
+        Server-Sent Events stream of real-time events as they arrive.
 
         Events are delivered as `event: track` SSE messages. Optionally filter by event name and/or property values.
 
@@ -1610,12 +1610,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        '403':
-          description: Pro tier required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '404':
           description: Project not found
           content:
@@ -1634,7 +1628,7 @@ paths:
       operationId: getLiveSnapshot
       summary: Live snapshot (real-time)
       description: |
-        Returns a point-in-time snapshot of active visitors, sessions, events per minute, top pages, top events, and recent events. **Pro tier only.**
+        Returns a point-in-time snapshot of active visitors, sessions, events per minute, top pages, top events, and recent events.
 
         Reads from an in-memory ring buffer — no D1 query. Data is available only while events are being streamed (the ring buffer evicts events older than 5 minutes).
 
@@ -1672,12 +1666,6 @@ paths:
                 $ref: '#/components/schemas/LiveSnapshotResponse'
         '401':
           description: Missing or invalid API key
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '403':
-          description: Pro tier required
           content:
             application/json:
               schema:
