@@ -1828,8 +1828,9 @@ paths:
         Track what percentage of users return over time using cohort analysis.
         "Of users who first appeared in week X, what % came back in subsequent weeks?"
 
-        By default, uses the sessions table (any activity = returned). When `event` is specified,
-        uses the events table and only counts that specific event for first-seen and return.
+        By default uses session-based retention — a user is "retained" if they have any return visit
+        (session) in a subsequent period. When `event` is specified, switches to event-based retention
+        and only counts that specific event for first-seen and return.
 
         Capped at 10,000 users per query. Older cohorts appear first (top-down).
 
