@@ -1,1 +1,3 @@
 .wrangler/
+node_modules/
+llms-full.txt
