@@ -210,6 +210,21 @@ tags:
         document.querySelector('.cta').style.backgroundColor = 'green';
       }
       ```
+
+      ### URL Param Variant Forcing
+
+      Force a specific variant via URL parameter — useful for ad landing pages, QA testing, or sharing a specific variant with teammates.
+
+      ```
+      https://yoursite.com/pricing/?aa_variant_signup_cta=new_cta
+      ```
+
+      Format: `?aa_variant_<experiment_name>=<variant_key>`
+
+      - The forced variant must exist in the experiment config — invalid values fall through to normal hash assignment
+      - Works with both declarative and programmatic experiments
+      - Exposure events include `forced: true` so you can filter them in analytics
+      - No URL param = existing hash-based assignment (backward compatible)
   - name: Funnels
     description: |
       Ad-hoc funnel analysis — track where users drop off across a sequence of events.
@@ -2794,6 +2809,8 @@ paths:
                   service:
                     type: string
                     example: agent-analytics
+        '500':
+          description: Internal server error
 
   /tracker.js:
     get:
