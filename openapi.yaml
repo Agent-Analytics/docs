@@ -440,7 +440,7 @@ components:
           type: array
           items:
             type: string
-            enum: [event, date, user_id, session_id]
+            enum: [event, date, user_id, session_id, country]
           default: []
           description: Fields to group results by
         filters:
@@ -450,11 +450,11 @@ components:
             properties:
               field:
                 type: string
-                description: "Field to filter on. Built-in: `event`, `user_id`, `date`, `country`. Property fields: `properties.path`, `properties.browser`, etc."
+                description: "Field to filter on. Built-in: `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`. Property fields: `properties.path`, `properties.browser`, etc."
                 example: event
               op:
                 type: string
-                enum: [eq, neq, gt, lt, gte, lte]
+                enum: [eq, neq, gt, lt, gte, lte, contains]
                 example: eq
               value:
                 description: Value to compare against
@@ -469,7 +469,7 @@ components:
           example: "2025-01-07"
         order_by:
           type: string
-          enum: [event_count, unique_users, date, event]
+          enum: [event_count, unique_users, session_count, date, event]
           description: Field to sort by
         order:
           type: string
@@ -1352,13 +1352,13 @@ paths:
 
         **Metrics:** `event_count`, `unique_users`, `session_count`, `bounce_rate`, `avg_duration`
 
-        **Group by:** `event`, `date`, `user_id`, `session_id`
+        **Group by:** `event`, `date`, `user_id`, `session_id`, `country`
 
-        **Filter operators:** `eq`, `neq`, `gt`, `lt`, `gte`, `lte`
+        **Filter operators:** `eq`, `neq`, `gt`, `lt`, `gte`, `lte`, `contains`
 
-        **Filterable fields:** `event`, `user_id`, `date`, `country`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`)
+        **Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`)
 
-        **CLI:** `npx @agent-analytics/cli query --project my-site --metrics event_count unique_users --group-by event --since 7d`
+        **CLI:** `npx @agent-analytics/cli query --project my-site --metrics event_count --group-by event --filter '[{"field":"country","op":"eq","value":"US"}]'`
       tags: [Analytics]
       security:
         - ApiKey: []
@@ -1391,6 +1391,37 @@ paths:
                       op: eq
                       value: /pricing
                   limit: 10
+              signupsFromGermany:
+                summary: Signups from Germany this week
+                value:
+                  project: my-site
+                  metrics: [event_count, unique_users]
+                  filters:
+                    - field: event
+                      op: eq
+                      value: signup
+                    - field: country
+                      op: eq
+                      value: DE
+                  date_from: "7d"
+              eventsPerCountry:
+                summary: Events grouped by country
+                value:
+                  project: my-site
+                  metrics: [event_count, unique_users]
+                  group_by: [country]
+                  order_by: event_count
+                  limit: 20
+              containsFilter:
+                summary: Events with "blog" in the path
+                value:
+                  project: my-site
+                  metrics: [event_count]
+                  filters:
+                    - field: properties.path
+                      op: contains
+                      value: blog
+                  group_by: [event]
       responses:
         '200':
           description: Query results
