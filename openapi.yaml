@@ -61,6 +61,14 @@ info:
     claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
     ```
 
+    ### Agent Skill (Claude Code, Codex, and more)
+
+    Install the analytics skill into any agent that supports the [Agent Skills](https://skills.sh) spec:
+    ```bash
+    npx skills add Agent-Analytics/agent-analytics-mcp
+    ```
+    Works with Claude Code, OpenAI Codex, and other compatible agents. Teaches your agent how to set up tracking, query analytics, run A/B experiments, and interpret results — no MCP required.
+
     ### Add to Cursor
     1. Open Command Palette (`Cmd+Shift+P` on Mac, `Ctrl+Shift+P` on Windows)
     2. Search for "MCP" and select **Cursor Settings > Tools & MCP**

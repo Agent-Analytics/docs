@@ -21,6 +21,13 @@ claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mc
 
 Tools: `list_projects`, `create_project`, `analytics_overview`, `analytics_insights`, `analytics_breakdown`, `analytics_pages`, `analytics_sessions`, `analytics_heatmap`, `properties`, `properties_received`, `sessions`, `list_experiments`, `create_experiment`, `get_experiment`, `update_experiment`, `delete_experiment`
 
+## Agent Skill
+
+Install as an agent skill (works with Claude Code, Codex, and other Agent Skills-compatible tools):
+```
+npx skills add Agent-Analytics/agent-analytics-mcp
+```
+
 ## Quick Start
 
 1. Sign up at https://app.agentanalytics.sh and get your API key
