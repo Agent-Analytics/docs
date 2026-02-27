@@ -20,7 +20,7 @@ info:
        ```
     4. **Your agent adds the tracking snippet** (returned in the response above):
        ```html
-       <script src="https://api.agentanalytics.sh/tracker.js"
+       <script defer src="https://api.agentanalytics.sh/tracker.js"
                data-project="my-site" data-token="aat_..."></script>
        ```
     5. **Your agent queries stats:**
@@ -1140,7 +1140,7 @@ paths:
 
         Add the tracker to your site and it handles everything:
         ```html
-        <script src="https://api.agentanalytics.sh/tracker.js"
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
                 data-project="my-site" data-token="aat_..."></script>
         ```
 
@@ -1151,7 +1151,7 @@ paths:
         - lang: html
           label: Tracker Snippet
           source: |
-            <script src="https://api.agentanalytics.sh/tracker.js"
+            <script defer src="https://api.agentanalytics.sh/tracker.js"
                     data-project="my-site"
                     data-token="aat_..."></script>
       requestBody:
@@ -1214,7 +1214,7 @@ paths:
           label: Tracker Snippet
           source: |
             <!-- The tracker batches events automatically -->
-            <script src="https://api.agentanalytics.sh/tracker.js"
+            <script defer src="https://api.agentanalytics.sh/tracker.js"
                     data-project="my-site"
                     data-token="aat_..."></script>
       requestBody:
@@ -2858,7 +2858,7 @@ paths:
       description: |
         Returns the lightweight (~2KB) JavaScript tracker. Embed it in your HTML:
         ```html
-        <script src="https://api.agentanalytics.sh/tracker.js"
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
                 data-project="my-site" data-token="aat_..."></script>
         ```
 
@@ -2877,7 +2877,7 @@ paths:
         By default, each subdomain has its own anonymous user ID (stored in `localStorage`, which is per-origin). To track users across subdomains — e.g. for funnels spanning `example.com` → `docs.example.com` → `app.example.com` — add `data-link-domains`:
 
         ```html
-        <script src="https://api.agentanalytics.sh/tracker.js"
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
                 data-project="my-site" data-token="aat_..."
                 data-link-domains="example.com"></script>
         ```
