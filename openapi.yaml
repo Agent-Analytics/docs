@@ -1259,6 +1259,77 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /identify:
+    post:
+      operationId: identify
+      summary: Link anonymous user to authenticated identity
+      description: |
+        Maps `previous_id` (typically an anonymous tracker ID like `anon_xxx`) to `user_id` (the authenticated identity).
+        All historical events and sessions with `previous_id` are backfilled to use `user_id`.
+
+        Called automatically by the tracker's `aa.identify("user_123")` method.
+        Can also be called server-side after authentication to stitch identities.
+
+        - **Idempotent**: sending the same mapping twice is a no-op
+        - **Re-identify**: updating the mapping triggers a new backfill
+        - **Project-scoped**: only affects events/sessions in the specified project
+      tags: [Ingestion]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, previous_id, user_id]
+              properties:
+                token:
+                  type: string
+                  description: Project token (`aat_*`)
+                  example: aat_abc123
+                previous_id:
+                  type: string
+                  maxLength: 256
+                  description: The anonymous or previous user ID to replace
+                  example: anon_k7x9m2abc
+                user_id:
+                  type: string
+                  maxLength: 256
+                  description: The authenticated user ID to assign
+                  example: user_12345
+      responses:
+        '202':
+          description: Identity mapping queued for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  queued:
+                    type: boolean
+                    example: true
+        '400':
+          description: Validation error (missing fields, same IDs, exceeds length)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /stats:
     get:
       operationId: getStats
