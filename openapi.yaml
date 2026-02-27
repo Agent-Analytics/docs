@@ -127,7 +127,7 @@ info:
 
     | Tier | Requests/min | Event Limit | Data Retention |
     |------|-------------|-------------|----------------|
-    | Free | 10 | 100 lifetime | 7 days |
+    | Free | 10 | 1,000 lifetime | 7 days |
     | Pro  | 1,000 | Unlimited | 365 days |
 
     Experiments (A/B testing) are **pro-only** features. Free tier accounts receive `PRO_REQUIRED`.
