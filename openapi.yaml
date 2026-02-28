@@ -2940,6 +2940,8 @@ paths:
         | `data-link-domains` | No | Disabled | Comma-separated domains for cross-subdomain identity linking (see below) |
         | `data-do-not-track` | No | `"false"` | Set to `"true"` to honor the browser's Do Not Track signal. Tracking is silently skipped when DNT is enabled. |
         | `data-track-outgoing` | No | `"false"` | Set to `"true"` to auto-track clicks on outgoing (external) links. Fires an `outgoing_link` event with `href`, `text`, and `hostname` properties. |
+        | `data-heartbeat` | No | Disabled | Seconds for time-on-page tracking (e.g. `"15"`). Min 15s. Adds `time_on_page` to page_view on exit. |
+        | `data-track-errors` | No | `"false"` | Set to `"true"` to auto-track JS errors as `$error` events with `{ message, source, line, col }`. Max 5 per page view. |
 
         ## Cross-Subdomain Tracking
 
@@ -3042,6 +3044,54 @@ paths:
         - Only `http://` and `https://` links are tracked — `mailto:`, `tel:`, and `javascript:` links are ignored
         - Without the attribute, no click listener is registered and there is zero overhead
         - Use the `breakdown` endpoint with `property=hostname` and `event=outgoing_link` to see top exit domains
+
+        ## Time-on-Page Tracking
+
+        Add `data-heartbeat="15"` to measure how long visitors actually engage with each page:
+
+        ```html
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."
+                data-heartbeat="15"></script>
+        ```
+
+        The tracker silently counts seconds while the tab is visible. On page exit (tab hidden, tab closed, or SPA navigation), the `time_on_page` property is added to the original `page_view` event — zero extra events stored.
+
+        - Timer pauses when the tab is hidden, resumes when visible
+        - Minimum interval is 15 seconds (values below 15 are clamped)
+        - Works with SPA navigation — each page gets its own `time_on_page`
+        - Query via `page_view` events with `properties.time_on_page > 0`
+
+        ## JS Error Tracking
+
+        Add `data-track-errors="true"` to automatically capture JavaScript errors:
+
+        ```html
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."
+                data-track-errors="true"></script>
+        ```
+
+        The tracker hooks `window.addEventListener('error')` and `window.addEventListener('unhandledrejection')` to send `$error` events with these properties:
+
+        | Property | Description | Example |
+        |----------|-------------|---------|
+        | `message` | Error message (truncated to 500 chars) | `TypeError: Cannot read property 'x' of null` |
+        | `source` | Script filename | `https://mysite.com/app.js` |
+        | `line` | Line number | `42` |
+        | `col` | Column number | `10` |
+
+        **Safety features:**
+        - Max 5 errors per page view — prevents runaway logging from error loops
+        - Deduplicates by `message + source + line` — same error on the same line is only tracked once
+        - Resets on SPA navigation (new page = fresh count)
+        - Does not interfere with other error handlers (uses `addEventListener`, not `window.onerror` assignment)
+        - No stack traces — keeps payloads small
+
+        **Querying errors:**
+        - `GET /breakdown?property=message&event=$error` — top error messages
+        - `GET /breakdown?property=source&event=$error` — errors by source file
+        - `GET /events?event=$error` — raw error event log
       tags: [Tracking]
       security: []
       responses:
