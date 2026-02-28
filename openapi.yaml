@@ -2942,6 +2942,7 @@ paths:
         | `data-project` | Yes | Project name |
         | `data-token` | Yes | Project token (`aat_*`) |
         | `data-link-domains` | No | Enable cross-subdomain identity linking (see below) |
+        | `data-do-not-track` | No | Set to `"true"` to honor the browser's Do Not Track signal. Tracking is silently skipped when DNT is enabled. |
 
         ## Cross-Subdomain Tracking
 
@@ -2959,6 +2960,68 @@ paths:
         - The `hostname` property is collected on every event, so you can still filter/breakdown by subdomain
         - Multiple root domains can be comma-separated: `data-link-domains="example.com, other.com"`
         - Without this attribute, no click listener is registered and there is zero overhead
+
+        ## Declarative Event Tracking
+
+        Track clicks without writing JavaScript. Add `data-aa-event` to any HTML element and the tracker handles it automatically.
+
+        ```html
+        <button data-aa-event="cta_click" data-aa-event-id="hero_signup">Get Started</button>
+        ```
+
+        When clicked, this fires a `cta_click` event with `{ id: "hero_signup" }` as properties.
+
+        Add custom properties with `data-aa-event-*` attributes:
+
+        ```html
+        <a href="/pricing" data-aa-event="cta_click" data-aa-event-id="nav_pricing" data-aa-event-section="header">
+          Pricing
+        </a>
+        ```
+
+        This fires `cta_click` with `{ id: "nav_pricing", section: "header" }`.
+
+        **When to use declarative vs programmatic tracking:**
+
+        | Use declarative (`data-aa-event`) | Use programmatic (`window.aa.track()`) |
+        |-----------------------------------|----------------------------------------|
+        | Simple click tracking on buttons, links, CTAs | Events that aren't triggered by clicks (form submissions, scroll milestones, timers) |
+        | Static HTML sites, CMS platforms | When you need to compute property values dynamically |
+        | Non-technical team members adding tracking | When the event depends on application state (e.g., cart total, user tier) |
+        | Quick setup — no JavaScript needed | When you need conditional logic (only track if user is logged in) |
+
+        Both approaches produce identical events in your analytics. You can mix them freely on the same page.
+
+        **Notes:**
+        - The tracker uses a single document-level `click` listener — no per-element binding
+        - Events bubble up, so `data-aa-event` works on child elements too (the tracker walks up the DOM via `closest()`)
+        - All `data-aa-event-*` property values are strings. For non-string data, use `window.aa.track()` instead
+
+        ## Do Not Track
+
+        Add `data-do-not-track="true"` to honor the browser's [Do Not Track](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/DNT) signal:
+
+        ```html
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."
+                data-do-not-track="true"></script>
+        ```
+
+        When enabled, the tracker silently exits if `navigator.doNotTrack === '1'`. This is **opt-in** — without the attribute, DNT is not checked.
+
+        ## Disable Tracking
+
+        Users or developers can disable tracking entirely via localStorage:
+
+        ```js
+        localStorage.setItem('aa_disabled', 'true');  // disable tracking
+        localStorage.removeItem('aa_disabled');         // re-enable tracking
+        ```
+
+        When `aa_disabled` is set to `'true'`, the tracker silently exits on page load. This is useful for:
+        - Internal team members who don't want to pollute analytics
+        - QA and testing environments
+        - Implementing a user-facing opt-out toggle
       tags: [Utility]
       security: []
       responses:
