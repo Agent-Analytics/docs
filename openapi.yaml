@@ -15,21 +15,23 @@ info:
 
     ### 2. Connect your AI agent
 
+    **[OpenClaw](https://openclaw.ai) (via ClawHub):**
+    Install the Agent Analytics skill from Clawhub and give your agent the API key.
+
+    ```bash
+    Please install Agent Analytics from ClawHub: npx clawhub@latest install agent-analytics
+    ```
+
     **Claude Code (plugin — recommended):**
     ```bash
     /plugin marketplace add Agent-Analytics/agent-analytics-plugin
     /plugin install agent-analytics
     ```
 
-    **[OpenClaw](https://openclaw.com) (ClawHub):**
-    ```bash
-    npx clawhub@latest install agent-analytics
-    ```
-
     **Claude Desktop / claude.ai (MCP):**
     Settings → Connectors → Add → Custom → enter `https://mcp.agentanalytics.sh/mcp`
 
-    **Agent Skill ([skills.sh](https://skills.sh) — Codex, Cursor, Windsurf, etc.):**
+    **Agent Skill ([skills.sh](https://skills.sh) — Codex, Cursor, etc.):**
     ```bash
     npx skills add Agent-Analytics/agent-analytics-mcp
     ```
