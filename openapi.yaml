@@ -15,26 +15,28 @@ info:
 
     ### 2. Connect your AI agent
 
-    **Agent Skill ([ClawHub](https://clawhub.sh) — recommended):**
-    ```bash
-    npx clawhub install agent-analytics
-    ```
-    Works with Claude Code, OpenAI Codex, and any agent that supports [Agent Skills](https://skills.sh). Teaches your agent how to set up tracking, query analytics, run A/B experiments, and interpret results.
-
-    **Claude Code (plugin):**
+    **Claude Code (plugin — recommended):**
     ```bash
     /plugin marketplace add Agent-Analytics/agent-analytics-plugin
     /plugin install agent-analytics
     ```
 
+    **[OpenClaw](https://openclaw.com) (ClawHub):**
+    ```bash
+    npx clawhub@latest install agent-analytics
+    ```
+
     **Claude Desktop / claude.ai (MCP):**
     Settings → Connectors → Add → Custom → enter `https://mcp.agentanalytics.sh/mcp`
 
-    **Cursor (MCP or skill):**
+    **Agent Skill ([skills.sh](https://skills.sh) — Codex, Cursor, Windsurf, etc.):**
     ```bash
-    npx clawhub install agent-analytics
+    npx skills add Agent-Analytics/agent-analytics-mcp
     ```
-    Or add to your `mcp.json`:
+    Works with any agent that supports the [Agent Skills](https://skills.sh) spec.
+
+    **Cursor, Windsurf (MCP):**
+    Add to your `mcp.json`:
     ```json
     { "mcpServers": { "agent-analytics": { "url": "https://mcp.agentanalytics.sh/mcp" } } }
     ```
