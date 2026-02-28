@@ -3092,6 +3092,33 @@ paths:
         - `GET /breakdown?property=message&event=$error` — top error messages
         - `GET /breakdown?property=source&event=$error` — errors by source file
         - `GET /events?event=$error` — raw error event log
+
+        ## Global Properties (`aa.set`)
+
+        Use `aa.set()` to attach properties to ALL subsequent events without repeating them in every `track()` call:
+
+        ```js
+        // After login, tag all future events with the user's plan
+        window.aa?.set({ plan: 'pro', team: 'acme' });
+
+        // These events now include plan='pro' and team='acme' automatically
+        window.aa?.track('feature_used', { feature: 'export' });
+        ```
+
+        **Behavior:**
+        - Merge order: auto-collected → UTM → global (`set`) → event-specific. Event-specific properties always win.
+        - Multiple `set()` calls merge: `set({a:1}); set({b:2})` results in `{a:1, b:2}`
+        - Remove a key: `aa.set({ plan: null })`
+        - In-memory only — does not persist across page reloads
+
+        **Common use cases:**
+        - After login: `aa.set({ plan: user.plan, role: user.role })`
+        - Feature flags: `aa.set({ feature_x: 'variant_b' })`
+        - Any session-level context that applies to all events
+
+        **Query global properties** like any other property:
+        - `GET /breakdown?property=plan&event=page_view` — page views by plan
+        - `POST /query` with `group_by: ["properties.plan"]`
       tags: [Tracking]
       security: []
       responses:
