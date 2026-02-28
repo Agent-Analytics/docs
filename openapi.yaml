@@ -2933,13 +2933,13 @@ paths:
 
         ## Script Attributes
 
-        | Attribute | Required | Description |
-        |-----------|----------|-------------|
-        | `data-project` | Yes | Project name |
-        | `data-token` | Yes | Project token (`aat_*`) |
-        | `data-link-domains` | No | Enable cross-subdomain identity linking (see below) |
-        | `data-do-not-track` | No | Set to `"true"` to honor the browser's Do Not Track signal. Tracking is silently skipped when DNT is enabled. |
-        | `data-track-outgoing` | No | Set to `"true"` to auto-track clicks on outgoing (external) links. Fires an `outgoing_link` event with `href`, `text`, and `hostname` properties. |
+        | Attribute | Required | Default | Description |
+        |-----------|----------|---------|-------------|
+        | `data-project` | Yes | — | Project name |
+        | `data-token` | Yes | — | Project token (`aat_*`) |
+        | `data-link-domains` | No | Disabled | Comma-separated domains for cross-subdomain identity linking (see below) |
+        | `data-do-not-track` | No | `"false"` | Set to `"true"` to honor the browser's Do Not Track signal. Tracking is silently skipped when DNT is enabled. |
+        | `data-track-outgoing` | No | `"false"` | Set to `"true"` to auto-track clicks on outgoing (external) links. Fires an `outgoing_link` event with `href`, `text`, and `hostname` properties. |
 
         ## Cross-Subdomain Tracking
 
