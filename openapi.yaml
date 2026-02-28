@@ -9,25 +9,63 @@ info:
 
     ## Getting Started
 
-    1. **Sign up** at [app.agentanalytics.sh](https://app.agentanalytics.sh) and get your API key
-    2. **Give the API key to your AI agent** — it can do everything from here: create projects, add tracking, and query stats
-    3. **Your agent creates a project:**
-       ```bash
-       curl -X POST "https://api.agentanalytics.sh/projects" \
-         -H "X-API-Key: aak_..." \
-         -H "Content-Type: application/json" \
-         -d '{"name": "my-site"}'
-       ```
-    4. **Your agent adds the tracking snippet** (returned in the response above):
-       ```html
-       <script defer src="https://api.agentanalytics.sh/tracker.js"
-               data-project="my-site" data-token="aat_..."></script>
-       ```
-    5. **Your agent queries stats:**
-       ```bash
-       curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
-         -H "X-API-Key: aak_..."
-       ```
+    ### 1. Get your API key
+
+    Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and generate an API key from the dashboard.
+
+    ### 2. Connect your AI agent
+
+    **Claude Code (plugin — recommended):**
+    ```bash
+    /plugin marketplace add Agent-Analytics/agent-analytics-plugin
+    /plugin install agent-analytics
+    ```
+
+    **Claude Desktop / claude.ai (MCP):**
+    Settings → Connectors → Add → Custom → enter `https://mcp.agentanalytics.sh/mcp`
+
+    **Any agent (skill):**
+    ```bash
+    npx skills add Agent-Analytics/agent-analytics-mcp
+    ```
+
+    **Cursor (MCP):**
+    Add to your `mcp.json`:
+    ```json
+    { "mcpServers": { "agent-analytics": { "url": "https://mcp.agentanalytics.sh/mcp" } } }
+    ```
+
+    **Direct API:**
+    ```bash
+    curl -X POST "https://api.agentanalytics.sh/projects" \
+      -H "X-API-Key: aak_..." \
+      -H "Content-Type: application/json" \
+      -d '{"name": "my-site"}'
+    ```
+
+    ### 3. Add tracking to your site
+
+    Your agent creates a project and returns a tracking snippet — add it before `</body>`:
+
+    ```html
+    <script defer src="https://api.agentanalytics.sh/tracker.js"
+            data-project="my-site" data-token="aat_..."></script>
+    ```
+
+    Page views are tracked automatically. Add custom events with `data-aa-event` attributes (no JavaScript needed) or `window.aa.track()` for dynamic events. See the [`GET /tracker.js`](#tag/Tracking/GET/tracker.js) endpoint for full documentation.
+
+    ### 4. Query your data
+
+    Ask your AI agent "How's my site doing?" — it queries analytics, experiments, and traffic. Or call the API directly:
+
+    ```bash
+    curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
+      -H "X-API-Key: aak_..."
+    ```
+
+    ### 5. Run experiments
+
+    A/B test headlines, CTAs, and layouts — all managed by your agent. See the [Experiments](#tag/Experiments) section for details.
 
     ## Authentication
 
@@ -242,8 +280,8 @@ tags:
       Real-time event streaming. Available on all tiers.
 
       Two endpoints: `/stream` for continuous SSE event delivery, and `/live` for a point-in-time snapshot of active visitors and recent events. Both read from an in-memory ring buffer — no D1 query.
-  - name: Utility
-    description: Health check and tracker script.
+  - name: Tracking
+    description: JavaScript tracker script and client-side configuration.
 
 components:
   securitySchemes:
@@ -2898,30 +2936,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /health:
-    get:
-      operationId: healthCheck
-      summary: Health check
-      description: 'Returns `{ "status": "ok" }` if the API is running.'
-      tags: [Utility]
-      security: []
-      responses:
-        '200':
-          description: Healthy
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: ok
-                  service:
-                    type: string
-                    example: agent-analytics
-        '404':
-          description: Not found
-
   /tracker.js:
     get:
       operationId: getTracker
@@ -3022,7 +3036,7 @@ paths:
         - Internal team members who don't want to pollute analytics
         - QA and testing environments
         - Implementing a user-facing opt-out toggle
-      tags: [Utility]
+      tags: [Tracking]
       security: []
       responses:
         '200':
