@@ -15,35 +15,9 @@ info:
 
     ### 2. Connect your AI agent
 
-    **[OpenClaw](https://openclaw.ai) (via ClawHub):**
-    Install the Agent Analytics skill from Clawhub and give your agent the API key.
+    See the [MCP Server](#section/MCP-Server) section below for Claude, Cursor, Codex, and other MCP clients.
 
-    ```bash
-    Please install Agent Analytics from ClawHub: npx clawhub@latest install agent-analytics
-    ```
-
-    **Claude Code (plugin — recommended):**
-    ```bash
-    /plugin marketplace add Agent-Analytics/agent-analytics-plugin
-    /plugin install agent-analytics
-    ```
-
-    **Claude Desktop / claude.ai (MCP):**
-    Settings → Connectors → Add → Custom → enter `https://mcp.agentanalytics.sh/mcp`
-
-    **Agent Skill ([skills.sh](https://skills.sh) — Codex, Cursor, etc.):**
-    ```bash
-    npx skills add Agent-Analytics/agent-analytics-mcp
-    ```
-    Works with any agent that supports the [Agent Skills](https://skills.sh) spec.
-
-    **Cursor, Windsurf (MCP):**
-    Add to your `mcp.json`:
-    ```json
-    { "mcpServers": { "agent-analytics": { "url": "https://mcp.agentanalytics.sh/mcp" } } }
-    ```
-
-    **Direct API:**
+    For direct API access:
     ```bash
     curl -X POST "https://api.agentanalytics.sh/projects" \
       -H "X-API-Key: aak_..." \
@@ -2965,6 +2939,7 @@ paths:
         | `data-token` | Yes | Project token (`aat_*`) |
         | `data-link-domains` | No | Enable cross-subdomain identity linking (see below) |
         | `data-do-not-track` | No | Set to `"true"` to honor the browser's Do Not Track signal. Tracking is silently skipped when DNT is enabled. |
+        | `data-track-outgoing` | No | Set to `"true"` to auto-track clicks on outgoing (external) links. Fires an `outgoing_link` event with `href`, `text`, and `hostname` properties. |
 
         ## Cross-Subdomain Tracking
 
@@ -3044,6 +3019,29 @@ paths:
         - Internal team members who don't want to pollute analytics
         - QA and testing environments
         - Implementing a user-facing opt-out toggle
+
+        ## Outgoing Link Tracking
+
+        Track clicks on external links automatically. Add `data-track-outgoing="true"` to the script tag:
+
+        ```html
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."
+                data-track-outgoing="true"></script>
+        ```
+
+        When a visitor clicks a link pointing to a different domain, the tracker fires an `outgoing_link` event with these properties:
+
+        | Property | Description | Example |
+        |----------|-------------|---------|
+        | `href` | Full URL of the link | `https://github.com/some-repo` |
+        | `text` | Link text (truncated to 200 chars) | `View on GitHub` |
+        | `hostname` | Destination hostname | `github.com` |
+
+        **Notes:**
+        - Only `http://` and `https://` links are tracked — `mailto:`, `tel:`, and `javascript:` links are ignored
+        - Without the attribute, no click listener is registered and there is zero overhead
+        - Use the `breakdown` endpoint with `property=hostname` and `event=outgoing_link` to see top exit domains
       tags: [Tracking]
       security: []
       responses:
