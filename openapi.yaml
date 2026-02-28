@@ -58,7 +58,7 @@ info:
             data-project="my-site" data-token="aat_..."></script>
     ```
 
-    Page views are tracked automatically. Add custom events with `data-aa-event` attributes (no JavaScript needed) or `window.aa.track()` for dynamic events. See the [`GET /tracker.js`](#tag/Tracking/GET/tracker.js) endpoint for full documentation.
+    Page views are tracked automatically. Add custom events with `data-aa-event` attributes (no JavaScript needed) or `window.aa.track()` for dynamic events. See the [`GET /tracker.js`](#tag/tracking/GET/tracker.js) endpoint for full documentation.
 
     ### 4. Query your data
 
