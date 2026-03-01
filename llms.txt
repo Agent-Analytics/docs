@@ -19,7 +19,7 @@ Add to Claude Code:
 claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
 ```
 
-Tools: `list_projects`, `create_project`, `analytics_overview`, `analytics_insights`, `analytics_breakdown`, `analytics_pages`, `analytics_sessions`, `analytics_heatmap`, `properties`, `properties_received`, `sessions`, `list_experiments`, `create_experiment`, `get_experiment`, `update_experiment`, `delete_experiment`
+Tools: `list_projects`, `create_project`, `analytics_overview`, `analytics_insights`, `analytics_breakdown`, `analytics_pages`, `analytics_sessions`, `analytics_heatmap`, `analytics_funnel`, `analytics_retention`, `properties`, `properties_received`, `sessions`, `list_experiments`, `create_experiment`, `get_experiment`, `update_experiment`, `delete_experiment`, `live_now`, `query`
 
 ## Agent Skill
 
@@ -42,32 +42,67 @@ npx skills add Agent-Analytics/agent-analytics-mcp
 
 ## Endpoints
 
-### Ingestion (project token)
+### Ingestion
 - `POST /track` — Track a single event
-- `POST /track/batch` — Track up to 100 events
+- `POST /track/batch` — Track multiple events
+- `POST /identify` — Link anonymous user to authenticated identity
 
-### Analytics (API key)
-- `GET /stats` — Aggregated overview (time series, top events, sessions)
+### Analytics
+- `GET /stats` — Aggregated stats overview
 - `GET /events` — Raw event log
-- `POST /query` — Flexible analytics query (metrics, group_by, filters)
+- `POST /query` — Flexible analytics query
 - `GET /properties` — Discover event names and property keys
-- `GET /breakdown` — Top property values (pages, referrers, UTM sources)
-- `GET /insights` — Period-over-period comparison with trend
-- `GET /pages` — Entry/exit page stats with bounce rate
+- `GET /properties/received` — Property keys by event name
+- `GET /sessions` — List sessions
+- `GET /breakdown` — Top property values
+- `GET /insights` — Period-over-period comparison
+- `GET /pages` — Entry/exit page stats
 - `GET /sessions/distribution` — Session duration histogram
 - `GET /heatmap` — Day-of-week x hour traffic grid
+- `GET /retention` — Cohort retention analysis
 
-### Projects (API key)
+### Projects
 - `GET /projects` — List all projects
-- `POST /projects` — Create a project
+- `POST /projects` — Create a new project
 - `GET /projects/{id}` — Get project details
 - `PATCH /projects/{id}` — Update a project
 - `DELETE /projects/{id}` — Delete a project
 
-### Account (API key)
+### Account
 - `GET /account` — Get account info
 - `POST /account/revoke-key` — Revoke and regenerate API key
 
-### Utility
-- `GET /health` — Health check
+### Experiments
+- `GET /experiments/config` — Get experiment config for tracker.js
+- `POST /experiments` — Create an A/B experiment
+- `GET /experiments` — List experiments
+- `GET /experiments/{id}` — Get experiment with live results
+- `PATCH /experiments/{id}` — Update experiment status
+- `DELETE /experiments/{id}` — Delete an experiment
+
+### Funnels
+- `POST /funnel` — Funnel analysis
+
+### Streaming
+- `GET /stream` — Live event stream (SSE)
+- `GET /live` — Live snapshot (real-time)
+
+### Tracking
 - `GET /tracker.js` — JavaScript tracker script
+- `GET /tracker/cross-subdomain` — Cross-subdomain tracking
+- `GET /tracker/declarative-events` — Declarative event tracking
+- `GET /tracker/do-not-track` — Do Not Track & disable
+- `GET /tracker/outgoing-links` — Outgoing link tracking
+- `GET /tracker/time-on-page` — Time-on-page tracking
+- `GET /tracker/error-tracking` — JS error tracking
+- `GET /tracker/global-properties` — Global properties (aa.set)
+- `GET /tracker/performance` — Performance timing
+- `GET /tracker/consent` — Consent management (GDPR/CCPA)
+- `GET /tracker/impressions` — Content impression tracking
+
+## Rate Limits
+
+| Tier | Requests/min | Event Limit | Data Retention |
+|------|-------------|-------------|----------------|
+| Free | 10 | 1,000 lifetime | 7 days |
+| Pro  | 1,000 | Unlimited | 365 days |
