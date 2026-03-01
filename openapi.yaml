@@ -2942,6 +2942,7 @@ paths:
         | `data-track-outgoing` | No | `"false"` | Auto-track external link clicks as `outgoing_link` events |
         | `data-heartbeat` | No | Disabled | Seconds for time-on-page tracking (e.g. `"15"`). Min 15s. |
         | `data-track-errors` | No | `"false"` | Auto-track JS errors as `$error` events |
+        | `data-track-performance` | No | `"false"` | Collect Navigation Timing metrics on page_view (`perf_dns`, `perf_tcp`, `perf_ttfb`, `perf_dom_interactive`, `perf_dom_complete`, `perf_load`) |
         | `data-require-consent` | No | `"false"` | Enable consent management — events buffer until `aa.grantConsent()` |
 
         ## JavaScript API (`window.aa`)
@@ -3197,6 +3198,45 @@ paths:
         **Query global properties** like any other property:
         - `GET /breakdown?property=plan&event=page_view` — page views by plan
         - `POST /query` with `group_by: ["properties.plan"]`
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/performance:
+    get:
+      operationId: trackerPerformance
+      summary: Performance timing
+      x-scalar-hidden: true
+      description: |
+        Add `data-track-performance="true"` to collect page load performance metrics:
+
+        ```html
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."
+                data-track-performance="true"></script>
+        ```
+
+        After `window.load`, the tracker reads the Navigation Timing API and merges these properties into the `page_view` event (no extra events stored):
+
+        | Property | What it measures | Example |
+        |----------|------------------|---------|
+        | `perf_dns` | DNS lookup time (ms) | `14` |
+        | `perf_tcp` | TCP handshake time (ms) | `27` |
+        | `perf_ttfb` | Time to first byte (ms) | `75` |
+        | `perf_dom_interactive` | DOM ready for interaction (ms) | `450` |
+        | `perf_dom_complete` | DOM fully loaded (ms) | `981` |
+        | `perf_load` | Full page load (ms) | `1002` |
+
+        **Behavior:**
+        - Fires once per page load — SPA navigations via pushState don't create new Navigation Timing entries
+        - Merges into the existing `page_view` event (same zero-bloat UPDATE pattern as time-on-page)
+        - All values are integers (milliseconds, rounded)
+        - Falls back gracefully if the Navigation Timing API is unavailable
+
+        **Querying performance data:**
+        - `GET /events?event=page_view` — look for `perf_*` keys in event properties
+        - `GET /breakdown?property=perf_ttfb&event=page_view` — TTFB distribution
       tags: [Tracking]
       security: []
       responses:
