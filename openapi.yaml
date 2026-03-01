@@ -309,7 +309,7 @@ components:
           example: page_view
         properties:
           type: ['object', 'null']
-          description: Arbitrary key-value properties (max 8KB JSON). The tracker auto-populates `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, `utm_*` params, `session_count`, `days_since_first_visit`, and `first_utm_*` (first-touch attribution).
+          description: Arbitrary key-value properties (max 8KB JSON). The tracker auto-populates `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, `timezone` (IANA), `utm_*` params, `session_count`, `days_since_first_visit`, and `first_utm_*` (first-touch attribution).
           example:
             path: /pricing
             referrer: https://google.com
@@ -2929,7 +2929,7 @@ paths:
                 data-project="my-site" data-token="aat_..."></script>
         ```
 
-        The tracker auto-collects: `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, UTM parameters, `session_count`, `days_since_first_visit`, and first-touch UTMs (`first_utm_source`, etc.). No cookies are used.
+        The tracker auto-collects: `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, `timezone` (IANA), UTM parameters, `session_count`, `days_since_first_visit`, and first-touch UTMs (`first_utm_source`, etc.). On Chromium browsers, Client Hints (`navigator.userAgentData`) enhance browser/OS/device detection accuracy. No cookies are used.
 
         ## Script Attributes
 
@@ -2943,6 +2943,8 @@ paths:
         | `data-heartbeat` | No | Disabled | Seconds for time-on-page tracking (e.g. `"15"`). Min 15s. |
         | `data-track-errors` | No | `"false"` | Auto-track JS errors as `$error` events |
         | `data-track-performance` | No | `"false"` | Collect Navigation Timing metrics on page_view (`perf_dns`, `perf_tcp`, `perf_ttfb`, `perf_dom_interactive`, `perf_dom_complete`, `perf_load`) |
+        | `data-track-clicks` | No | `"false"` | Auto-track `<a>` and `<button>` clicks as `$click` events with `{ tag, text, href, id, classes, is_external, type }` |
+        | `data-track-vitals` | No | `"false"` | Collect Core Web Vitals (LCP, CLS, INP) via PerformanceObserver. Merges into page_view — zero event bloat. |
         | `data-require-consent` | No | `"false"` | Enable consent management — events buffer until `aa.grantConsent()` |
 
         ## Element Attributes (no script-tag opt-in)
