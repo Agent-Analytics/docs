@@ -309,7 +309,7 @@ components:
           example: page_view
         properties:
           type: ['object', 'null']
-          description: Arbitrary key-value properties (max 8KB JSON). The tracker auto-populates `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, and `utm_*` params.
+          description: Arbitrary key-value properties (max 8KB JSON). The tracker auto-populates `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, `utm_*` params, `session_count`, `days_since_first_visit`, and `first_utm_*` (first-touch attribution).
           example:
             path: /pricing
             referrer: https://google.com
@@ -2929,7 +2929,7 @@ paths:
                 data-project="my-site" data-token="aat_..."></script>
         ```
 
-        The tracker auto-collects: page views, path, URL, hostname, title, referrer, screen size, browser, OS, device type, language, and UTM parameters. No cookies are used.
+        The tracker auto-collects: page views, path, URL, hostname, title, referrer, screen size, browser, OS, device type, language, UTM parameters, session_count, days_since_first_visit, and first-touch UTMs. No cookies are used.
 
         ## Script Attributes
 
@@ -3320,6 +3320,71 @@ paths:
         **Querying impression data:**
         - `GET /events?event=$impression` — raw impression events
         - `GET /breakdown?property=name&event=$impression` — which elements are seen most
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+
+  /tracker/visitor-intelligence:
+    get:
+      operationId: trackerVisitorIntelligence
+      summary: Visitor intelligence (session count & first visit)
+      description: |
+        Every event automatically includes two visitor-level properties — no configuration needed:
+
+        | Property | Type | Description |
+        |----------|------|-------------|
+        | `session_count` | integer | How many sessions this visitor has had (1 = first visit, 2 = second, etc.) |
+        | `days_since_first_visit` | integer | Days since this visitor's very first visit (0 on first day) |
+
+        **How it works:**
+        - Session count is stored in `localStorage('aa_sc')` and incremented each time a new session starts (30-min inactivity timeout)
+        - First visit timestamp is stored in `localStorage('aa_fv')` — set once, never overwritten
+        - Both properties are added to every event via `baseProps()`
+
+        **Querying visitor intelligence:**
+        - `GET /breakdown?property=session_count&event=page_view` — distribution of new vs returning visitors
+        - `POST /query` with `group_by: "session_count"` — segment any metric by visit frequency
+        - Filter for first-time visitors: `filters: [{ field: "session_count", op: "eq", value: 1 }]`
+        - Filter for returning visitors: `filters: [{ field: "session_count", op: "gt", value: 1 }]`
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+
+  /tracker/campaign-attribution:
+    get:
+      operationId: trackerCampaignAttribution
+      summary: Campaign attribution (UTM persistence & first-touch)
+      description: |
+        Two improvements to UTM tracking — no configuration needed:
+
+        ## UTM Session Persistence
+
+        **Problem:** User lands on `/?utm_source=google`, navigates to `/pricing` — the `/pricing` page_view loses all UTM data.
+
+        **Fix:** UTMs from the landing page URL are saved to `sessionStorage('aa_utm')` and automatically restored on every subsequent page view within the same session. Internal navigation no longer loses campaign data.
+
+        ## First-Touch Attribution
+
+        The first-ever UTM parameters are stored in `localStorage('aa_ft')` and never overwritten. These appear on every event as `first_utm_*` properties:
+
+        | Property | Description |
+        |----------|-------------|
+        | `first_utm_source` | Original acquisition source |
+        | `first_utm_medium` | Original acquisition medium |
+        | `first_utm_campaign` | Original acquisition campaign |
+        | `first_utm_content` | Original ad content |
+        | `first_utm_term` | Original search term |
+
+        First-touch properties only exist if the visitor originally arrived via a UTM-tagged link. Visitors who arrive organically will not have `first_utm_*` properties.
+
+        **Querying attribution data:**
+        - `GET /breakdown?property=first_utm_source&event=page_view` — which channels originally acquired your users
+        - Compare first-touch vs last-touch: `first_utm_source` (acquisition) vs `utm_source` (current session)
+        - `POST /query` with `group_by: "first_utm_source"` — segment conversions by original acquisition channel
       tags: [Tracking]
       security: []
       responses:
