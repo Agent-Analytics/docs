@@ -99,6 +99,8 @@ npx skills add Agent-Analytics/agent-analytics-mcp
 - `GET /tracker/performance` — Performance timing
 - `GET /tracker/consent` — Consent management (GDPR/CCPA)
 - `GET /tracker/impressions` — Content impression tracking
+- `GET /tracker/visitor-intelligence` — Visitor intelligence (session count & first visit)
+- `GET /tracker/campaign-attribution` — Campaign attribution (UTM persistence & first-touch)
 
 ## Rate Limits
 

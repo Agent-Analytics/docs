@@ -1,0 +1,6931 @@
+# Agent Analytics API
+
+- **OpenAPI Version:** `3.1.0`
+- **API Version:** `1.0.0`
+
+Web analytics platform with an HTTP API that AI agents can query.
+
+**[Homepage](https://agentanalytics.sh)** · **[Dashboard](https://app.agentanalytics.sh)** · **[Blog](https://blog.agentanalytics.sh)** · **[GitHub](https://github.com/Agent-Analytics)**
+
+## Getting Started
+
+### 1. Get your API key
+
+Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and generate an API key from the dashboard.
+
+### 2. Connect your AI agent
+
+See the [MCP Server](#section/MCP-Server) section below for Claude, Cursor, Codex, and other MCP clients.
+
+For direct API access:
+
+```bash
+curl -X POST "https://api.agentanalytics.sh/projects" \
+  -H "X-API-Key: aak_..." \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-site"}'
+```
+
+### 3. Add tracking to your site
+
+Your agent creates a project and returns a tracking snippet — add it before `</body>`:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."></script>
+```
+
+Page views are tracked automatically. Add custom events with `data-aa-event` attributes (no JavaScript needed) or `window.aa.track()` for dynamic events. See the [`GET /tracker.js`](#tag/tracking/GET/tracker.js) endpoint for full documentation.
+
+### 4. Query your data
+
+Ask your AI agent "How's my site doing?" — it queries analytics, experiments, and traffic. Or call the API directly:
+
+```bash
+curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
+  -H "X-API-Key: aak_..."
+```
+
+### 5. Run experiments
+
+A/B test headlines, CTAs, and layouts — all managed by your agent. See the [Experiments](#tag/Experiments) section for details.
+
+## Authentication
+
+### API Key (`aak_*`) — for reading data & project management
+
+Passed via the `X-API-Key` header or `?key=` query parameter. **Keep this secret.** Used for all read endpoints (`/stats`, `/events`, `/query`, etc.) and project management (`/projects`, `/account`).
+
+### Project Token (`aat_*`) — for event ingestion
+
+Passed in the request body as `token`. This is a **public** identifier embedded in your site's HTML — not a secret. Used only for `POST /track` and `POST /track/batch`.
+
+## MCP Server (Claude, Cursor, etc.)
+
+Connect Agent Analytics directly to Claude, Cursor, or any MCP-compatible AI client — no API key management needed.
+
+**URL:** `https://mcp.agentanalytics.sh/mcp`
+
+### Add to Claude Desktop / claude.ai
+
+Click **Settings → Connectors → Add → Custom** and enter `https://mcp.agentanalytics.sh/mcp`. You'll sign in with GitHub or Google (must match your Agent Analytics account).
+
+### Add to Claude Code
+
+**Plugin (recommended)** — installs MCP server + analytics skill in one step:
+
+```bash
+/plugin marketplace add Agent-Analytics/agent-analytics-plugin
+/plugin install agent-analytics
+```
+
+**Manual** — MCP server only:
+
+```bash
+claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
+```
+
+### Agent Skill (Claude Code, Codex, and more)
+
+Install the analytics skill into any agent that supports the [Agent Skills](https://skills.sh) spec:
+
+```bash
+npx skills add Agent-Analytics/agent-analytics-mcp
+```
+
+Works with Claude Code, OpenAI Codex, and other compatible agents. Teaches your agent how to set up tracking, query analytics, run A/B experiments, and interpret results — no MCP required.
+
+### Add to Cursor
+
+1. Open Command Palette (`Cmd+Shift+P` on Mac, `Ctrl+Shift+P` on Windows)
+2. Search for "MCP" and select **Cursor Settings > Tools & MCP**
+3. Click **Add Custom MCP**
+4. Add the following to your `mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "agent-analytics": {
+      "url": "https://mcp.agentanalytics.sh/mcp"
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+| Tool                  | Description                                          |
+| --------------------- | ---------------------------------------------------- |
+| `list_projects`       | List all your projects                               |
+| `create_project`      | Create a new project (returns tracker snippet)       |
+| `analytics_overview`  | Time series chart + KPIs (events, users) over N days |
+| `analytics_insights`  | Period-over-period comparison with trend             |
+| `analytics_breakdown` | Top property values (pages, referrers, UTM sources)  |
+| `analytics_pages`     | Entry/exit page stats with bounce rate               |
+| `analytics_sessions`  | Session duration histogram                           |
+| `analytics_heatmap`   | Day-of-week x hour traffic grid                      |
+| `analytics_funnel`    | Funnel analysis: where users drop off                |
+| `properties`          | Discover event names and property keys               |
+| `properties_received` | Property keys by event name (sampled)                |
+| `sessions`            | List individual session records                      |
+| `list_experiments`    | List A/B experiments                                 |
+| `create_experiment`   | Create an A/B experiment                             |
+| `get_experiment`      | Get experiment details with results                  |
+| `update_experiment`   | Update experiment status (pause/resume/complete)     |
+| `delete_experiment`   | Delete an experiment                                 |
+| `live_now`            | Real-time snapshot (active visitors, events/min)     |
+
+## CLI vs API
+
+You can use the [CLI](https://www.npmjs.com/package/@agent-analytics/cli) or call the API directly. Every CLI command maps to an API endpoint.
+
+| CLI Command                                                                                                      | API Endpoint                                           |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `npx @agent-analytics/cli stats my-site`                                                                         | `GET /stats?project=my-site`                           |
+| `npx @agent-analytics/cli events my-site`                                                                        | `GET /events?project=my-site`                          |
+| `npx @agent-analytics/cli query --project my-site --metrics event_count`                                         | `POST /query`                                          |
+| `npx @agent-analytics/cli experiments list my-site`                                                              | `GET /experiments?project=my-site`                     |
+| `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"`                                    | `POST /funnel`                                         |
+| `npx @agent-analytics/cli retention my-site --period week --cohorts 8`                                           | `GET /retention?project=my-site&period=week&cohorts=8` |
+| `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments`                                    |
+| `npx @agent-analytics/cli experiments get exp_abc123`                                                            | `GET /experiments/{id}`                                |
+| `npx @agent-analytics/cli projects`                                                                              | `GET /projects`                                        |
+
+## Rate Limits
+
+| Tier | Requests/min | Event Limit    | Data Retention |
+| ---- | ------------ | -------------- | -------------- |
+| Free | 10           | 1,000 lifetime | 7 days         |
+| Pro  | 1,000        | Unlimited      | 365 days       |
+
+Experiments (A/B testing) are **pro-only** features. Free tier accounts receive `PRO_REQUIRED`.
+
+### Streaming Limits
+
+| Limit                  | Value                     |
+| ---------------------- | ------------------------- |
+| Concurrent SSE streams | 10 per account            |
+| `/live` rate           | Standard API rate limit   |
+| Inactivity timeout     | 30 minutes                |
+| Ring buffer            | 5 minutes / 10,000 events |
+
+## Error Format
+
+All errors return JSON with `error` (machine-readable code) and `message` (human-readable):
+
+```json
+{ "error": "AUTH_REQUIRED", "message": "API key required" }
+```
+
+Common error codes: `AUTH_REQUIRED`, `FORBIDDEN`, `PROJECT_REQUIRED`, `MISSING_FIELDS`, `RATE_LIMITED`, `INVALID_TOKEN`, `BATCH_TOO_LARGE`, `INVALID_METRIC`, `INVALID_GROUP_BY`, `INVALID_FILTER_OP`, `INVALID_PROPERTY_KEY`, `NOT_FOUND`, `EXPERIMENT_NOT_FOUND`, `EXPERIMENT_NAME_EXISTS`, `INVALID_VARIANTS`, `INVALID_EXPERIMENT_STATUS`, `PRO_REQUIRED`, `STREAM_LIMIT`, `INVALID_FUNNEL_STEPS`.
+
+## Servers
+
+- **URL:** `https://api.agentanalytics.sh`
+  - **Description:** Production (hosted)
+
+## Operations
+
+### Track a single event
+
+- **Method:** `POST`
+- **Path:** `/track`
+- **Tags:** Ingestion
+
+Record an event. Called automatically by the `tracker.js` script running in your visitors' browsers — you don't need to call this directly.
+
+Add the tracker to your site and it handles everything:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."></script>
+```
+
+The response is `202 Accepted` — events are queued and written asynchronously.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`event` (required)**
+
+  `string` — Event name (max 256 chars)
+
+- **`token` (required)**
+
+  `string` — Project token (\`aat\_\*\`)
+
+- **`properties`**
+
+  `object | null` — Arbitrary key-value properties (max 8KB JSON). The tracker auto-populates \`path\`, \`url\`, \`hostname\`, \`title\`, \`referrer\`, \`screen\`, \`browser\`, \`browser\_version\`, \`os\`, \`device\`, \`language\`, \`timezone\` (IANA), \`utm\_\*\` params, \`session\_count\`, \`days\_since\_first\_visit\`, and \`first\_utm\_\*\` (first-touch attribution).
+
+- **`session_id`**
+
+  `string | null` — Session identifier (max 256 chars). The tracker auto-generates one via sessionStorage with 30-min inactivity timeout.
+
+- **`timestamp`**
+
+  `number | null` — Unix timestamp in milliseconds. Defaults to \`Date.now()\`. Must be within 30 days ago to 5 minutes in the future.
+
+- **`user_id`**
+
+  `string | null` — Anonymous user identifier (max 256 chars). The tracker auto-generates one via localStorage.
+
+**Example:**
+
+```json
+{
+  "token": "aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b",
+  "event": "page_view",
+  "properties": {
+    "path": "/pricing",
+    "referrer": "https://google.com",
+    "browser": "Chrome",
+    "os": "macOS"
+  },
+  "user_id": "usr_abc123",
+  "session_id": "ses_xyz789",
+  "timestamp": 1706745600000
+}
+```
+
+#### Responses
+
+##### Status: 202 Event queued
+
+###### Content-Type: application/json
+
+- **`ok`**
+
+  `boolean`
+
+- **`queued`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "queued": true
+}
+```
+
+##### Status: 400 Validation error (missing fields, invalid event name, properties too large)
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Invalid or missing token
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 429 Rate limited
+
+###### Content-Type: application/json
+
+**All of:**
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+* **`reason`**
+
+  `string`, possible values: `"rate_limit", "lifetime_event_limit", "monthly_spend_cap"`
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required",
+  "reason": "rate_limit"
+}
+```
+
+### Track multiple events
+
+- **Method:** `POST`
+- **Path:** `/track/batch`
+- **Tags:** Ingestion
+
+Record up to 100 events in a single request. All events must use the same project token.
+
+Like `/track`, this is called by the browser tracker — not by agents or CLI.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`events` (required)**
+
+  `array` — Array of events (max 100 per batch)
+
+  **Items:**
+
+  - **`event` (required)**
+
+    `string`
+
+  - **`token` (required)**
+
+    `string` — Project token (\`aat\_\*\`). All events must use the same token.
+
+  - **`properties`**
+
+    `object | null`
+
+  - **`session_id`**
+
+    `string | null`
+
+  - **`timestamp`**
+
+    `number | null`
+
+  - **`user_id`**
+
+    `string | null`
+
+**Example:**
+
+```json
+{
+  "events": [
+    {
+      "token": "aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b",
+      "event": "page_view",
+      "properties": null,
+      "user_id": null,
+      "session_id": null,
+      "timestamp": null
+    }
+  ]
+}
+```
+
+#### Responses
+
+##### Status: 202 Events queued
+
+###### Content-Type: application/json
+
+- **`count`**
+
+  `integer`
+
+- **`ok`**
+
+  `boolean`
+
+- **`queued`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "queued": true,
+  "count": 5
+}
+```
+
+##### Status: 400 Validation error (empty array, exceeds 100 events, invalid event)
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Invalid or missing token
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 429 Rate limited
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Link anonymous user to authenticated identity
+
+- **Method:** `POST`
+- **Path:** `/identify`
+- **Tags:** Ingestion
+
+Maps `previous_id` (typically an anonymous tracker ID like `anon_xxx`) to `user_id` (the authenticated identity). All historical events and sessions with `previous_id` are backfilled to use `user_id`.
+
+Called automatically by the tracker's `aa.identify("user_123")` method. Can also be called server-side after authentication to stitch identities.
+
+- **Idempotent**: sending the same mapping twice is a no-op
+- **Re-identify**: updating the mapping triggers a new backfill
+- **Project-scoped**: only affects events/sessions in the specified project
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`previous_id` (required)**
+
+  `string` — The anonymous or previous user ID to replace
+
+- **`token` (required)**
+
+  `string` — Project token (\`aat\_\*\`)
+
+- **`user_id` (required)**
+
+  `string` — The authenticated user ID to assign
+
+**Example:**
+
+```json
+{
+  "token": "aat_abc123",
+  "previous_id": "anon_k7x9m2abc",
+  "user_id": "user_12345"
+}
+```
+
+#### Responses
+
+##### Status: 202 Identity mapping queued for processing
+
+###### Content-Type: application/json
+
+- **`ok`**
+
+  `boolean`
+
+- **`queued`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "queued": true
+}
+```
+
+##### Status: 400 Validation error (missing fields, same IDs, exceeds length)
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Invalid or missing token
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 429 Rate limited
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Aggregated stats overview
+
+- **Method:** `GET`
+- **Path:** `/stats`
+- **Tags:** Analytics
+
+Returns an overview of a project's analytics: time series, top events, session metrics, and totals.
+
+**CLI:** `npx @agent-analytics/cli stats my-site --since 7d`
+
+#### Responses
+
+##### Status: 200 Stats overview
+
+###### Content-Type: application/json
+
+- **`events`**
+
+  `array` — Top event names by count (max 20)
+
+  **Items:**
+
+  - **`count`**
+
+    `integer`
+
+  - **`event`**
+
+    `string`
+
+  - **`unique_users`**
+
+    `integer`
+
+- **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`
+
+  - **`groupBy`**
+
+    `string`, possible values: `"hour", "day", "week", "month"`
+
+  - **`to`**
+
+    `string`
+
+- **`project`**
+
+  `string`
+
+- **`sessions`**
+
+  `object`
+
+  - **`avg_duration`**
+
+    `integer` — Average session duration in milliseconds
+
+  - **`bounce_rate`**
+
+    `number`
+
+  - **`pages_per_session`**
+
+    `number`
+
+  - **`sessions_per_user`**
+
+    `number`
+
+  - **`total_sessions`**
+
+    `integer`
+
+- **`timeSeries`**
+
+  `array`
+
+  **Items:**
+
+  - **`bucket`**
+
+    `string`
+
+  - **`total_events`**
+
+    `integer`
+
+  - **`unique_users`**
+
+    `integer`
+
+- **`totals`**
+
+  `object`
+
+  - **`total_events`**
+
+    `integer`
+
+  - **`unique_users`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "period": {
+    "from": "2025-01-01",
+    "to": "2025-01-07",
+    "groupBy": "day"
+  },
+  "totals": {
+    "unique_users": 142,
+    "total_events": 1247
+  },
+  "timeSeries": [
+    {
+      "bucket": "2025-01-01",
+      "unique_users": 1,
+      "total_events": 1
+    }
+  ],
+  "events": [
+    {
+      "event": "page_view",
+      "count": 1,
+      "unique_users": 1
+    }
+  ],
+  "sessions": {
+    "total_sessions": 1,
+    "bounce_rate": 0.45,
+    "avg_duration": 1,
+    "pages_per_session": 1,
+    "sessions_per_user": 1
+  }
+}
+```
+
+##### Status: 400 Missing project parameter
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Raw event log
+
+- **Method:** `GET`
+- **Path:** `/events`
+- **Tags:** Analytics
+
+Returns individual events, newest first. Filter by event name and/or session ID.
+
+**CLI:** `npx @agent-analytics/cli events my-site --event page_view --since 7d --limit 50`
+
+#### Responses
+
+##### Status: 200 Event list
+
+###### Content-Type: application/json
+
+- **`events`**
+
+  `array`
+
+  **Items:**
+
+  - **`country`**
+
+    `string | null` — ISO 3166-1 alpha-2 country code derived from the request IP at ingestion time
+
+  - **`date`**
+
+    `string`
+
+  - **`event`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`project_id`**
+
+    `string`
+
+  - **`properties`**
+
+    `object | null`
+
+  - **`session_id`**
+
+    `string | null`
+
+  - **`timestamp`**
+
+    `number`
+
+  - **`user_id`**
+
+    `string | null`
+
+- **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "events": [
+    {
+      "id": "",
+      "project_id": "",
+      "event": "",
+      "properties": null,
+      "user_id": null,
+      "session_id": null,
+      "timestamp": 1,
+      "date": "",
+      "country": "US"
+    }
+  ]
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Flexible analytics query
+
+- **Method:** `POST`
+- **Path:** `/query`
+- **Tags:** Analytics
+
+Run custom analytics queries with metrics, grouping, filtering, and ordering. This is the most powerful endpoint for building custom reports.
+
+**Metrics:** `event_count`, `unique_users`, `session_count`, `bounce_rate`, `avg_duration`
+
+**Group by:** `event`, `date`, `user_id`, `session_id`, `country`
+
+**Filter operators:** `eq`, `neq`, `gt`, `lt`, `gte`, `lte`, `contains`
+
+**Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`)
+
+**CLI:** `npx @agent-analytics/cli query --project my-site --metrics event_count --group-by event --filter '[{"field":"country","op":"eq","value":"US"}]'`
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`project` (required)**
+
+  `string` — Project name
+
+- **`date_from`**
+
+  `string` — Start date (ISO 8601 or \`Nd\` shorthand). Defaults to 7 days ago.
+
+- **`date_to`**
+
+  `string` — End date (ISO 8601). Defaults to today.
+
+- **`filters`**
+
+  `array`
+
+  **Items:**
+
+  - **`field`**
+
+    `string` — Field to filter on. Built-in: \`event\`, \`user\_id\`, \`date\`, \`country\`, \`session\_id\`, \`timestamp\`. Property fields: \`properties.path\`, \`properties.browser\`, etc.
+
+  - **`op`**
+
+    `string`, possible values: `"eq", "neq", "gt", "lt", "gte", "lte", "contains"`
+
+  - **`value`**
+
+    `object` — Value to compare against
+
+- **`group_by`**
+
+  `array`, default: `[]` — Fields to group results by
+
+  **Items:**
+
+  `string`, possible values: `"event", "date", "user_id", "session_id", "country"`
+
+- **`limit`**
+
+  `integer`, default: `100`
+
+- **`metrics`**
+
+  `array`, default: `["event_count"]` — Metrics to compute
+
+  **Items:**
+
+  `string`, possible values: `"event_count", "unique_users", "session_count", "bounce_rate", "avg_duration"`
+
+- **`order`**
+
+  `string`, possible values: `"asc", "desc"`, default: `"desc"`
+
+- **`order_by`**
+
+  `string`, possible values: `"event_count", "unique_users", "session_count", "date", "event"` — Field to sort by
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "metrics": [
+    "event_count"
+  ],
+  "group_by": [],
+  "filters": [
+    {
+      "field": "event",
+      "op": "eq",
+      "value": "page_view"
+    }
+  ],
+  "date_from": "2025-01-01",
+  "date_to": "2025-01-07",
+  "order_by": "event_count",
+  "order": "desc",
+  "limit": 100
+}
+```
+
+#### Responses
+
+##### Status: 200 Query results
+
+###### Content-Type: application/json
+
+- **`count`**
+
+  `integer`
+
+- **`group_by`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+- **`metrics`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+- **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`
+
+  - **`to`**
+
+    `string`
+
+- **`project`**
+
+  `string`
+
+- **`rows`**
+
+  `array`
+
+  **Items:**
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "period": {
+    "from": "",
+    "to": ""
+  },
+  "metrics": [
+    ""
+  ],
+  "group_by": [
+    ""
+  ],
+  "rows": [
+    {
+      "additionalProperty": "anything"
+    }
+  ],
+  "count": 1
+}
+```
+
+##### Status: 400 Invalid query (bad metric, group\_by, filter, or missing project)
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Discover event names and property keys
+
+- **Method:** `GET`
+- **Path:** `/properties`
+- **Tags:** Analytics
+
+Returns all event names with counts, and a list of known property keys from recent events. Useful for building dynamic filters and understanding what data is available.
+
+**CLI:** `npx @agent-analytics/cli properties my-site`
+
+#### Responses
+
+##### Status: 200 Event names and property keys
+
+###### Content-Type: application/json
+
+- **`events`**
+
+  `array`
+
+  **Items:**
+
+  - **`count`**
+
+    `integer`
+
+  - **`event`**
+
+    `string`
+
+  - **`first_seen`**
+
+    `string`
+
+  - **`last_seen`**
+
+    `string`
+
+  - **`unique_users`**
+
+    `integer`
+
+- **`project`**
+
+  `string`
+
+- **`property_keys`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "events": [
+    {
+      "event": "page_view",
+      "count": 1,
+      "unique_users": 1,
+      "first_seen": "",
+      "last_seen": ""
+    }
+  ],
+  "property_keys": [
+    "browser",
+    "device",
+    "hostname",
+    "language",
+    "os",
+    "path",
+    "referrer",
+    "screen",
+    "title",
+    "url"
+  ]
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Property keys by event name
+
+- **Method:** `GET`
+- **Path:** `/properties/received`
+- **Tags:** Analytics
+
+Returns which property keys appear on which event names, sampled from recent events. More detailed than `/properties` — shows the event-to-property mapping.
+
+#### Responses
+
+##### Status: 200 Property-to-event mapping
+
+###### Content-Type: application/json
+
+- **`project`**
+
+  `string`
+
+- **`properties`**
+
+  `array`
+
+  **Items:**
+
+  - **`event`**
+
+    `string`
+
+  - **`key`**
+
+    `string`
+
+- **`sample_size`**
+
+  `integer`
+
+- **`since`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "sample_size": 5000,
+  "since": "",
+  "properties": [
+    {
+      "key": "path",
+      "event": "page_view"
+    }
+  ]
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### List sessions
+
+- **Method:** `GET`
+- **Path:** `/sessions`
+- **Tags:** Analytics
+
+Returns individual session records with duration, entry/exit pages, event count, and bounce status. Filter by user ID and/or bounce status.
+
+#### Responses
+
+##### Status: 200 Session list
+
+###### Content-Type: application/json
+
+- **`project`**
+
+  `string`
+
+- **`sessions`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`
+
+  - **`duration`**
+
+    `integer` — Duration in milliseconds
+
+  - **`end_time`**
+
+    `number`
+
+  - **`entry_page`**
+
+    `string | null`
+
+  - **`event_count`**
+
+    `integer`
+
+  - **`exit_page`**
+
+    `string | null`
+
+  - **`is_bounce`**
+
+    `integer`, possible values: `0, 1`
+
+  - **`project_id`**
+
+    `string`
+
+  - **`session_id`**
+
+    `string`
+
+  - **`start_time`**
+
+    `number`
+
+  - **`user_id`**
+
+    `string | null`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "sessions": [
+    {
+      "session_id": "",
+      "user_id": null,
+      "project_id": "",
+      "start_time": 1,
+      "end_time": 1,
+      "duration": 1,
+      "entry_page": null,
+      "exit_page": null,
+      "event_count": 1,
+      "is_bounce": 0,
+      "date": ""
+    }
+  ]
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Top property values
+
+- **Method:** `GET`
+- **Path:** `/breakdown`
+- **Tags:** Analytics
+
+Breaks down events by a specific property, showing the top values by count. Useful for top pages, referrers, browsers, countries, UTM sources, etc.
+
+Use `property=country` to see visitor geography (ISO 3166-1 alpha-2 codes). Country is stored as a dedicated column for fast queries.
+
+**CLI:** `npx @agent-analytics/cli breakdown my-site --property path --event page_view`
+
+#### Responses
+
+##### Status: 200 Property breakdown
+
+###### Content-Type: application/json
+
+- **`event`**
+
+  `string | null`
+
+- **`project`**
+
+  `string`
+
+- **`property`**
+
+  `string`
+
+- **`total_events`**
+
+  `integer`
+
+- **`total_with_property`**
+
+  `integer`
+
+- **`values`**
+
+  `array`
+
+  **Items:**
+
+  - **`count`**
+
+    `integer`
+
+  - **`unique_users`**
+
+    `integer`
+
+  - **`value`**
+
+    `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "property": "path",
+  "event": null,
+  "values": [
+    {
+      "value": "/pricing",
+      "count": 342,
+      "unique_users": 201
+    }
+  ],
+  "total_events": 1,
+  "total_with_property": 1
+}
+```
+
+##### Status: 400 Missing property parameter or invalid property key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Period-over-period comparison
+
+- **Method:** `GET`
+- **Path:** `/insights`
+- **Tags:** Analytics
+
+Compares the current period against the previous period of the same length. Returns change metrics and an overall trend indicator (`growing`, `stable`, `declining`).
+
+**CLI:** `npx @agent-analytics/cli insights my-site --period 7d`
+
+#### Responses
+
+##### Status: 200 Insights with trend
+
+###### Content-Type: application/json
+
+- **`current_period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`
+
+  - **`to`**
+
+    `string`
+
+- **`metrics`**
+
+  `object`
+
+  - **`avg_duration`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+  - **`bounce_rate`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+  - **`total_events`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+  - **`total_sessions`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+  - **`unique_users`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+- **`previous_period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`
+
+  - **`to`**
+
+    `string`
+
+- **`project`**
+
+  `string`
+
+- **`trend`**
+
+  `string`, possible values: `"growing", "stable", "declining"`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "current_period": {
+    "from": "",
+    "to": ""
+  },
+  "previous_period": {
+    "from": "",
+    "to": ""
+  },
+  "metrics": {
+    "total_events": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    },
+    "unique_users": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    },
+    "total_sessions": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    },
+    "bounce_rate": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    },
+    "avg_duration": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    }
+  },
+  "trend": "growing"
+}
+```
+
+##### Status: 400 Invalid period
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Entry/exit page stats
+
+- **Method:** `GET`
+- **Path:** `/pages`
+- **Tags:** Analytics
+
+Returns top entry pages, exit pages, or both — with session count, bounce rate, and average duration per page.
+
+**CLI:** `npx @agent-analytics/cli pages my-site --type entry`
+
+#### Responses
+
+##### Status: 200 Page stats
+
+###### Content-Type: application/json
+
+- **`entry_pages`**
+
+  `array`
+
+  **Items:**
+
+  - **`avg_duration`**
+
+    `number` — Average session duration in milliseconds
+
+  - **`avg_events`**
+
+    `number`
+
+  - **`bounce_rate`**
+
+    `number`
+
+  - **`bounces`**
+
+    `integer`
+
+  - **`page`**
+
+    `string`
+
+  - **`sessions`**
+
+    `integer`
+
+- **`exit_pages`**
+
+  `array`
+
+  **Items:**
+
+  - **`avg_duration`**
+
+    `number` — Average session duration in milliseconds
+
+  - **`avg_events`**
+
+    `number`
+
+  - **`bounce_rate`**
+
+    `number`
+
+  - **`bounces`**
+
+    `integer`
+
+  - **`page`**
+
+    `string`
+
+  - **`sessions`**
+
+    `integer`
+
+- **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "entry_pages": [
+    {
+      "page": "/pricing",
+      "sessions": 1,
+      "bounces": 1,
+      "bounce_rate": 0.45,
+      "avg_duration": 1,
+      "avg_events": 1
+    }
+  ],
+  "exit_pages": [
+    {
+      "page": "/pricing",
+      "sessions": 1,
+      "bounces": 1,
+      "bounce_rate": 0.45,
+      "avg_duration": 1,
+      "avg_events": 1
+    }
+  ]
+}
+```
+
+##### Status: 400 Invalid page type
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Session duration histogram
+
+- **Method:** `GET`
+- **Path:** `/sessions/distribution`
+- **Tags:** Analytics
+
+Returns a histogram of session durations in predefined buckets, with the median bucket and engaged session percentage (sessions >= 30 seconds).
+
+**CLI:** `npx @agent-analytics/cli sessions distribution my-site`
+
+#### Responses
+
+##### Status: 200 Session duration distribution
+
+###### Content-Type: application/json
+
+- **`distribution`**
+
+  `array`
+
+  **Items:**
+
+  - **`avg_events`**
+
+    `number`
+
+  - **`bounces`**
+
+    `integer`
+
+  - **`bucket`**
+
+    `string`, possible values: `"0s", "1-10s", "10-30s", "30-60s", "1-3m", "3-10m", "10m+"`
+
+  - **`pct`**
+
+    `number` — Percentage of total sessions
+
+  - **`sessions`**
+
+    `integer`
+
+- **`engaged_pct`**
+
+  `number` — Percentage of sessions >= 30 seconds
+
+- **`median_bucket`**
+
+  `string | null`
+
+- **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "distribution": [
+    {
+      "bucket": "0s",
+      "sessions": 1,
+      "bounces": 1,
+      "avg_events": 1,
+      "pct": 1
+    }
+  ],
+  "median_bucket": null,
+  "engaged_pct": 1
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Day-of-week x hour traffic grid
+
+- **Method:** `GET`
+- **Path:** `/heatmap`
+- **Tags:** Analytics
+
+Returns a grid of events by day-of-week and hour-of-day (UTC), with peak detection. Useful for understanding when your users are most active.
+
+**CLI:** `npx @agent-analytics/cli heatmap my-site`
+
+#### Responses
+
+##### Status: 200 Heatmap grid
+
+###### Content-Type: application/json
+
+- **`busiest_day`**
+
+  `string | null`
+
+- **`busiest_hour`**
+
+  `integer | null`
+
+- **`heatmap`**
+
+  `array`
+
+  **Items:**
+
+  - **`day`**
+
+    `integer` — Day of week (0=Sunday, 6=Saturday)
+
+  - **`day_name`**
+
+    `string`
+
+  - **`events`**
+
+    `integer`
+
+  - **`hour`**
+
+    `integer` — Hour of day (0-23)
+
+  - **`users`**
+
+    `integer`
+
+- **`peak`**
+
+  `object | null`
+
+  - **`day`**
+
+    `integer`
+
+  - **`day_name`**
+
+    `string`
+
+  - **`events`**
+
+    `integer`
+
+  - **`hour`**
+
+    `integer`
+
+  - **`users`**
+
+    `integer`
+
+- **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "heatmap": [
+    {
+      "day": 1,
+      "day_name": "Monday",
+      "hour": 1,
+      "events": 1,
+      "users": 1
+    }
+  ],
+  "peak": {
+    "day": 1,
+    "day_name": "",
+    "hour": 1,
+    "events": 1,
+    "users": 1
+  },
+  "busiest_day": "Monday",
+  "busiest_hour": 14
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Funnel analysis
+
+- **Method:** `POST`
+- **Path:** `/funnel`
+- **Tags:** Funnels
+
+Ad-hoc funnel analysis: track where users drop off across a sequence of 2-8 events.
+
+Each step can have optional property filters (e.g. only count `page_view` events where `path=/pricing`). The conversion window limits how long users have from entering step 1 to completing the final step.
+
+Step 1 is capped at 10,000 users to prevent unbounded scans.
+
+**CLI:** `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase" --window 168 --breakdown country`
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`project` (required)**
+
+  `string` — Project name
+
+- **`steps` (required)**
+
+  `array` — Funnel steps (2-8). Each step has an event name and optional property filters.
+
+  **Items:**
+
+  - **`event` (required)**
+
+    `string` — Event name for this step
+
+  - **`filters`**
+
+    `array` — Optional property filters for this step
+
+    **Items:**
+
+    - **`op` (required)**
+
+      `string`, possible values: `"eq", "neq", "contains"` — Filter operator
+
+    - **`property` (required)**
+
+      `string` — Property key (alphanumeric + underscores, max 128 chars)
+
+    - **`value` (required)**
+
+      `string` — Filter value
+
+- **`breakdown`**
+
+  `string` — Optional property key to segment funnel by (e.g. 'variant', 'country'). Extracted from step 1 events only.
+
+- **`breakdown_limit`**
+
+  `number`, default: `10` — Max breakdown groups, ordered by step 1 users descending (1-50, default 10)
+
+- **`conversion_window_hours`**
+
+  `number`, default: `168` — Max hours from step 1 entry to final step (1-8760, default 168 = 7 days)
+
+- **`count_by`**
+
+  `string`, possible values: `"user_id", "session_id"`, default: `"user_id"` — Count by unique users or sessions
+
+- **`since`**
+
+  `string`, default: `"30d"` — Lookback period (ISO date or shorthand like '30d'). Default: 30d
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "steps": [
+    {
+      "event": "page_view",
+      "filters": [
+        {
+          "property": "path",
+          "op": "eq",
+          "value": "/pricing"
+        }
+      ]
+    }
+  ],
+  "conversion_window_hours": 168,
+  "since": "30d",
+  "count_by": "user_id",
+  "breakdown": "country",
+  "breakdown_limit": 10
+}
+```
+
+#### Responses
+
+##### Status: 200 Funnel analysis results
+
+###### Content-Type: application/json
+
+- **`breakdowns`**
+
+  `array` — Per-group funnel results (only present when \`breakdown\` param is set). Ordered by step 1 users descending.
+
+  **Items:**
+
+  - **`overall_conversion_rate`**
+
+    `number` — End-to-end conversion for this group
+
+  - **`steps`**
+
+    `array` — Same shape as top-level steps array
+
+    **Items:**
+
+    - **`avg_time_to_next_ms`**
+
+      `number | null`
+
+    - **`conversion_rate`**
+
+      `number`
+
+    - **`drop_off_rate`**
+
+      `number`
+
+    - **`event`**
+
+      `string`
+
+    - **`step`**
+
+      `integer`
+
+    - **`users`**
+
+      `integer`
+
+  - **`value`**
+
+    `string | null` — Breakdown property value (null for events missing the property)
+
+- **`overall_conversion_rate`**
+
+  `number` — Fraction of step 1 users that completed the final step
+
+- **`steps`**
+
+  `array`
+
+  **Items:**
+
+  - **`avg_time_to_next_ms`**
+
+    `number | null` — Average time in ms from this step to the next step (null for last step)
+
+  - **`conversion_rate`**
+
+    `number` — Fraction of users from previous step that reached this step (step 1 is always 1.0)
+
+  - **`drop_off_rate`**
+
+    `number` — Fraction of users lost from previous step (step 1 is always 0)
+
+  - **`event`**
+
+    `string`
+
+  - **`step`**
+
+    `integer`
+
+  - **`users`**
+
+    `integer` — Number of users (or sessions) that reached this step
+
+**Example:**
+
+```json
+{
+  "steps": [
+    {
+      "step": 1,
+      "event": "page_view",
+      "users": 500,
+      "conversion_rate": 0.6,
+      "drop_off_rate": 0.4,
+      "avg_time_to_next_ms": 3600000
+    }
+  ],
+  "overall_conversion_rate": 0.12,
+  "breakdowns": [
+    {
+      "value": "US",
+      "steps": [
+        {
+          "step": 1,
+          "event": "",
+          "users": 1,
+          "conversion_rate": 1,
+          "drop_off_rate": 1,
+          "avg_time_to_next_ms": null
+        }
+      ],
+      "overall_conversion_rate": 0.15
+    }
+  ]
+}
+```
+
+##### Status: 400 Validation error (invalid steps, filters, window, or count\_by)
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Cohort retention analysis
+
+- **Method:** `GET`
+- **Path:** `/retention`
+- **Tags:** Analytics
+
+Track what percentage of users return over time using cohort analysis. "Of users who first appeared in week X, what % came back in subsequent weeks?"
+
+By default uses session-based retention — a user is "retained" if they have any return visit (session) in a subsequent period. When `event` is specified, switches to event-based retention and only counts that specific event for first-seen and return.
+
+Capped at 10,000 users per query. Older cohorts appear first (top-down).
+
+**CLI:** `npx @agent-analytics/cli retention my-site --period week --cohorts 8`
+
+#### Responses
+
+##### Status: 200 Cohort retention data
+
+###### Content-Type: application/json
+
+- **`average_rates`**
+
+  `array` — Weighted average retention rate per period offset (weighted by cohort size)
+
+  **Items:**
+
+  `number`
+
+- **`cohorts`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`, format: `date` — Start date of this cohort period
+
+  - **`rates`**
+
+    `array` — Retention rate per period (retained\[i] / users, rounded to 3 decimals)
+
+    **Items:**
+
+    `number`
+
+  - **`retained`**
+
+    `array` — Users active in each subsequent period (index 0 = full cohort)
+
+    **Items:**
+
+    `integer`
+
+  - **`users`**
+
+    `integer` — Number of users who first appeared in this period
+
+- **`period`**
+
+  `string`, possible values: `"day", "week", "month"`
+
+- **`users_analyzed`**
+
+  `integer` — Total users across all cohorts (capped at 10K per query)
+
+**Example:**
+
+```json
+{
+  "period": "week",
+  "cohorts": [
+    {
+      "date": "2026-01-27",
+      "users": 142,
+      "retained": [
+        142,
+        64,
+        55,
+        46
+      ],
+      "rates": [
+        1,
+        0.451,
+        0.387,
+        0.324
+      ]
+    }
+  ],
+  "average_rates": [
+    1,
+    0.441,
+    0.373,
+    0.324
+  ],
+  "users_analyzed": 560
+}
+```
+
+##### Status: 400 Invalid period or cohorts value
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Live event stream (SSE)
+
+- **Method:** `GET`
+- **Path:** `/stream`
+- **Tags:** Streaming
+
+Server-Sent Events stream of real-time events as they arrive.
+
+Events are delivered as `event: track` SSE messages. Optionally filter by event name and/or property values.
+
+The stream sends a `:heartbeat` comment every 30 seconds as a keepalive. Auto-disconnects after 30 minutes of no matching events.
+
+**curl example:**
+
+```bash
+curl -N "https://api.agentanalytics.sh/stream?project=my-site&events=page_view,signup" \
+  -H "X-API-Key: aak_..."
+```
+
+#### Responses
+
+##### Status: 200 SSE event stream
+
+###### Content-Type: text/event-stream
+
+`string` — SSE stream with events: - \`event: connected\` — sent once on connection with active filters - \`event: track\` — each matching event with \`id\` for reconnection - \`:heartbeat\` — keepalive comment every 30s
+
+**Example:**
+
+```json
+true
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 429 Too many concurrent streams (max 10 per account)
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Live snapshot (real-time)
+
+- **Method:** `GET`
+- **Path:** `/live`
+- **Tags:** Streaming
+
+Returns a point-in-time snapshot of active visitors, sessions, events per minute, top pages, top events, and recent events.
+
+Reads from an in-memory ring buffer — no D1 query. Data is available only while events are being streamed (the ring buffer evicts events older than 5 minutes).
+
+**curl example:**
+
+```bash
+curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
+  -H "X-API-Key: aak_..."
+```
+
+#### Responses
+
+##### Status: 200 Live snapshot
+
+###### Content-Type: application/json
+
+- **`active_sessions`**
+
+  `integer` — Unique session\_ids in the time window
+
+- **`active_visitors`**
+
+  `integer` — Unique user\_ids in the time window
+
+- **`events_per_minute`**
+
+  `integer`
+
+- **`project`**
+
+  `string`
+
+- **`recent_events`**
+
+  `array` — Last 10 events, newest first
+
+  **Items:**
+
+  - **`event`**
+
+    `string`
+
+  - **`properties`**
+
+    `object | null`
+
+  - **`timestamp`**
+
+    `number`
+
+  - **`user_id`**
+
+    `string | null`
+
+- **`timestamp`**
+
+  `number`
+
+- **`top_events`**
+
+  `array`
+
+  **Items:**
+
+  - **`count`**
+
+    `integer`
+
+  - **`event`**
+
+    `string`
+
+- **`top_pages`**
+
+  `array`
+
+  **Items:**
+
+  - **`path`**
+
+    `string`
+
+  - **`visitors`**
+
+    `integer`
+
+- **`window_seconds`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "window_seconds": 60,
+  "timestamp": 1708000060000,
+  "active_visitors": 12,
+  "active_sessions": 8,
+  "events_per_minute": 47,
+  "top_pages": [
+    {
+      "path": "/",
+      "visitors": 5
+    }
+  ],
+  "top_events": [
+    {
+      "event": "page_view",
+      "count": 32
+    }
+  ],
+  "recent_events": [
+    {
+      "event": "",
+      "properties": null,
+      "user_id": null,
+      "timestamp": 1
+    }
+  ]
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### List all projects
+
+- **Method:** `GET`
+- **Path:** `/projects`
+- **Tags:** Projects
+
+Returns all projects under your account with event/read counts and tier info.
+
+**CLI:** `npx @agent-analytics/cli projects`
+
+#### Responses
+
+##### Status: 200 Project list
+
+###### Content-Type: application/json
+
+- **`has_api_key`**
+
+  `boolean`
+
+- **`project_limit`**
+
+  `integer`
+
+- **`projects`**
+
+  `array`
+
+  **Items:**
+
+  - **`allowed_origins`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`name`**
+
+    `string`
+
+  - **`project_token`**
+
+    `string`
+
+  - **`total_events`**
+
+    `integer`
+
+  - **`total_reads`**
+
+    `integer`
+
+- **`tier`**
+
+  `string`, possible values: `"free", "pro"`
+
+**Example:**
+
+```json
+{
+  "projects": [
+    {
+      "id": "",
+      "name": "my-site",
+      "project_token": "aat_...",
+      "allowed_origins": "*",
+      "total_events": 1,
+      "total_reads": 1
+    }
+  ],
+  "has_api_key": true,
+  "project_limit": 1,
+  "tier": "free"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Create a new project
+
+- **Method:** `POST`
+- **Path:** `/projects`
+- **Tags:** Projects
+
+Creates a new project and provisions a D1 database if needed. Returns the project token and a ready-to-use tracking snippet.
+
+Project names must be alphanumeric with hyphens, underscores, or dots (max 64 chars). If a project with the same name already exists, returns the existing project (idempotent).
+
+**CLI:** `npx @agent-analytics/cli init my-new-site`
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`name` (required)**
+
+  `string` — Project name (alphanumeric, hyphens, underscores, dots; max 64 chars)
+
+- **`allowed_origins`**
+
+  `string`, default: `"*"` — Allowed origins for CORS. Use \`\*\` for any origin.
+
+**Example:**
+
+```json
+{
+  "name": "my-new-site",
+  "allowed_origins": "https://example.com"
+}
+```
+
+#### Responses
+
+##### Status: 200 Project already exists (returned existing project)
+
+###### Content-Type: application/json
+
+- **`existing`**
+
+  `boolean`
+
+- **`id`**
+
+  `string`
+
+- **`name`**
+
+  `string`
+
+- **`project_token`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "name": "",
+  "project_token": "",
+  "existing": true
+}
+```
+
+##### Status: 201 Project created
+
+###### Content-Type: application/json
+
+- **`allowed_origins`**
+
+  `string`
+
+- **`api_example`**
+
+  `string` — Example curl command for querying stats
+
+- **`id`**
+
+  `string`
+
+- **`name`**
+
+  `string`
+
+- **`project_token`**
+
+  `string`
+
+- **`snippet`**
+
+  `string` — Ready-to-use HTML tracking snippet
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "name": "",
+  "project_token": "aat_...",
+  "allowed_origins": "",
+  "snippet": "",
+  "api_example": ""
+}
+```
+
+##### Status: 400 Missing name or invalid project name
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 403 Project limit reached for your tier
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 409 Duplicate origin
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Get project details
+
+- **Method:** `GET`
+- **Path:** `/projects/{id}`
+- **Tags:** Projects
+
+Returns a single project with its configuration and today's usage stats.
+
+#### Responses
+
+##### Status: 200 Project details
+
+###### Content-Type: application/json
+
+- **`allowed_origins`**
+
+  `string`
+
+- **`id`**
+
+  `string`
+
+- **`name`**
+
+  `string`
+
+- **`project_token`**
+
+  `string`
+
+- **`usage_today`**
+
+  `object`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "name": "",
+  "project_token": "",
+  "allowed_origins": "",
+  "usage_today": {}
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 403 Not your project
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Update a project
+
+- **Method:** `PATCH`
+- **Path:** `/projects/{id}`
+- **Tags:** Projects
+
+Update a project's name and/or allowed origins.
+
+**Note:** Project name cannot be changed after events have been recorded.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`allowed_origins`**
+
+  `string` — New allowed origins
+
+- **`name`**
+
+  `string` — New project name
+
+**Example:**
+
+```json
+{
+  "name": "",
+  "allowed_origins": ""
+}
+```
+
+#### Responses
+
+##### Status: 200 Updated project
+
+###### Content-Type: application/json
+
+- **`allowed_origins`**
+
+  `string`
+
+- **`id`**
+
+  `string`
+
+- **`name`**
+
+  `string`
+
+- **`project_token`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "name": "",
+  "project_token": "",
+  "allowed_origins": ""
+}
+```
+
+##### Status: 400 Invalid name or no fields to update
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 409 Name locked (events recorded) or duplicate name/origin
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Delete a project
+
+- **Method:** `DELETE`
+- **Path:** `/projects/{id}`
+- **Tags:** Projects
+
+Soft-deletes a project. Revokes the project token (no new events can be written). Event data is preserved in the database but no longer accessible via API.
+
+#### Responses
+
+##### Status: 200 Project deleted
+
+###### Content-Type: application/json
+
+- **`deleted`**
+
+  `string` — Project ID
+
+- **`ok`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "deleted": ""
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 403 Not your project
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Get account info
+
+- **Method:** `GET`
+- **Path:** `/account`
+- **Tags:** Account
+
+Returns your account details, tier, limits, and project count.
+
+**CLI:** `npx @agent-analytics/cli whoami`
+
+#### Responses
+
+##### Status: 200 Account info
+
+###### Content-Type: application/json
+
+- **`created_at`**
+
+  `string`
+
+- **`email`**
+
+  `string`
+
+- **`github_login`**
+
+  `string | null`
+
+- **`id`**
+
+  `string`
+
+- **`monthly_spend_cap_dollars`**
+
+  `number | null`
+
+- **`projects_count`**
+
+  `integer`
+
+- **`projects_limit`**
+
+  `integer`
+
+- **`tier`**
+
+  `string`, possible values: `"free", "pro"`
+
+- **`tier_limits`**
+
+  `object`
+
+  - **`max_events_lifetime`**
+
+    `integer`
+
+  - **`max_projects`**
+
+    `integer`
+
+  - **`rate_limit_rpm`**
+
+    `integer`
+
+  - **`retention_days`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "email": "",
+  "github_login": null,
+  "tier": "free",
+  "created_at": "",
+  "projects_count": 1,
+  "projects_limit": 1,
+  "tier_limits": {
+    "max_projects": 1,
+    "max_events_lifetime": 1,
+    "retention_days": 1,
+    "rate_limit_rpm": 1
+  },
+  "monthly_spend_cap_dollars": null
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Revoke and regenerate API key
+
+- **Method:** `POST`
+- **Path:** `/account/revoke-key`
+- **Tags:** Account
+
+Revokes the current API key and generates a new one. The old key stops working immediately. The new key is returned in the response — this is the only time it's shown.
+
+#### Responses
+
+##### Status: 200 New API key
+
+###### Content-Type: application/json
+
+- **`api_key`**
+
+  `string` — The new API key. Save this — it won't be shown again.
+
+- **`ok`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "api_key": "aak_..."
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Get experiment config for tracker.js
+
+- **Method:** `GET`
+- **Path:** `/experiments/config`
+- **Tags:** Experiments
+
+Returns active experiments for a project, used by `tracker.js` to assign variants client-side. This is a **public** endpoint — authenticated by project token (same as `/track`), not API key.
+
+You don't call this directly — the tracker fetches it automatically on page load.
+
+#### Responses
+
+##### Status: 200 Active experiments for this project
+
+###### Content-Type: application/json
+
+- **`experiments`**
+
+  `array`
+
+  **Items:**
+
+  - **`key`**
+
+    `string`
+
+  - **`variants`**
+
+    `array`
+
+    **Items:**
+
+    - **`key`**
+
+      `string`
+
+    - **`weight`**
+
+      `integer`
+
+**Example:**
+
+```json
+{
+  "experiments": [
+    {
+      "key": "signup_cta",
+      "variants": [
+        {
+          "key": "",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}
+```
+
+##### Status: 400 Missing token
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Create an A/B experiment
+
+- **Method:** `POST`
+- **Path:** `/experiments`
+- **Tags:** Experiments
+
+Creates a new experiment for the specified project. **Pro tier only.**
+
+Variants are assigned client-side by `tracker.js` using a deterministic hash — same user always gets the same variant. Exposure events (`$experiment_exposure`) are tracked automatically.
+
+**CLI:** `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup`
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`goal_event` (required)**
+
+  `string` — Event name to measure conversion (max 256 chars)
+
+- **`name` (required)**
+
+  `string` — Experiment name (alphanumeric, hyphens, underscores; max 64 chars)
+
+- **`project` (required)**
+
+  `string` — Project name
+
+- **`variants` (required)**
+
+  `array` — 2-4 variant keys
+
+  **Items:**
+
+  `string`
+
+- **`weights`**
+
+  `array` — Optional traffic weights per variant (must sum to 100). Defaults to equal split.
+
+  **Items:**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "name": "signup_cta",
+  "variants": [
+    "control",
+    "new_cta"
+  ],
+  "goal_event": "signup",
+  "weights": [
+    50,
+    50
+  ]
+}
+```
+
+#### Responses
+
+##### Status: 201 Experiment created
+
+###### Content-Type: application/json
+
+- **`account_id`**
+
+  `string`
+
+- **`completed_at`**
+
+  `string | null`
+
+- **`created_at`**
+
+  `string`
+
+- **`goal_event`**
+
+  `string`
+
+- **`id`**
+
+  `string`
+
+- **`name`**
+
+  `string`
+
+- **`project_id`**
+
+  `string`
+
+- **`status`**
+
+  `string`, possible values: `"active", "paused", "completed"`
+
+- **`updated_at`**
+
+  `string`
+
+- **`variants`**
+
+  `array`
+
+  **Items:**
+
+  - **`key`**
+
+    `string`
+
+  - **`weight`**
+
+    `integer`
+
+- **`winner`**
+
+  `string | null` — Variant key, set when status is completed
+
+**Example:**
+
+```json
+{
+  "id": "exp_a1b2c3d4e5f6g7h8",
+  "project_id": "",
+  "account_id": "",
+  "name": "signup_cta",
+  "variants": [
+    {
+      "key": "control",
+      "weight": 50
+    }
+  ],
+  "goal_event": "signup",
+  "status": "active",
+  "winner": null,
+  "created_at": "",
+  "updated_at": "",
+  "completed_at": null
+}
+```
+
+##### Status: 400 Validation error (missing fields, invalid variants, duplicate name)
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 403 Pro tier required
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 409 Experiment name already exists in this project
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### List experiments
+
+- **Method:** `GET`
+- **Path:** `/experiments`
+- **Tags:** Experiments
+
+Returns all experiments for a project (active, paused, and completed).
+
+**CLI:** `npx @agent-analytics/cli experiments list my-site`
+
+#### Responses
+
+##### Status: 200 Experiment list
+
+###### Content-Type: application/json
+
+- **`experiments`**
+
+  `array`
+
+  **Items:**
+
+  - **`account_id`**
+
+    `string`
+
+  - **`completed_at`**
+
+    `string | null`
+
+  - **`created_at`**
+
+    `string`
+
+  - **`goal_event`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`name`**
+
+    `string`
+
+  - **`project_id`**
+
+    `string`
+
+  - **`status`**
+
+    `string`, possible values: `"active", "paused", "completed"`
+
+  - **`updated_at`**
+
+    `string`
+
+  - **`variants`**
+
+    `array`
+
+    **Items:**
+
+    - **`key`**
+
+      `string`
+
+    - **`weight`**
+
+      `integer`
+
+  - **`winner`**
+
+    `string | null` — Variant key, set when status is completed
+
+**Example:**
+
+```json
+{
+  "experiments": [
+    {
+      "id": "exp_a1b2c3d4e5f6g7h8",
+      "project_id": "",
+      "account_id": "",
+      "name": "signup_cta",
+      "variants": [
+        {
+          "key": "control",
+          "weight": 50
+        }
+      ],
+      "goal_event": "signup",
+      "status": "active",
+      "winner": null,
+      "created_at": "",
+      "updated_at": "",
+      "completed_at": null
+    }
+  ]
+}
+```
+
+##### Status: 400 Missing project parameter
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Get experiment with live results
+
+- **Method:** `GET`
+- **Path:** `/experiments/{id}`
+- **Tags:** Experiments
+
+Returns experiment config plus live Bayesian A/B test results.
+
+Results include `probability_best` (probability each variant is the winner), `lift` (relative improvement over baseline), `sufficient_data` (whether enough exposures exist), and a human-readable `recommendation`.
+
+The system needs \~100 exposures per variant before results are statistically significant.
+
+**CLI:** `npx @agent-analytics/cli experiments get exp_abc123`
+
+#### Responses
+
+##### Status: 200 Experiment with results
+
+###### Content-Type: application/json
+
+**All of:**
+
+- **`account_id`**
+
+  `string`
+
+- **`completed_at`**
+
+  `string | null`
+
+- **`created_at`**
+
+  `string`
+
+- **`goal_event`**
+
+  `string`
+
+- **`id`**
+
+  `string`
+
+- **`name`**
+
+  `string`
+
+- **`project_id`**
+
+  `string`
+
+- **`status`**
+
+  `string`, possible values: `"active", "paused", "completed"`
+
+- **`updated_at`**
+
+  `string`
+
+- **`variants`**
+
+  `array`
+
+  **Items:**
+
+  - **`key`**
+
+    `string`
+
+  - **`weight`**
+
+    `integer`
+
+- **`winner`**
+
+  `string | null` — Variant key, set when status is completed
+
+* **`results`**
+
+  `object`
+
+  - **`lift`**
+
+    `object`
+
+  - **`probability_best`**
+
+    `object`
+
+  - **`recommendation`**
+
+    `string`
+
+  - **`sufficient_data`**
+
+    `boolean`
+
+  - **`variants`**
+
+    `array`
+
+    **Items:**
+
+    - **`conversion_rate`**
+
+      `number`
+
+    - **`conversions`**
+
+      `integer`
+
+    - **`exposures`**
+
+      `integer`
+
+    - **`key`**
+
+      `string`
+
+    - **`unique_users`**
+
+      `integer`
+
+**Example:**
+
+```json
+{
+  "id": "exp_a1b2c3d4e5f6g7h8",
+  "project_id": "",
+  "account_id": "",
+  "name": "signup_cta",
+  "variants": [
+    {
+      "key": "control",
+      "weight": 50
+    }
+  ],
+  "goal_event": "signup",
+  "status": "active",
+  "winner": null,
+  "created_at": "",
+  "updated_at": "",
+  "completed_at": null,
+  "results": {
+    "variants": [
+      {
+        "key": "control",
+        "exposures": 520,
+        "unique_users": 480,
+        "conversions": 48,
+        "conversion_rate": 0.1
+      }
+    ],
+    "probability_best": {
+      "control": 0.06,
+      "new_cta": 0.94
+    },
+    "lift": {
+      "control": -0.32,
+      "new_cta": 0.47
+    },
+    "sufficient_data": true,
+    "recommendation": "'new_cta' is the winner with 94% probability (47% lift over baseline)"
+  }
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 403 Not your experiment
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Experiment not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Update experiment status
+
+- **Method:** `PATCH`
+- **Path:** `/experiments/{id}`
+- **Tags:** Experiments
+
+Update an experiment's status. Valid transitions:
+
+- `active` → `paused` or `completed`
+- `paused` → `active` or `completed`
+- `completed` is terminal (no further changes)
+
+When completing, optionally set `winner` to a variant key.
+
+**CLI:**
+
+- `npx @agent-analytics/cli experiments pause exp_abc123`
+- `npx @agent-analytics/cli experiments resume exp_abc123`
+- `npx @agent-analytics/cli experiments complete exp_abc123 --winner new_cta`
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`status` (required)**
+
+  `string`, possible values: `"active", "paused", "completed"` — New status
+
+- **`winner`**
+
+  `string` — Variant key to declare as winner (only when completing)
+
+**Example:**
+
+```json
+{
+  "status": "active",
+  "winner": ""
+}
+```
+
+#### Responses
+
+##### Status: 200 Updated experiment
+
+###### Content-Type: application/json
+
+- **`account_id`**
+
+  `string`
+
+- **`completed_at`**
+
+  `string | null`
+
+- **`created_at`**
+
+  `string`
+
+- **`goal_event`**
+
+  `string`
+
+- **`id`**
+
+  `string`
+
+- **`name`**
+
+  `string`
+
+- **`project_id`**
+
+  `string`
+
+- **`status`**
+
+  `string`, possible values: `"active", "paused", "completed"`
+
+- **`updated_at`**
+
+  `string`
+
+- **`variants`**
+
+  `array`
+
+  **Items:**
+
+  - **`key`**
+
+    `string`
+
+  - **`weight`**
+
+    `integer`
+
+- **`winner`**
+
+  `string | null` — Variant key, set when status is completed
+
+**Example:**
+
+```json
+{
+  "id": "exp_a1b2c3d4e5f6g7h8",
+  "project_id": "",
+  "account_id": "",
+  "name": "signup_cta",
+  "variants": [
+    {
+      "key": "control",
+      "weight": 50
+    }
+  ],
+  "goal_event": "signup",
+  "status": "active",
+  "winner": null,
+  "created_at": "",
+  "updated_at": "",
+  "completed_at": null
+}
+```
+
+##### Status: 400 Invalid status transition or missing status
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 403 Not your experiment
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Experiment not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Delete an experiment
+
+- **Method:** `DELETE`
+- **Path:** `/experiments/{id}`
+- **Tags:** Experiments
+
+Permanently deletes an experiment. Event data (exposures, conversions) is preserved in the events table — only the experiment config is removed.
+
+**CLI:** `npx @agent-analytics/cli experiments delete exp_abc123`
+
+#### Responses
+
+##### Status: 200 Experiment deleted
+
+###### Content-Type: application/json
+
+- **`deleted`**
+
+  `string` — Experiment ID
+
+- **`ok`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "deleted": ""
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 403 Not your experiment
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Experiment not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### JavaScript tracker script
+
+- **Method:** `GET`
+- **Path:** `/tracker.js`
+- **Tags:** Tracking
+
+Returns the lightweight (\~8KB) JavaScript tracker. Embed it in your HTML:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."></script>
+```
+
+The tracker auto-collects: `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, `timezone` (IANA), UTM parameters, `session_count`, `days_since_first_visit`, and first-touch UTMs (`first_utm_source`, etc.). On Chromium browsers, Client Hints (`navigator.userAgentData`) enhance browser/OS/device detection accuracy. No cookies are used.
+
+## Script Attributes
+
+| Attribute                | Required | Default   | Description                                                                                                                                     |
+| ------------------------ | -------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data-project`           | Yes      | —         | Project name                                                                                                                                    |
+| `data-token`             | Yes      | —         | Project token (`aat_*`)                                                                                                                         |
+| `data-link-domains`      | No       | Disabled  | Comma-separated domains for cross-subdomain identity linking                                                                                    |
+| `data-do-not-track`      | No       | `"false"` | Honor the browser's DNT signal                                                                                                                  |
+| `data-track-outgoing`    | No       | `"false"` | Auto-track external link clicks as `outgoing_link` events                                                                                       |
+| `data-heartbeat`         | No       | Disabled  | Seconds for time-on-page tracking (e.g. `"15"`). Min 15s.                                                                                       |
+| `data-track-errors`      | No       | `"false"` | Auto-track JS errors as `$error` events                                                                                                         |
+| `data-track-performance` | No       | `"false"` | Collect Navigation Timing metrics on page\_view (`perf_dns`, `perf_tcp`, `perf_ttfb`, `perf_dom_interactive`, `perf_dom_complete`, `perf_load`) |
+| `data-track-clicks`      | No       | `"false"` | Auto-track `<a>` and `<button>` clicks as `$click` events with `{ tag, text, href, id, classes, is_external, type }`                            |
+| `data-track-vitals`      | No       | `"false"` | Collect Core Web Vitals (LCP, CLS, INP) via PerformanceObserver. Merges into page\_view — zero event bloat.                                     |
+| `data-require-consent`   | No       | `"false"` | Enable consent management — events buffer until `aa.grantConsent()`                                                                             |
+
+## Element Attributes (no script-tag opt-in)
+
+| Attribute              | Description                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `data-aa-impression`   | Content impression tracking — fires `$impression` event when 50% visible. Value becomes `name` property.     |
+| `data-aa-impression-*` | Extra properties on impression events (e.g. `data-aa-impression-placement="hero"` adds `placement: "hero"`). |
+
+## JavaScript API (`window.aa`)
+
+| Method                          | Description                                                      |
+| ------------------------------- | ---------------------------------------------------------------- |
+| `aa.track(event, properties)`   | Send a custom event                                              |
+| `aa.page(name)`                 | Send a page view (called automatically on load + SPA navigation) |
+| `aa.identify(id)`               | Link anonymous user to known ID                                  |
+| `aa.experiment(name, variants)` | Deterministic A/B test variant assignment                        |
+| `aa.set(properties)`            | Set global properties on all subsequent events                   |
+| `aa.requireConsent()`           | Enter consent buffer mode                                        |
+| `aa.grantConsent()`             | Flush buffer, persist consent, resume tracking                   |
+| `aa.revokeConsent()`            | Discard buffer, remove consent, block sends                      |
+
+#### Responses
+
+##### Status: 200 JavaScript file
+
+###### Content-Type: application/javascript
+
+`string`
+
+**Example:**
+
+```json
+true
+```
+
+##### Status: 404 Not found
+
+### Cross-subdomain tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/cross-subdomain`
+- **Tags:** Tracking
+
+By default, each subdomain has its own anonymous user ID (stored in `localStorage`, which is per-origin). To track users across subdomains — e.g. for funnels spanning `example.com` → `docs.example.com` → `app.example.com` — add `data-link-domains`:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-link-domains="example.com"></script>
+```
+
+**How it works:** When a user clicks a link to a sibling subdomain, the tracker appends `?_aa=<user_id>` to the URL. The tracker on the destination page adopts that ID and strips the parameter from the URL. No cookies are involved.
+
+- Load the **same tracker snippet** (same project + token) on all subdomains you want to link
+- The `hostname` property is collected on every event, so you can still filter/breakdown by subdomain
+- Multiple root domains can be comma-separated: `data-link-domains="example.com, other.com"`
+- Without this attribute, no click listener is registered and there is zero overhead
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Declarative event tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/declarative-events`
+- **Tags:** Tracking
+
+Track clicks without writing JavaScript. Add `data-aa-event` to any HTML element and the tracker handles it automatically.
+
+```html
+<button data-aa-event="cta_click" data-aa-event-id="hero_signup">Get Started</button>
+```
+
+When clicked, this fires a `cta_click` event with `{ id: "hero_signup" }` as properties.
+
+Add custom properties with `data-aa-event-*` attributes:
+
+```html
+<a href="/pricing" data-aa-event="cta_click" data-aa-event-id="nav_pricing" data-aa-event-section="header">
+  Pricing
+</a>
+```
+
+This fires `cta_click` with `{ id: "nav_pricing", section: "header" }`.
+
+**When to use declarative vs programmatic tracking:**
+
+| Use declarative (`data-aa-event`)             | Use programmatic (`window.aa.track()`)                                               |
+| --------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Simple click tracking on buttons, links, CTAs | Events that aren't triggered by clicks (form submissions, scroll milestones, timers) |
+| Static HTML sites, CMS platforms              | When you need to compute property values dynamically                                 |
+| Non-technical team members adding tracking    | When the event depends on application state (e.g., cart total, user tier)            |
+| Quick setup — no JavaScript needed            | When you need conditional logic (only track if user is logged in)                    |
+
+Both approaches produce identical events in your analytics. You can mix them freely on the same page.
+
+**Notes:**
+
+- The tracker uses a single document-level `click` listener — no per-element binding
+- Events bubble up, so `data-aa-event` works on child elements too (the tracker walks up the DOM via `closest()`)
+- All `data-aa-event-*` property values are strings. For non-string data, use `window.aa.track()` instead
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Do Not Track & disable
+
+- **Method:** `GET`
+- **Path:** `/tracker/do-not-track`
+- **Tags:** Tracking
+
+## Do Not Track
+
+Add `data-do-not-track="true"` to honor the browser's [Do Not Track](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/DNT) signal:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-do-not-track="true"></script>
+```
+
+When enabled, the tracker silently exits if `navigator.doNotTrack === '1'`. This is **opt-in** — without the attribute, DNT is not checked.
+
+## Disable Tracking
+
+Users or developers can disable tracking entirely via localStorage:
+
+```js
+localStorage.setItem('aa_disabled', 'true');  // disable tracking
+localStorage.removeItem('aa_disabled');         // re-enable tracking
+```
+
+When `aa_disabled` is set to `'true'`, the tracker silently exits on page load. This is useful for:
+
+- Internal team members who don't want to pollute analytics
+- QA and testing environments
+- Implementing a user-facing opt-out toggle
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Outgoing link tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/outgoing-links`
+- **Tags:** Tracking
+
+Track clicks on external links automatically. Add `data-track-outgoing="true"` to the script tag:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-track-outgoing="true"></script>
+```
+
+When a visitor clicks a link pointing to a different domain, the tracker fires an `outgoing_link` event with these properties:
+
+| Property   | Description                        | Example                        |
+| ---------- | ---------------------------------- | ------------------------------ |
+| `href`     | Full URL of the link               | `https://github.com/some-repo` |
+| `text`     | Link text (truncated to 200 chars) | `View on GitHub`               |
+| `hostname` | Destination hostname               | `github.com`                   |
+
+**Notes:**
+
+- Only `http://` and `https://` links are tracked — `mailto:`, `tel:`, and `javascript:` links are ignored
+- Without the attribute, no click listener is registered and there is zero overhead
+- Use the `breakdown` endpoint with `property=hostname` and `event=outgoing_link` to see top exit domains
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Time-on-page tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/time-on-page`
+- **Tags:** Tracking
+
+Add `data-heartbeat="15"` to measure how long visitors actually engage with each page:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-heartbeat="15"></script>
+```
+
+The tracker silently counts seconds while the tab is visible. On page exit (tab hidden, tab closed, or SPA navigation), the `time_on_page` property is added to the original `page_view` event — zero extra events stored.
+
+- Timer pauses when the tab is hidden, resumes when visible
+- Minimum interval is 15 seconds (values below 15 are clamped)
+- Works with SPA navigation — each page gets its own `time_on_page`
+- Query via `page_view` events with `properties.time_on_page > 0`
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### JS error tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/error-tracking`
+- **Tags:** Tracking
+
+Add `data-track-errors="true"` to automatically capture JavaScript errors:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-track-errors="true"></script>
+```
+
+The tracker hooks `window.addEventListener('error')` and `window.addEventListener('unhandledrejection')` to send `$error` events with these properties:
+
+| Property  | Description                            | Example                                       |
+| --------- | -------------------------------------- | --------------------------------------------- |
+| `message` | Error message (truncated to 500 chars) | `TypeError: Cannot read property 'x' of null` |
+| `source`  | Script filename                        | `https://mysite.com/app.js`                   |
+| `line`    | Line number                            | `42`                                          |
+| `col`     | Column number                          | `10`                                          |
+
+**Safety features:**
+
+- Max 5 errors per page view — prevents runaway logging from error loops
+- Deduplicates by `message + source + line` — same error on the same line is only tracked once
+- Resets on SPA navigation (new page = fresh count)
+- Does not interfere with other error handlers (uses `addEventListener`, not `window.onerror` assignment)
+- No stack traces — keeps payloads small
+
+**Querying errors:**
+
+- `GET /breakdown?property=message&event=$error` — top error messages
+- `GET /breakdown?property=source&event=$error` — errors by source file
+- `GET /events?event=$error` — raw error event log
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Global properties (aa.set)
+
+- **Method:** `GET`
+- **Path:** `/tracker/global-properties`
+- **Tags:** Tracking
+
+Use `aa.set()` to attach properties to ALL subsequent events without repeating them in every `track()` call:
+
+```js
+// After login, tag all future events with the user's plan
+window.aa?.set({ plan: 'pro', team: 'acme' });
+
+// These events now include plan='pro' and team='acme' automatically
+window.aa?.track('feature_used', { feature: 'export' });
+```
+
+**Behavior:**
+
+- Merge order: auto-collected → UTM → global (`set`) → event-specific. Event-specific properties always win.
+- Multiple `set()` calls merge: `set({a:1}); set({b:2})` results in `{a:1, b:2}`
+- Remove a key: `aa.set({ plan: null })`
+- In-memory only — does not persist across page reloads
+
+**Common use cases:**
+
+- After login: `aa.set({ plan: user.plan, role: user.role })`
+- Feature flags: `aa.set({ feature_x: 'variant_b' })`
+- Any session-level context that applies to all events
+
+**Query global properties** like any other property:
+
+- `GET /breakdown?property=plan&event=page_view` — page views by plan
+- `POST /query` with `group_by: ["properties.plan"]`
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Performance timing
+
+- **Method:** `GET`
+- **Path:** `/tracker/performance`
+- **Tags:** Tracking
+
+Add `data-track-performance="true"` to collect page load performance metrics:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-track-performance="true"></script>
+```
+
+After `window.load`, the tracker reads the Navigation Timing API and merges these properties into the `page_view` event (no extra events stored):
+
+| Property               | What it measures               | Example |
+| ---------------------- | ------------------------------ | ------- |
+| `perf_dns`             | DNS lookup time (ms)           | `14`    |
+| `perf_tcp`             | TCP handshake time (ms)        | `27`    |
+| `perf_ttfb`            | Time to first byte (ms)        | `75`    |
+| `perf_dom_interactive` | DOM ready for interaction (ms) | `450`   |
+| `perf_dom_complete`    | DOM fully loaded (ms)          | `981`   |
+| `perf_load`            | Full page load (ms)            | `1002`  |
+
+**Behavior:**
+
+- Fires once per page load — SPA navigations via pushState don't create new Navigation Timing entries
+- Merges into the existing `page_view` event (same zero-bloat UPDATE pattern as time-on-page)
+- All values are integers (milliseconds, rounded)
+- Falls back gracefully if the Navigation Timing API is unavailable
+
+**Querying performance data:**
+
+- `GET /events?event=page_view` — look for `perf_*` keys in event properties
+- `GET /breakdown?property=perf_ttfb&event=page_view` — TTFB distribution
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Consent management (GDPR/CCPA)
+
+- **Method:** `GET`
+- **Path:** `/tracker/consent`
+- **Tags:** Tracking
+
+For sites that require user consent before tracking:
+
+```html
+<script defer data-project="mysite" data-token="aat_..."
+  data-require-consent="true"
+  src="https://api.agentanalytics.sh/tracker.js"></script>
+```
+
+```js
+// Events buffer until consent is granted
+aa.grantConsent();   // flush buffer + persist to localStorage
+aa.revokeConsent();  // discard buffer + block sends
+```
+
+**Methods:**
+
+- `aa.requireConsent()` — programmatic alternative to `data-require-consent="true"`
+- `aa.grantConsent()` — flush buffered events, save `aa_consent=granted` in localStorage, resume normal tracking
+- `aa.revokeConsent()` — clear buffer, remove localStorage consent, block future sends
+
+**Behavior:**
+
+- Events queue in-memory but never send until consent is granted
+- Pre-consent events are preserved (not discarded) — zero data loss
+- On next page load, prior consent auto-detected from localStorage
+- No cookies, no server-side state — fully client-side
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Content impression tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/impressions`
+- **Tags:** Tracking
+
+Track which elements users actually see using `IntersectionObserver`. Add `data-aa-impression` to any HTML element:
+
+```html
+<div data-aa-impression="hero_cta">Get Started Free</div>
+
+<!-- With extra properties -->
+<section data-aa-impression="pricing_card"
+         data-aa-impression-plan="pro"
+         data-aa-impression-position="above-fold">
+  Pro Plan - $29/mo
+</section>
+```
+
+When 50% of the element is visible in the viewport, the tracker fires a `$impression` event with these properties:
+
+| Property   | Source                            | Example                                 |
+| ---------- | --------------------------------- | --------------------------------------- |
+| `name`     | `data-aa-impression` value        | `"hero_cta"`                            |
+| *(extras)* | `data-aa-impression-*` attributes | `plan: "pro"`, `position: "above-fold"` |
+
+**Behavior:**
+
+- Each element fires once per page view — scrolling past the same element again does not re-fire
+- On SPA navigation, elements are re-scanned and can fire again on the new page
+- No script-tag opt-in needed — element-driven, same model as `data-aa-event`
+- Zero overhead if no elements have the attribute (`querySelectorAll` returns empty)
+- Browsers without `IntersectionObserver` (<3%) silently skip — no errors
+
+**Querying impression data:**
+
+- `GET /events?event=$impression` — raw impression events
+- `GET /breakdown?property=name&event=$impression` — which elements are seen most
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Visitor intelligence (session count & first visit)
+
+- **Method:** `GET`
+- **Path:** `/tracker/visitor-intelligence`
+- **Tags:** Tracking
+
+Every event automatically includes two visitor-level properties — no configuration needed:
+
+| Property                 | Type    | Description                                                                |
+| ------------------------ | ------- | -------------------------------------------------------------------------- |
+| `session_count`          | integer | How many sessions this visitor has had (1 = first visit, 2 = second, etc.) |
+| `days_since_first_visit` | integer | Days since this visitor's very first visit (0 on first day)                |
+
+**How it works:**
+
+- Session count is persisted in localStorage and incremented each time a new session starts (30-min inactivity timeout)
+- First visit timestamp is persisted in localStorage — set once, never overwritten
+- Both properties are included on every event automatically
+
+**Querying visitor intelligence:**
+
+- `GET /breakdown?property=session_count&event=page_view` — distribution of new vs returning visitors
+- Filter for first-time visitors: `filters: [{ field: "properties.session_count", op: "eq", value: 1 }]`
+- Filter for returning visitors: `filters: [{ field: "properties.session_count", op: "gt", value: 1 }]`
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Campaign attribution (UTM persistence & first-touch)
+
+- **Method:** `GET`
+- **Path:** `/tracker/campaign-attribution`
+- **Tags:** Tracking
+
+Two improvements to UTM tracking — no configuration needed:
+
+**UTM session persistence:**
+
+**Problem:** User lands on `/?utm_source=google`, navigates to `/pricing` — the `/pricing` page\_view loses all UTM data.
+
+**Fix:** UTMs from the landing page URL are saved to sessionStorage and automatically restored on every subsequent page view within the same session. Internal navigation no longer loses campaign data.
+
+**First-touch attribution:**
+
+The first-ever UTM parameters are stored in localStorage and never overwritten. These appear on every event as `first_utm_*` properties:
+
+| Property             | Description                   |
+| -------------------- | ----------------------------- |
+| `first_utm_source`   | Original acquisition source   |
+| `first_utm_medium`   | Original acquisition medium   |
+| `first_utm_campaign` | Original acquisition campaign |
+| `first_utm_content`  | Original ad content           |
+| `first_utm_term`     | Original search term          |
+
+First-touch properties only exist if the visitor originally arrived via a UTM-tagged link. Visitors who arrive organically will not have `first_utm_*` properties.
+
+**Querying attribution data:**
+
+- `GET /breakdown?property=first_utm_source&event=page_view` — which channels originally acquired your users
+- Compare first-touch vs last-touch: `first_utm_source` (acquisition) vs `utm_source` (current session)
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+## Schemas
+
+### Error
+
+- **Type:**`object`
+
+* **`error` (required)**
+
+  `string` — Machine-readable error code
+
+* **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### TrackRequest
+
+- **Type:**`object`
+
+* **`event` (required)**
+
+  `string` — Event name (max 256 chars)
+
+* **`token` (required)**
+
+  `string` — Project token (\`aat\_\*\`)
+
+* **`properties`**
+
+  `object | null` — Arbitrary key-value properties (max 8KB JSON). The tracker auto-populates \`path\`, \`url\`, \`hostname\`, \`title\`, \`referrer\`, \`screen\`, \`browser\`, \`browser\_version\`, \`os\`, \`device\`, \`language\`, \`timezone\` (IANA), \`utm\_\*\` params, \`session\_count\`, \`days\_since\_first\_visit\`, and \`first\_utm\_\*\` (first-touch attribution).
+
+* **`session_id`**
+
+  `string | null` — Session identifier (max 256 chars). The tracker auto-generates one via sessionStorage with 30-min inactivity timeout.
+
+* **`timestamp`**
+
+  `number | null` — Unix timestamp in milliseconds. Defaults to \`Date.now()\`. Must be within 30 days ago to 5 minutes in the future.
+
+* **`user_id`**
+
+  `string | null` — Anonymous user identifier (max 256 chars). The tracker auto-generates one via localStorage.
+
+**Example:**
+
+```json
+{
+  "token": "aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b",
+  "event": "page_view",
+  "properties": {
+    "path": "/pricing",
+    "referrer": "https://google.com",
+    "browser": "Chrome",
+    "os": "macOS"
+  },
+  "user_id": "usr_abc123",
+  "session_id": "ses_xyz789",
+  "timestamp": 1706745600000
+}
+```
+
+### TrackBatchRequest
+
+- **Type:**`object`
+
+* **`events` (required)**
+
+  `array` — Array of events (max 100 per batch)
+
+  **Items:**
+
+  - **`event` (required)**
+
+    `string`
+
+  - **`token` (required)**
+
+    `string` — Project token (\`aat\_\*\`). All events must use the same token.
+
+  - **`properties`**
+
+    `object | null`
+
+  - **`session_id`**
+
+    `string | null`
+
+  - **`timestamp`**
+
+    `number | null`
+
+  - **`user_id`**
+
+    `string | null`
+
+**Example:**
+
+```json
+{
+  "events": [
+    {
+      "token": "aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b",
+      "event": "page_view",
+      "properties": null,
+      "user_id": null,
+      "session_id": null,
+      "timestamp": null
+    }
+  ]
+}
+```
+
+### StatsResponse
+
+- **Type:**`object`
+
+* **`events`**
+
+  `array` — Top event names by count (max 20)
+
+  **Items:**
+
+  - **`count`**
+
+    `integer`
+
+  - **`event`**
+
+    `string`
+
+  - **`unique_users`**
+
+    `integer`
+
+* **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`
+
+  - **`groupBy`**
+
+    `string`, possible values: `"hour", "day", "week", "month"`
+
+  - **`to`**
+
+    `string`
+
+* **`project`**
+
+  `string`
+
+* **`sessions`**
+
+  `object`
+
+  - **`avg_duration`**
+
+    `integer` — Average session duration in milliseconds
+
+  - **`bounce_rate`**
+
+    `number`
+
+  - **`pages_per_session`**
+
+    `number`
+
+  - **`sessions_per_user`**
+
+    `number`
+
+  - **`total_sessions`**
+
+    `integer`
+
+* **`timeSeries`**
+
+  `array`
+
+  **Items:**
+
+  - **`bucket`**
+
+    `string`
+
+  - **`total_events`**
+
+    `integer`
+
+  - **`unique_users`**
+
+    `integer`
+
+* **`totals`**
+
+  `object`
+
+  - **`total_events`**
+
+    `integer`
+
+  - **`unique_users`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "period": {
+    "from": "2025-01-01",
+    "to": "2025-01-07",
+    "groupBy": "day"
+  },
+  "totals": {
+    "unique_users": 142,
+    "total_events": 1247
+  },
+  "timeSeries": [
+    {
+      "bucket": "2025-01-01",
+      "unique_users": 1,
+      "total_events": 1
+    }
+  ],
+  "events": [
+    {
+      "event": "page_view",
+      "count": 1,
+      "unique_users": 1
+    }
+  ],
+  "sessions": {
+    "total_sessions": 1,
+    "bounce_rate": 0.45,
+    "avg_duration": 1,
+    "pages_per_session": 1,
+    "sessions_per_user": 1
+  }
+}
+```
+
+### EventRow
+
+- **Type:**`object`
+
+* **`country`**
+
+  `string | null` — ISO 3166-1 alpha-2 country code derived from the request IP at ingestion time
+
+* **`date`**
+
+  `string`
+
+* **`event`**
+
+  `string`
+
+* **`id`**
+
+  `string`
+
+* **`project_id`**
+
+  `string`
+
+* **`properties`**
+
+  `object | null`
+
+* **`session_id`**
+
+  `string | null`
+
+* **`timestamp`**
+
+  `number`
+
+* **`user_id`**
+
+  `string | null`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "project_id": "",
+  "event": "",
+  "properties": null,
+  "user_id": null,
+  "session_id": null,
+  "timestamp": 1,
+  "date": "",
+  "country": "US"
+}
+```
+
+### QueryRequest
+
+- **Type:**`object`
+
+* **`project` (required)**
+
+  `string` — Project name
+
+* **`date_from`**
+
+  `string` — Start date (ISO 8601 or \`Nd\` shorthand). Defaults to 7 days ago.
+
+* **`date_to`**
+
+  `string` — End date (ISO 8601). Defaults to today.
+
+* **`filters`**
+
+  `array`
+
+  **Items:**
+
+  - **`field`**
+
+    `string` — Field to filter on. Built-in: \`event\`, \`user\_id\`, \`date\`, \`country\`, \`session\_id\`, \`timestamp\`. Property fields: \`properties.path\`, \`properties.browser\`, etc.
+
+  - **`op`**
+
+    `string`, possible values: `"eq", "neq", "gt", "lt", "gte", "lte", "contains"`
+
+  - **`value`**
+
+    `object` — Value to compare against
+
+* **`group_by`**
+
+  `array`, default: `[]` — Fields to group results by
+
+  **Items:**
+
+  `string`, possible values: `"event", "date", "user_id", "session_id", "country"`
+
+* **`limit`**
+
+  `integer`, default: `100`
+
+* **`metrics`**
+
+  `array`, default: `["event_count"]` — Metrics to compute
+
+  **Items:**
+
+  `string`, possible values: `"event_count", "unique_users", "session_count", "bounce_rate", "avg_duration"`
+
+* **`order`**
+
+  `string`, possible values: `"asc", "desc"`, default: `"desc"`
+
+* **`order_by`**
+
+  `string`, possible values: `"event_count", "unique_users", "session_count", "date", "event"` — Field to sort by
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "metrics": [
+    "event_count"
+  ],
+  "group_by": [],
+  "filters": [
+    {
+      "field": "event",
+      "op": "eq",
+      "value": "page_view"
+    }
+  ],
+  "date_from": "2025-01-01",
+  "date_to": "2025-01-07",
+  "order_by": "event_count",
+  "order": "desc",
+  "limit": 100
+}
+```
+
+### QueryResponse
+
+- **Type:**`object`
+
+* **`count`**
+
+  `integer`
+
+* **`group_by`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+* **`metrics`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+* **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`
+
+  - **`to`**
+
+    `string`
+
+* **`project`**
+
+  `string`
+
+* **`rows`**
+
+  `array`
+
+  **Items:**
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "period": {
+    "from": "",
+    "to": ""
+  },
+  "metrics": [
+    ""
+  ],
+  "group_by": [
+    ""
+  ],
+  "rows": [
+    {
+      "additionalProperty": "anything"
+    }
+  ],
+  "count": 1
+}
+```
+
+### SessionRow
+
+- **Type:**`object`
+
+* **`date`**
+
+  `string`
+
+* **`duration`**
+
+  `integer` — Duration in milliseconds
+
+* **`end_time`**
+
+  `number`
+
+* **`entry_page`**
+
+  `string | null`
+
+* **`event_count`**
+
+  `integer`
+
+* **`exit_page`**
+
+  `string | null`
+
+* **`is_bounce`**
+
+  `integer`, possible values: `0, 1`
+
+* **`project_id`**
+
+  `string`
+
+* **`session_id`**
+
+  `string`
+
+* **`start_time`**
+
+  `number`
+
+* **`user_id`**
+
+  `string | null`
+
+**Example:**
+
+```json
+{
+  "session_id": "",
+  "user_id": null,
+  "project_id": "",
+  "start_time": 1,
+  "end_time": 1,
+  "duration": 1,
+  "entry_page": null,
+  "exit_page": null,
+  "event_count": 1,
+  "is_bounce": 0,
+  "date": ""
+}
+```
+
+### BreakdownResponse
+
+- **Type:**`object`
+
+* **`event`**
+
+  `string | null`
+
+* **`project`**
+
+  `string`
+
+* **`property`**
+
+  `string`
+
+* **`total_events`**
+
+  `integer`
+
+* **`total_with_property`**
+
+  `integer`
+
+* **`values`**
+
+  `array`
+
+  **Items:**
+
+  - **`count`**
+
+    `integer`
+
+  - **`unique_users`**
+
+    `integer`
+
+  - **`value`**
+
+    `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "property": "path",
+  "event": null,
+  "values": [
+    {
+      "value": "/pricing",
+      "count": 342,
+      "unique_users": 201
+    }
+  ],
+  "total_events": 1,
+  "total_with_property": 1
+}
+```
+
+### InsightsResponse
+
+- **Type:**`object`
+
+* **`current_period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`
+
+  - **`to`**
+
+    `string`
+
+* **`metrics`**
+
+  `object`
+
+  - **`avg_duration`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+  - **`bounce_rate`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+  - **`total_events`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+  - **`total_sessions`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+  - **`unique_users`**
+
+    `object`
+
+    - **`change`**
+
+      `number`
+
+    - **`change_pct`**
+
+      `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+    - **`current`**
+
+      `number`
+
+    - **`previous`**
+
+      `number`
+
+* **`previous_period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`
+
+  - **`to`**
+
+    `string`
+
+* **`project`**
+
+  `string`
+
+* **`trend`**
+
+  `string`, possible values: `"growing", "stable", "declining"`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "current_period": {
+    "from": "",
+    "to": ""
+  },
+  "previous_period": {
+    "from": "",
+    "to": ""
+  },
+  "metrics": {
+    "total_events": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    },
+    "unique_users": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    },
+    "total_sessions": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    },
+    "bounce_rate": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    },
+    "avg_duration": {
+      "current": 1,
+      "previous": 1,
+      "change": 1,
+      "change_pct": null
+    }
+  },
+  "trend": "growing"
+}
+```
+
+### DeltaMetric
+
+- **Type:**`object`
+
+* **`change`**
+
+  `number`
+
+* **`change_pct`**
+
+  `integer | null` — Percentage change. Null when previous period was 0 but current is > 0.
+
+* **`current`**
+
+  `number`
+
+* **`previous`**
+
+  `number`
+
+**Example:**
+
+```json
+{
+  "current": 1,
+  "previous": 1,
+  "change": 1,
+  "change_pct": null
+}
+```
+
+### PagesResponse
+
+- **Type:**`object`
+
+* **`entry_pages`**
+
+  `array`
+
+  **Items:**
+
+  - **`avg_duration`**
+
+    `number` — Average session duration in milliseconds
+
+  - **`avg_events`**
+
+    `number`
+
+  - **`bounce_rate`**
+
+    `number`
+
+  - **`bounces`**
+
+    `integer`
+
+  - **`page`**
+
+    `string`
+
+  - **`sessions`**
+
+    `integer`
+
+* **`exit_pages`**
+
+  `array`
+
+  **Items:**
+
+  - **`avg_duration`**
+
+    `number` — Average session duration in milliseconds
+
+  - **`avg_events`**
+
+    `number`
+
+  - **`bounce_rate`**
+
+    `number`
+
+  - **`bounces`**
+
+    `integer`
+
+  - **`page`**
+
+    `string`
+
+  - **`sessions`**
+
+    `integer`
+
+* **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "entry_pages": [
+    {
+      "page": "/pricing",
+      "sessions": 1,
+      "bounces": 1,
+      "bounce_rate": 0.45,
+      "avg_duration": 1,
+      "avg_events": 1
+    }
+  ],
+  "exit_pages": [
+    {
+      "page": "/pricing",
+      "sessions": 1,
+      "bounces": 1,
+      "bounce_rate": 0.45,
+      "avg_duration": 1,
+      "avg_events": 1
+    }
+  ]
+}
+```
+
+### PageRow
+
+- **Type:**`object`
+
+* **`avg_duration`**
+
+  `number` — Average session duration in milliseconds
+
+* **`avg_events`**
+
+  `number`
+
+* **`bounce_rate`**
+
+  `number`
+
+* **`bounces`**
+
+  `integer`
+
+* **`page`**
+
+  `string`
+
+* **`sessions`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "page": "/pricing",
+  "sessions": 1,
+  "bounces": 1,
+  "bounce_rate": 0.45,
+  "avg_duration": 1,
+  "avg_events": 1
+}
+```
+
+### SessionDistributionResponse
+
+- **Type:**`object`
+
+* **`distribution`**
+
+  `array`
+
+  **Items:**
+
+  - **`avg_events`**
+
+    `number`
+
+  - **`bounces`**
+
+    `integer`
+
+  - **`bucket`**
+
+    `string`, possible values: `"0s", "1-10s", "10-30s", "30-60s", "1-3m", "3-10m", "10m+"`
+
+  - **`pct`**
+
+    `number` — Percentage of total sessions
+
+  - **`sessions`**
+
+    `integer`
+
+* **`engaged_pct`**
+
+  `number` — Percentage of sessions >= 30 seconds
+
+* **`median_bucket`**
+
+  `string | null`
+
+* **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "distribution": [
+    {
+      "bucket": "0s",
+      "sessions": 1,
+      "bounces": 1,
+      "avg_events": 1,
+      "pct": 1
+    }
+  ],
+  "median_bucket": null,
+  "engaged_pct": 1
+}
+```
+
+### HeatmapResponse
+
+- **Type:**`object`
+
+* **`busiest_day`**
+
+  `string | null`
+
+* **`busiest_hour`**
+
+  `integer | null`
+
+* **`heatmap`**
+
+  `array`
+
+  **Items:**
+
+  - **`day`**
+
+    `integer` — Day of week (0=Sunday, 6=Saturday)
+
+  - **`day_name`**
+
+    `string`
+
+  - **`events`**
+
+    `integer`
+
+  - **`hour`**
+
+    `integer` — Hour of day (0-23)
+
+  - **`users`**
+
+    `integer`
+
+* **`peak`**
+
+  `object | null`
+
+  - **`day`**
+
+    `integer`
+
+  - **`day_name`**
+
+    `string`
+
+  - **`events`**
+
+    `integer`
+
+  - **`hour`**
+
+    `integer`
+
+  - **`users`**
+
+    `integer`
+
+* **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "",
+  "heatmap": [
+    {
+      "day": 1,
+      "day_name": "Monday",
+      "hour": 1,
+      "events": 1,
+      "users": 1
+    }
+  ],
+  "peak": {
+    "day": 1,
+    "day_name": "",
+    "hour": 1,
+    "events": 1,
+    "users": 1
+  },
+  "busiest_day": "Monday",
+  "busiest_hour": 14
+}
+```
+
+### FunnelRequest
+
+- **Type:**`object`
+
+* **`project` (required)**
+
+  `string` — Project name
+
+* **`steps` (required)**
+
+  `array` — Funnel steps (2-8). Each step has an event name and optional property filters.
+
+  **Items:**
+
+  - **`event` (required)**
+
+    `string` — Event name for this step
+
+  - **`filters`**
+
+    `array` — Optional property filters for this step
+
+    **Items:**
+
+    - **`op` (required)**
+
+      `string`, possible values: `"eq", "neq", "contains"` — Filter operator
+
+    - **`property` (required)**
+
+      `string` — Property key (alphanumeric + underscores, max 128 chars)
+
+    - **`value` (required)**
+
+      `string` — Filter value
+
+* **`breakdown`**
+
+  `string` — Optional property key to segment funnel by (e.g. 'variant', 'country'). Extracted from step 1 events only.
+
+* **`breakdown_limit`**
+
+  `number`, default: `10` — Max breakdown groups, ordered by step 1 users descending (1-50, default 10)
+
+* **`conversion_window_hours`**
+
+  `number`, default: `168` — Max hours from step 1 entry to final step (1-8760, default 168 = 7 days)
+
+* **`count_by`**
+
+  `string`, possible values: `"user_id", "session_id"`, default: `"user_id"` — Count by unique users or sessions
+
+* **`since`**
+
+  `string`, default: `"30d"` — Lookback period (ISO date or shorthand like '30d'). Default: 30d
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "steps": [
+    {
+      "event": "page_view",
+      "filters": [
+        {
+          "property": "path",
+          "op": "eq",
+          "value": "/pricing"
+        }
+      ]
+    }
+  ],
+  "conversion_window_hours": 168,
+  "since": "30d",
+  "count_by": "user_id",
+  "breakdown": "country",
+  "breakdown_limit": 10
+}
+```
+
+### FunnelResponse
+
+- **Type:**`object`
+
+* **`breakdowns`**
+
+  `array` — Per-group funnel results (only present when \`breakdown\` param is set). Ordered by step 1 users descending.
+
+  **Items:**
+
+  - **`overall_conversion_rate`**
+
+    `number` — End-to-end conversion for this group
+
+  - **`steps`**
+
+    `array` — Same shape as top-level steps array
+
+    **Items:**
+
+    - **`avg_time_to_next_ms`**
+
+      `number | null`
+
+    - **`conversion_rate`**
+
+      `number`
+
+    - **`drop_off_rate`**
+
+      `number`
+
+    - **`event`**
+
+      `string`
+
+    - **`step`**
+
+      `integer`
+
+    - **`users`**
+
+      `integer`
+
+  - **`value`**
+
+    `string | null` — Breakdown property value (null for events missing the property)
+
+* **`overall_conversion_rate`**
+
+  `number` — Fraction of step 1 users that completed the final step
+
+* **`steps`**
+
+  `array`
+
+  **Items:**
+
+  - **`avg_time_to_next_ms`**
+
+    `number | null` — Average time in ms from this step to the next step (null for last step)
+
+  - **`conversion_rate`**
+
+    `number` — Fraction of users from previous step that reached this step (step 1 is always 1.0)
+
+  - **`drop_off_rate`**
+
+    `number` — Fraction of users lost from previous step (step 1 is always 0)
+
+  - **`event`**
+
+    `string`
+
+  - **`step`**
+
+    `integer`
+
+  - **`users`**
+
+    `integer` — Number of users (or sessions) that reached this step
+
+**Example:**
+
+```json
+{
+  "steps": [
+    {
+      "step": 1,
+      "event": "page_view",
+      "users": 500,
+      "conversion_rate": 0.6,
+      "drop_off_rate": 0.4,
+      "avg_time_to_next_ms": 3600000
+    }
+  ],
+  "overall_conversion_rate": 0.12,
+  "breakdowns": [
+    {
+      "value": "US",
+      "steps": [
+        {
+          "step": 1,
+          "event": "",
+          "users": 1,
+          "conversion_rate": 1,
+          "drop_off_rate": 1,
+          "avg_time_to_next_ms": null
+        }
+      ],
+      "overall_conversion_rate": 0.15
+    }
+  ]
+}
+```
+
+### RetentionResponse
+
+- **Type:**`object`
+
+* **`average_rates`**
+
+  `array` — Weighted average retention rate per period offset (weighted by cohort size)
+
+  **Items:**
+
+  `number`
+
+* **`cohorts`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`, format: `date` — Start date of this cohort period
+
+  - **`rates`**
+
+    `array` — Retention rate per period (retained\[i] / users, rounded to 3 decimals)
+
+    **Items:**
+
+    `number`
+
+  - **`retained`**
+
+    `array` — Users active in each subsequent period (index 0 = full cohort)
+
+    **Items:**
+
+    `integer`
+
+  - **`users`**
+
+    `integer` — Number of users who first appeared in this period
+
+* **`period`**
+
+  `string`, possible values: `"day", "week", "month"`
+
+* **`users_analyzed`**
+
+  `integer` — Total users across all cohorts (capped at 10K per query)
+
+**Example:**
+
+```json
+{
+  "period": "week",
+  "cohorts": [
+    {
+      "date": "2026-01-27",
+      "users": 142,
+      "retained": [
+        142,
+        64,
+        55,
+        46
+      ],
+      "rates": [
+        1,
+        0.451,
+        0.387,
+        0.324
+      ]
+    }
+  ],
+  "average_rates": [
+    1,
+    0.441,
+    0.373,
+    0.324
+  ],
+  "users_analyzed": 560
+}
+```
+
+### Project
+
+- **Type:**`object`
+
+* **`allowed_origins`**
+
+  `string`
+
+* **`id`**
+
+  `string`
+
+* **`name`**
+
+  `string`
+
+* **`project_token`**
+
+  `string`
+
+* **`total_events`**
+
+  `integer`
+
+* **`total_reads`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "name": "my-site",
+  "project_token": "aat_...",
+  "allowed_origins": "*",
+  "total_events": 1,
+  "total_reads": 1
+}
+```
+
+### LiveSnapshotResponse
+
+- **Type:**`object`
+
+* **`active_sessions`**
+
+  `integer` — Unique session\_ids in the time window
+
+* **`active_visitors`**
+
+  `integer` — Unique user\_ids in the time window
+
+* **`events_per_minute`**
+
+  `integer`
+
+* **`project`**
+
+  `string`
+
+* **`recent_events`**
+
+  `array` — Last 10 events, newest first
+
+  **Items:**
+
+  - **`event`**
+
+    `string`
+
+  - **`properties`**
+
+    `object | null`
+
+  - **`timestamp`**
+
+    `number`
+
+  - **`user_id`**
+
+    `string | null`
+
+* **`timestamp`**
+
+  `number`
+
+* **`top_events`**
+
+  `array`
+
+  **Items:**
+
+  - **`count`**
+
+    `integer`
+
+  - **`event`**
+
+    `string`
+
+* **`top_pages`**
+
+  `array`
+
+  **Items:**
+
+  - **`path`**
+
+    `string`
+
+  - **`visitors`**
+
+    `integer`
+
+* **`window_seconds`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "window_seconds": 60,
+  "timestamp": 1708000060000,
+  "active_visitors": 12,
+  "active_sessions": 8,
+  "events_per_minute": 47,
+  "top_pages": [
+    {
+      "path": "/",
+      "visitors": 5
+    }
+  ],
+  "top_events": [
+    {
+      "event": "page_view",
+      "count": 32
+    }
+  ],
+  "recent_events": [
+    {
+      "event": "",
+      "properties": null,
+      "user_id": null,
+      "timestamp": 1
+    }
+  ]
+}
+```
+
+### AccountResponse
+
+- **Type:**`object`
+
+* **`created_at`**
+
+  `string`
+
+* **`email`**
+
+  `string`
+
+* **`github_login`**
+
+  `string | null`
+
+* **`id`**
+
+  `string`
+
+* **`monthly_spend_cap_dollars`**
+
+  `number | null`
+
+* **`projects_count`**
+
+  `integer`
+
+* **`projects_limit`**
+
+  `integer`
+
+* **`tier`**
+
+  `string`, possible values: `"free", "pro"`
+
+* **`tier_limits`**
+
+  `object`
+
+  - **`max_events_lifetime`**
+
+    `integer`
+
+  - **`max_projects`**
+
+    `integer`
+
+  - **`rate_limit_rpm`**
+
+    `integer`
+
+  - **`retention_days`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "email": "",
+  "github_login": null,
+  "tier": "free",
+  "created_at": "",
+  "projects_count": 1,
+  "projects_limit": 1,
+  "tier_limits": {
+    "max_projects": 1,
+    "max_events_lifetime": 1,
+    "retention_days": 1,
+    "rate_limit_rpm": 1
+  },
+  "monthly_spend_cap_dollars": null
+}
+```
+
+### Experiment
+
+- **Type:**`object`
+
+* **`account_id`**
+
+  `string`
+
+* **`completed_at`**
+
+  `string | null`
+
+* **`created_at`**
+
+  `string`
+
+* **`goal_event`**
+
+  `string`
+
+* **`id`**
+
+  `string`
+
+* **`name`**
+
+  `string`
+
+* **`project_id`**
+
+  `string`
+
+* **`status`**
+
+  `string`, possible values: `"active", "paused", "completed"`
+
+* **`updated_at`**
+
+  `string`
+
+* **`variants`**
+
+  `array`
+
+  **Items:**
+
+  - **`key`**
+
+    `string`
+
+  - **`weight`**
+
+    `integer`
+
+* **`winner`**
+
+  `string | null` — Variant key, set when status is completed
+
+**Example:**
+
+```json
+{
+  "id": "exp_a1b2c3d4e5f6g7h8",
+  "project_id": "",
+  "account_id": "",
+  "name": "signup_cta",
+  "variants": [
+    {
+      "key": "control",
+      "weight": 50
+    }
+  ],
+  "goal_event": "signup",
+  "status": "active",
+  "winner": null,
+  "created_at": "",
+  "updated_at": "",
+  "completed_at": null
+}
+```
+
+### ExperimentResults
+
+- **Type:**`object`
+
+* **`lift`**
+
+  `object`
+
+* **`probability_best`**
+
+  `object`
+
+* **`recommendation`**
+
+  `string`
+
+* **`sufficient_data`**
+
+  `boolean`
+
+* **`variants`**
+
+  `array`
+
+  **Items:**
+
+  - **`conversion_rate`**
+
+    `number`
+
+  - **`conversions`**
+
+    `integer`
+
+  - **`exposures`**
+
+    `integer`
+
+  - **`key`**
+
+    `string`
+
+  - **`unique_users`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "variants": [
+    {
+      "key": "control",
+      "exposures": 520,
+      "unique_users": 480,
+      "conversions": 48,
+      "conversion_rate": 0.1
+    }
+  ],
+  "probability_best": {
+    "control": 0.06,
+    "new_cta": 0.94
+  },
+  "lift": {
+    "control": -0.32,
+    "new_cta": 0.47
+  },
+  "sufficient_data": true,
+  "recommendation": "'new_cta' is the winner with 94% probability (47% lift over baseline)"
+}
+```
