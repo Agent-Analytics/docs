@@ -2942,6 +2942,7 @@ paths:
         | `data-track-outgoing` | No | `"false"` | Set to `"true"` to auto-track clicks on outgoing (external) links. Fires an `outgoing_link` event with `href`, `text`, and `hostname` properties. |
         | `data-heartbeat` | No | Disabled | Seconds for time-on-page tracking (e.g. `"15"`). Min 15s. Adds `time_on_page` to page_view on exit. |
         | `data-track-errors` | No | `"false"` | Set to `"true"` to auto-track JS errors as `$error` events with `{ message, source, line, col }`. Max 5 per page view. |
+        | `data-require-consent` | No | `"false"` | Set to `"true"` to enable consent management — events buffer in-memory until `aa.grantConsent()` is called. |
 
         ## Cross-Subdomain Tracking
 
@@ -3119,6 +3120,33 @@ paths:
         **Query global properties** like any other property:
         - `GET /breakdown?property=plan&event=page_view` — page views by plan
         - `POST /query` with `group_by: ["properties.plan"]`
+
+        ## Consent Management (GDPR/CCPA)
+
+        For sites that require user consent before tracking:
+
+        ```html
+        <script defer data-project="mysite" data-token="aat_..."
+          data-require-consent="true"
+          src="https://api.agentanalytics.sh/tracker.js"></script>
+        ```
+
+        ```js
+        // Events buffer until consent is granted
+        aa.grantConsent();   // flush buffer + persist to localStorage
+        aa.revokeConsent();  // discard buffer + block sends
+        ```
+
+        **Methods:**
+        - `aa.requireConsent()` — programmatic alternative to `data-require-consent="true"`
+        - `aa.grantConsent()` — flush buffered events, save `aa_consent=granted` in localStorage, resume normal tracking
+        - `aa.revokeConsent()` — clear buffer, remove localStorage consent, block future sends
+
+        **Behavior:**
+        - Events queue in-memory but never send until consent is granted
+        - Pre-consent events are preserved (not discarded) — zero data loss
+        - On next page load, prior consent auto-detected from localStorage
+        - No cookies, no server-side state — fully client-side
       tags: [Tracking]
       security: []
       responses:
