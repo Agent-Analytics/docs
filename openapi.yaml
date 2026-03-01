@@ -2923,7 +2923,7 @@ paths:
       operationId: getTracker
       summary: JavaScript tracker script
       description: |
-        Returns the lightweight (~2KB) JavaScript tracker. Embed it in your HTML:
+        Returns the lightweight (~8KB) JavaScript tracker. Embed it in your HTML:
         ```html
         <script defer src="https://api.agentanalytics.sh/tracker.js"
                 data-project="my-site" data-token="aat_..."></script>
@@ -2937,15 +2937,42 @@ paths:
         |-----------|----------|---------|-------------|
         | `data-project` | Yes | — | Project name |
         | `data-token` | Yes | — | Project token (`aat_*`) |
-        | `data-link-domains` | No | Disabled | Comma-separated domains for cross-subdomain identity linking (see below) |
-        | `data-do-not-track` | No | `"false"` | Set to `"true"` to honor the browser's Do Not Track signal. Tracking is silently skipped when DNT is enabled. |
-        | `data-track-outgoing` | No | `"false"` | Set to `"true"` to auto-track clicks on outgoing (external) links. Fires an `outgoing_link` event with `href`, `text`, and `hostname` properties. |
-        | `data-heartbeat` | No | Disabled | Seconds for time-on-page tracking (e.g. `"15"`). Min 15s. Adds `time_on_page` to page_view on exit. |
-        | `data-track-errors` | No | `"false"` | Set to `"true"` to auto-track JS errors as `$error` events with `{ message, source, line, col }`. Max 5 per page view. |
-        | `data-require-consent` | No | `"false"` | Set to `"true"` to enable consent management — events buffer in-memory until `aa.grantConsent()` is called. |
+        | `data-link-domains` | No | Disabled | Comma-separated domains for cross-subdomain identity linking |
+        | `data-do-not-track` | No | `"false"` | Honor the browser's DNT signal |
+        | `data-track-outgoing` | No | `"false"` | Auto-track external link clicks as `outgoing_link` events |
+        | `data-heartbeat` | No | Disabled | Seconds for time-on-page tracking (e.g. `"15"`). Min 15s. |
+        | `data-track-errors` | No | `"false"` | Auto-track JS errors as `$error` events |
+        | `data-require-consent` | No | `"false"` | Enable consent management — events buffer until `aa.grantConsent()` |
 
-        ## Cross-Subdomain Tracking
+        ## JavaScript API (`window.aa`)
 
+        | Method | Description |
+        |--------|-------------|
+        | `aa.track(event, properties)` | Send a custom event |
+        | `aa.page(name)` | Send a page view (called automatically on load + SPA navigation) |
+        | `aa.identify(id)` | Link anonymous user to known ID |
+        | `aa.experiment(name, variants)` | Deterministic A/B test variant assignment |
+        | `aa.set(properties)` | Set global properties on all subsequent events |
+        | `aa.requireConsent()` | Enter consent buffer mode |
+        | `aa.grantConsent()` | Flush buffer, persist consent, resume tracking |
+        | `aa.revokeConsent()` | Discard buffer, remove consent, block sends |
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: JavaScript file
+          content:
+            application/javascript:
+              schema:
+                type: string
+        '404':
+          description: Not found
+  /tracker/cross-subdomain:
+    get:
+      operationId: trackerCrossSubdomain
+      summary: Cross-subdomain tracking
+      x-scalar-hidden: true
+      description: |
         By default, each subdomain has its own anonymous user ID (stored in `localStorage`, which is per-origin). To track users across subdomains — e.g. for funnels spanning `example.com` → `docs.example.com` → `app.example.com` — add `data-link-domains`:
 
         ```html
@@ -2960,9 +2987,17 @@ paths:
         - The `hostname` property is collected on every event, so you can still filter/breakdown by subdomain
         - Multiple root domains can be comma-separated: `data-link-domains="example.com, other.com"`
         - Without this attribute, no click listener is registered and there is zero overhead
-
-        ## Declarative Event Tracking
-
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/declarative-events:
+    get:
+      operationId: trackerDeclarativeEvents
+      summary: Declarative event tracking
+      x-scalar-hidden: true
+      description: |
         Track clicks without writing JavaScript. Add `data-aa-event` to any HTML element and the tracker handles it automatically.
 
         ```html
@@ -2996,7 +3031,17 @@ paths:
         - The tracker uses a single document-level `click` listener — no per-element binding
         - Events bubble up, so `data-aa-event` works on child elements too (the tracker walks up the DOM via `closest()`)
         - All `data-aa-event-*` property values are strings. For non-string data, use `window.aa.track()` instead
-
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/do-not-track:
+    get:
+      operationId: trackerDoNotTrack
+      summary: Do Not Track & disable
+      x-scalar-hidden: true
+      description: |
         ## Do Not Track
 
         Add `data-do-not-track="true"` to honor the browser's [Do Not Track](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/DNT) signal:
@@ -3022,9 +3067,17 @@ paths:
         - Internal team members who don't want to pollute analytics
         - QA and testing environments
         - Implementing a user-facing opt-out toggle
-
-        ## Outgoing Link Tracking
-
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/outgoing-links:
+    get:
+      operationId: trackerOutgoingLinks
+      summary: Outgoing link tracking
+      x-scalar-hidden: true
+      description: |
         Track clicks on external links automatically. Add `data-track-outgoing="true"` to the script tag:
 
         ```html
@@ -3045,9 +3098,17 @@ paths:
         - Only `http://` and `https://` links are tracked — `mailto:`, `tel:`, and `javascript:` links are ignored
         - Without the attribute, no click listener is registered and there is zero overhead
         - Use the `breakdown` endpoint with `property=hostname` and `event=outgoing_link` to see top exit domains
-
-        ## Time-on-Page Tracking
-
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/time-on-page:
+    get:
+      operationId: trackerTimeOnPage
+      summary: Time-on-page tracking
+      x-scalar-hidden: true
+      description: |
         Add `data-heartbeat="15"` to measure how long visitors actually engage with each page:
 
         ```html
@@ -3062,9 +3123,17 @@ paths:
         - Minimum interval is 15 seconds (values below 15 are clamped)
         - Works with SPA navigation — each page gets its own `time_on_page`
         - Query via `page_view` events with `properties.time_on_page > 0`
-
-        ## JS Error Tracking
-
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/error-tracking:
+    get:
+      operationId: trackerErrorTracking
+      summary: JS error tracking
+      x-scalar-hidden: true
+      description: |
         Add `data-track-errors="true"` to automatically capture JavaScript errors:
 
         ```html
@@ -3093,9 +3162,17 @@ paths:
         - `GET /breakdown?property=message&event=$error` — top error messages
         - `GET /breakdown?property=source&event=$error` — errors by source file
         - `GET /events?event=$error` — raw error event log
-
-        ## Global Properties (`aa.set`)
-
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/global-properties:
+    get:
+      operationId: trackerGlobalProperties
+      summary: Global properties (aa.set)
+      x-scalar-hidden: true
+      description: |
         Use `aa.set()` to attach properties to ALL subsequent events without repeating them in every `track()` call:
 
         ```js
@@ -3120,9 +3197,17 @@ paths:
         **Query global properties** like any other property:
         - `GET /breakdown?property=plan&event=page_view` — page views by plan
         - `POST /query` with `group_by: ["properties.plan"]`
-
-        ## Consent Management (GDPR/CCPA)
-
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/consent:
+    get:
+      operationId: trackerConsent
+      summary: Consent management (GDPR/CCPA)
+      x-scalar-hidden: true
+      description: |
         For sites that require user consent before tracking:
 
         ```html
@@ -3151,10 +3236,4 @@ paths:
       security: []
       responses:
         '200':
-          description: JavaScript file
-          content:
-            application/javascript:
-              schema:
-                type: string
-        '404':
-          description: Not found
+          description: Documentation only
