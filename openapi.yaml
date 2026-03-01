@@ -2929,7 +2929,7 @@ paths:
                 data-project="my-site" data-token="aat_..."></script>
         ```
 
-        The tracker auto-collects: page views, path, URL, hostname, title, referrer, screen size, browser, OS, device type, language, UTM parameters, session_count, days_since_first_visit, and first-touch UTMs. No cookies are used.
+        The tracker auto-collects: `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, UTM parameters, `session_count`, `days_since_first_visit`, and first-touch UTMs (`first_utm_source`, etc.). No cookies are used.
 
         ## Script Attributes
 
@@ -3330,6 +3330,7 @@ paths:
     get:
       operationId: trackerVisitorIntelligence
       summary: Visitor intelligence (session count & first visit)
+      x-scalar-hidden: true
       description: |
         Every event automatically includes two visitor-level properties — no configuration needed:
 
@@ -3339,15 +3340,14 @@ paths:
         | `days_since_first_visit` | integer | Days since this visitor's very first visit (0 on first day) |
 
         **How it works:**
-        - Session count is stored in `localStorage('aa_sc')` and incremented each time a new session starts (30-min inactivity timeout)
-        - First visit timestamp is stored in `localStorage('aa_fv')` — set once, never overwritten
-        - Both properties are added to every event via `baseProps()`
+        - Session count is persisted in localStorage and incremented each time a new session starts (30-min inactivity timeout)
+        - First visit timestamp is persisted in localStorage — set once, never overwritten
+        - Both properties are included on every event automatically
 
         **Querying visitor intelligence:**
         - `GET /breakdown?property=session_count&event=page_view` — distribution of new vs returning visitors
-        - `POST /query` with `group_by: "session_count"` — segment any metric by visit frequency
-        - Filter for first-time visitors: `filters: [{ field: "session_count", op: "eq", value: 1 }]`
-        - Filter for returning visitors: `filters: [{ field: "session_count", op: "gt", value: 1 }]`
+        - Filter for first-time visitors: `filters: [{ field: "properties.session_count", op: "eq", value: 1 }]`
+        - Filter for returning visitors: `filters: [{ field: "properties.session_count", op: "gt", value: 1 }]`
       tags: [Tracking]
       security: []
       responses:
@@ -3358,18 +3358,19 @@ paths:
     get:
       operationId: trackerCampaignAttribution
       summary: Campaign attribution (UTM persistence & first-touch)
+      x-scalar-hidden: true
       description: |
         Two improvements to UTM tracking — no configuration needed:
 
-        ## UTM Session Persistence
+        **UTM session persistence:**
 
         **Problem:** User lands on `/?utm_source=google`, navigates to `/pricing` — the `/pricing` page_view loses all UTM data.
 
-        **Fix:** UTMs from the landing page URL are saved to `sessionStorage('aa_utm')` and automatically restored on every subsequent page view within the same session. Internal navigation no longer loses campaign data.
+        **Fix:** UTMs from the landing page URL are saved to sessionStorage and automatically restored on every subsequent page view within the same session. Internal navigation no longer loses campaign data.
 
-        ## First-Touch Attribution
+        **First-touch attribution:**
 
-        The first-ever UTM parameters are stored in `localStorage('aa_ft')` and never overwritten. These appear on every event as `first_utm_*` properties:
+        The first-ever UTM parameters are stored in localStorage and never overwritten. These appear on every event as `first_utm_*` properties:
 
         | Property | Description |
         |----------|-------------|
@@ -3384,7 +3385,6 @@ paths:
         **Querying attribution data:**
         - `GET /breakdown?property=first_utm_source&event=page_view` — which channels originally acquired your users
         - Compare first-touch vs last-touch: `first_utm_source` (acquisition) vs `utm_source` (current session)
-        - `POST /query` with `group_by: "first_utm_source"` — segment conversions by original acquisition channel
       tags: [Tracking]
       security: []
       responses:
