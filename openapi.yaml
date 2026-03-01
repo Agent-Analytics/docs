@@ -2945,6 +2945,13 @@ paths:
         | `data-track-performance` | No | `"false"` | Collect Navigation Timing metrics on page_view (`perf_dns`, `perf_tcp`, `perf_ttfb`, `perf_dom_interactive`, `perf_dom_complete`, `perf_load`) |
         | `data-require-consent` | No | `"false"` | Enable consent management — events buffer until `aa.grantConsent()` |
 
+        ## Element Attributes (no script-tag opt-in)
+
+        | Attribute | Description |
+        |-----------|-------------|
+        | `data-aa-impression` | Content impression tracking — fires `$impression` event when 50% visible. Value becomes `name` property. |
+        | `data-aa-impression-*` | Extra properties on impression events (e.g. `data-aa-impression-placement="hero"` adds `placement: "hero"`). |
+
         ## JavaScript API (`window.aa`)
 
         | Method | Description |
@@ -3272,6 +3279,47 @@ paths:
         - Pre-consent events are preserved (not discarded) — zero data loss
         - On next page load, prior consent auto-detected from localStorage
         - No cookies, no server-side state — fully client-side
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+  /tracker/impressions:
+    get:
+      operationId: trackerImpressions
+      summary: Content impression tracking
+      x-scalar-hidden: true
+      description: |
+        Track which elements users actually see using `IntersectionObserver`. Add `data-aa-impression` to any HTML element:
+
+        ```html
+        <div data-aa-impression="hero_cta">Get Started Free</div>
+
+        <!-- With extra properties -->
+        <section data-aa-impression="pricing_card"
+                 data-aa-impression-plan="pro"
+                 data-aa-impression-position="above-fold">
+          Pro Plan - $29/mo
+        </section>
+        ```
+
+        When 50% of the element is visible in the viewport, the tracker fires a `$impression` event with these properties:
+
+        | Property | Source | Example |
+        |----------|--------|---------|
+        | `name` | `data-aa-impression` value | `"hero_cta"` |
+        | *(extras)* | `data-aa-impression-*` attributes | `plan: "pro"`, `position: "above-fold"` |
+
+        **Behavior:**
+        - Each element fires once per page view — scrolling past the same element again does not re-fire
+        - On SPA navigation, elements are re-scanned and can fire again on the new page
+        - No script-tag opt-in needed — element-driven, same model as `data-aa-event`
+        - Zero overhead if no elements have the attribute (`querySelectorAll` returns empty)
+        - Browsers without `IntersectionObserver` (<3%) silently skip — no errors
+
+        **Querying impression data:**
+        - `GET /events?event=$impression` — raw impression events
+        - `GET /breakdown?property=name&event=$impression` — which elements are seen most
       tags: [Tracking]
       security: []
       responses:
