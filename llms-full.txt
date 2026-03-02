@@ -4697,6 +4697,9 @@ The tracker auto-collects: `path`, `url`, `hostname`, `title`, `referrer`, `scre
 | `data-track-performance` | No       | `"false"` | Collect Navigation Timing metrics on page\_view (`perf_dns`, `perf_tcp`, `perf_ttfb`, `perf_dom_interactive`, `perf_dom_complete`, `perf_load`) |
 | `data-track-clicks`      | No       | `"false"` | Auto-track `<a>` and `<button>` clicks as `$click` events with `{ tag, text, href, id, classes, is_external, type }`                            |
 | `data-track-vitals`      | No       | `"false"` | Collect Core Web Vitals (LCP, CLS, INP) via PerformanceObserver. Merges into page\_view — zero event bloat.                                     |
+| `data-track-downloads`   | No       | `"false"` | Auto-track file download link clicks as `$download` events with `{ href, filename, extension }`. Matches 28 common file extensions.             |
+| `data-track-forms`       | No       | `"false"` | Auto-track form submissions as `$form_submit` events with `{ id, name, action, method, classes }`                                               |
+| `data-track-404`         | No       | `"false"` | Auto-track 404 pages as `$404` events via `<meta name="aa-status" content="404">` or Navigation Timing `responseStatus`                         |
 | `data-require-consent`   | No       | `"false"` | Enable consent management — events buffer until `aa.grantConsent()`                                                                             |
 
 ## Element Attributes (no script-tag opt-in)
@@ -5160,6 +5163,140 @@ First-touch properties only exist if the visitor originally arrived via a UTM-ta
 
 - `GET /breakdown?property=first_utm_source&event=page_view` — which channels originally acquired your users
 - Compare first-touch vs last-touch: `first_utm_source` (acquisition) vs `utm_source` (current session)
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### File download tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/file-downloads`
+- **Tags:** Tracking
+
+Track clicks on download links automatically. Add `data-track-downloads="true"` to the script tag:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-track-downloads="true"></script>
+```
+
+When a visitor clicks a link whose URL ends with a known file extension, the tracker fires a `$download` event with these properties:
+
+| Property    | Description                                        | Example                              |
+| ----------- | -------------------------------------------------- | ------------------------------------ |
+| `href`      | Full URL without query string (avoids PII leakage) | `https://cdn.example.com/report.pdf` |
+| `filename`  | Extracted filename from the URL path               | `report.pdf`                         |
+| `extension` | File extension, lowercase                          | `pdf`                                |
+
+**Supported extensions (28):** `pdf`, `xlsx`, `xls`, `docx`, `doc`, `txt`, `rtf`, `csv`, `exe`, `key`, `pps`, `pptx`, `ppt`, `7z`, `pkg`, `rar`, `gz`, `zip`, `avi`, `mov`, `mp4`, `mpeg`, `wmv`, `midi`, `mp3`, `wav`, `wma`, `dmg`, `iso`, `msi`
+
+**Behavior:**
+
+- Case-insensitive matching (`.PDF`, `.Zip` both work)
+- Query strings are stripped from `href` to avoid tracking tokens or PII in download URLs
+- Only `http://` and `https://` links are tracked — `mailto:`, `tel:`, `javascript:` are skipped
+- Elements with `data-aa-event` are skipped to avoid double-tracking with declarative events
+
+**Querying download data:**
+
+- `GET /events?event=$download` — raw download event log
+- `GET /breakdown?property=extension&event=$download` — downloads by file type
+- `GET /breakdown?property=filename&event=$download` — most downloaded files
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### Form submission tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/form-submissions`
+- **Tags:** Tracking
+
+Track form submissions automatically. Add `data-track-forms="true"` to the script tag:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-track-forms="true"></script>
+```
+
+When a visitor submits a form, the tracker fires a `$form_submit` event with these properties:
+
+| Property  | Description                               | Example                        |
+| --------- | ----------------------------------------- | ------------------------------ |
+| `id`      | Form element ID (or empty string)         | `"contact-form"`               |
+| `name`    | Form name attribute (or empty string)     | `"contact"`                    |
+| `action`  | Form action URL (truncated to 500 chars)  | `"https://example.com/submit"` |
+| `method`  | HTTP method, uppercased (defaults to GET) | `"POST"`                       |
+| `classes` | Form CSS classes (truncated to 200 chars) | `"form-inline"`                |
+
+**Behavior:**
+
+- Uses a capture-phase `submit` listener to fire before any `preventDefault()` calls
+- Forms with `data-aa-event` attribute are skipped to avoid double-tracking
+- Respects `form.checkValidity()` — invalid forms are NOT tracked (unless the form has the `novalidate` attribute)
+- No form data is captured — only metadata about the form element itself
+
+**Querying form data:**
+
+- `GET /events?event=$form_submit` — raw form submission log
+- `GET /breakdown?property=id&event=$form_submit` — submissions by form
+- `GET /breakdown?property=method&event=$form_submit` — GET vs POST breakdown
+
+#### Responses
+
+##### Status: 200 Documentation only
+
+### 404 page tracking
+
+- **Method:** `GET`
+- **Path:** `/tracker/404-tracking`
+- **Tags:** Tracking
+
+Track 404 (not found) pages automatically. Add `data-track-404="true"` to the script tag:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site" data-token="aat_..."
+        data-track-404="true"></script>
+```
+
+The tracker detects 404 pages using two signals:
+
+1. **Meta tag:** `<meta name="aa-status" content="404">` in the page HTML. Add this to your 404 page template.
+2. **Navigation Timing API:** `responseStatus === 404` (Chrome 109+, automatic, no markup needed).
+
+When a 404 is detected, the tracker fires a `$404` event with these properties:
+
+| Property   | Description                                     | Example                       |
+| ---------- | ----------------------------------------------- | ----------------------------- |
+| `path`     | Current page pathname                           | `"/blog/old-post"`            |
+| `referrer` | `document.referrer` (where the broken link was) | `"https://example.com/links"` |
+| `title`    | Page title                                      | `"Page Not Found"`            |
+
+**Behavior:**
+
+- Fires on initial page load (after DOM is ready) and on each SPA navigation
+- The `$404` event fires after the `page_view` event, so both are recorded
+- Uses `referrer` to identify which pages contain broken links
+
+**Setup — add meta tag to your 404 template:**
+
+```html
+<!-- In your 404.html template -->
+<head>
+  <meta name="aa-status" content="404">
+</head>
+```
+
+**Querying 404 data:**
+
+- `GET /events?event=$404` — all 404 events
+- `GET /breakdown?property=path&event=$404` — most common broken URLs
+- `GET /breakdown?property=referrer&event=$404` — pages linking to broken URLs
 
 #### Responses
 

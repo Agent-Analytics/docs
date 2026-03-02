@@ -101,6 +101,9 @@ npx skills add Agent-Analytics/agent-analytics-mcp
 - `GET /tracker/impressions` — Content impression tracking
 - `GET /tracker/visitor-intelligence` — Visitor intelligence (session count & first visit)
 - `GET /tracker/campaign-attribution` — Campaign attribution (UTM persistence & first-touch)
+- `GET /tracker/file-downloads` — File download tracking
+- `GET /tracker/form-submissions` — Form submission tracking
+- `GET /tracker/404-tracking` — 404 page tracking
 
 ## Rate Limits
 
