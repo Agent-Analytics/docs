@@ -104,6 +104,7 @@ npx skills add Agent-Analytics/agent-analytics-mcp
 - `GET /tracker/file-downloads` — File download tracking
 - `GET /tracker/form-submissions` — Form submission tracking
 - `GET /tracker/404-tracking` — 404 page tracking
+- `GET /tracker.js#scroll-depth` — Scroll Depth Tracking
 
 ## Rate Limits
 

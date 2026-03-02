@@ -2948,6 +2948,7 @@ paths:
         | `data-track-downloads` | No | `"false"` | Auto-track file download link clicks as `$download` events with `{ href, filename, extension }`. Matches 28 common file extensions. |
         | `data-track-forms` | No | `"false"` | Auto-track form submissions as `$form_submit` events with `{ id, name, action, method, classes }` |
         | `data-track-404` | No | `"false"` | Auto-track 404 pages as `$404` events via `<meta name="aa-status" content="404">` or Navigation Timing `responseStatus` |
+        | `data-track-scroll-depth` | No | `"false"` | Track max scroll depth (0-100%) per page view. Merges into page\_view — zero event bloat. |
         | `data-require-consent` | No | `"false"` | Enable consent management — events buffer until `aa.grantConsent()` |
 
         ## Element Attributes (no script-tag opt-in)
@@ -3521,6 +3522,43 @@ paths:
         - `GET /events?event=$404` — all 404 events
         - `GET /breakdown?property=path&event=$404` — most common broken URLs
         - `GET /breakdown?property=referrer&event=$404` — pages linking to broken URLs
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: Documentation only
+
+  /tracker.js#scroll-depth:
+    get:
+      operationId: trackerScrollDepth
+      summary: Scroll Depth Tracking
+      description: |
+        Track how far users scroll on each page. Add `data-track-scroll-depth="true"` to the script tag:
+
+        ```html
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."
+                data-track-scroll-depth="true"></script>
+        ```
+
+        On page exit (tab switch, navigation, or close), the tracker sends the maximum scroll depth (0-100%) as a `scroll_depth` property merged into the existing `page_view` event — zero event bloat, no extra rows.
+
+        | Property | Type | Description | Example |
+        |----------|------|-------------|---------|
+        | `scroll_depth` | integer | Max scroll depth as percentage (0-100) | `72` |
+
+        **How it works:**
+        - Measures scroll position on every scroll event (passive listener, no jank)
+        - Uses robust cross-browser document height measurement (max of 6 body/documentElement values)
+        - Re-measures document height after page load (catches lazy-loaded content)
+        - Only tracks the **maximum** depth reached — scrolling back up doesn't decrease it
+        - Short pages where the viewport covers the full document report `100`
+        - Fires exactly once per page view (idempotency guard prevents duplicate sends)
+        - SPA-aware: flushes previous page's depth on navigation, resets for the new page
+
+        **Querying scroll depth data:**
+        - `GET /events?event=page_view` — `scroll_depth` is in page\_view properties
+        - `POST /query` with `filters: [{field: "properties.scroll_depth", op: "gte", value: 75}]` — find deeply engaged visitors
       tags: [Tracking]
       security: []
       responses:
