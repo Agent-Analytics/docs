@@ -1021,13 +1021,9 @@ components:
           type: string
         projects_count:
           type: integer
-        projects_limit:
-          type: integer
         tier_limits:
           type: object
           properties:
-            max_projects:
-              type: integer
             max_events_lifetime:
               type: integer
             retention_days:
@@ -1036,6 +1032,18 @@ components:
               type: integer
         monthly_spend_cap_dollars:
           type: ['number', 'null']
+      example:
+        id: acc_free123
+        email: free@example.com
+        github_login: freeuser
+        tier: free
+        created_at: "2026-02-01T12:00:00.000Z"
+        projects_count: 3
+        tier_limits:
+          max_events_lifetime: 1000
+          retention_days: 7
+          rate_limit_rpm: 10
+        monthly_spend_cap_dollars: null
 
     Experiment:
       type: object
@@ -2235,8 +2243,6 @@ paths:
                       $ref: '#/components/schemas/Project'
                   has_api_key:
                     type: boolean
-                  project_limit:
-                    type: integer
                   tier:
                     type: string
                     enum: [free, pro]
@@ -2326,12 +2332,6 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           description: Missing or invalid API key
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '403':
-          description: Project limit reached for your tier
           content:
             application/json:
               schema:
@@ -2524,6 +2524,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccountResponse'
+              examples:
+                freeTier:
+                  summary: Free tier account
+                  value:
+                    id: acc_free123
+                    email: free@example.com
+                    github_login: freeuser
+                    tier: free
+                    created_at: "2026-02-01T12:00:00.000Z"
+                    projects_count: 3
+                    tier_limits:
+                      max_events_lifetime: 1000
+                      retention_days: 7
+                      rate_limit_rpm: 10
+                    monthly_spend_cap_dollars: null
+                proTier:
+                  summary: Pro tier account
+                  value:
+                    id: acc_pro123
+                    email: pro@example.com
+                    github_login: prouser
+                    tier: pro
+                    created_at: "2026-02-01T12:00:00.000Z"
+                    projects_count: 42
+                    tier_limits:
+                      max_events_lifetime: -1
+                      retention_days: 365
+                      rate_limit_rpm: 1000
+                    monthly_spend_cap_dollars: 50
         '401':
           description: Missing or invalid API key
           content:

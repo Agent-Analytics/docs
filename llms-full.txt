@@ -2878,10 +2878,6 @@ Returns all projects under your account with event/read counts and tier info.
 
   `boolean`
 
-- **`project_limit`**
-
-  `integer`
-
 - **`projects`**
 
   `array`
@@ -2931,7 +2927,6 @@ Returns all projects under your account with event/read counts and tier info.
     }
   ],
   "has_api_key": true,
-  "project_limit": 1,
   "tier": "free"
 }
 ```
@@ -3086,27 +3081,6 @@ Project names must be alphanumeric with hyphens, underscores, or dots (max 64 ch
 ```
 
 ##### Status: 401 Missing or invalid API key
-
-###### Content-Type: application/json
-
-- **`error` (required)**
-
-  `string` — Machine-readable error code
-
-- **`message` (required)**
-
-  `string` — Human-readable error message
-
-**Example:**
-
-```json
-{
-  "error": "AUTH_REQUIRED",
-  "message": "API key required"
-}
-```
-
-##### Status: 403 Project limit reached for your tier
 
 ###### Content-Type: application/json
 
@@ -3518,10 +3492,6 @@ Returns your account details, tier, limits, and project count.
 
   `integer`
 
-- **`projects_limit`**
-
-  `integer`
-
 - **`tier`**
 
   `string`, possible values: `"free", "pro"`
@@ -3531,10 +3501,6 @@ Returns your account details, tier, limits, and project count.
   `object`
 
   - **`max_events_lifetime`**
-
-    `integer`
-
-  - **`max_projects`**
 
     `integer`
 
@@ -3550,18 +3516,16 @@ Returns your account details, tier, limits, and project count.
 
 ```json
 {
-  "id": "",
-  "email": "",
-  "github_login": null,
+  "id": "acc_free123",
+  "email": "free@example.com",
+  "github_login": "freeuser",
   "tier": "free",
-  "created_at": "",
-  "projects_count": 1,
-  "projects_limit": 1,
+  "created_at": "2026-02-01T12:00:00.000Z",
+  "projects_count": 3,
   "tier_limits": {
-    "max_projects": 1,
-    "max_events_lifetime": 1,
-    "retention_days": 1,
-    "rate_limit_rpm": 1
+    "max_events_lifetime": 1000,
+    "retention_days": 7,
+    "rate_limit_rpm": 10
   },
   "monthly_spend_cap_dollars": null
 }
@@ -6907,10 +6871,6 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
   `integer`
 
-* **`projects_limit`**
-
-  `integer`
-
 * **`tier`**
 
   `string`, possible values: `"free", "pro"`
@@ -6920,10 +6880,6 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
   `object`
 
   - **`max_events_lifetime`**
-
-    `integer`
-
-  - **`max_projects`**
 
     `integer`
 
@@ -6939,18 +6895,16 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
 ```json
 {
-  "id": "",
-  "email": "",
-  "github_login": null,
+  "id": "acc_free123",
+  "email": "free@example.com",
+  "github_login": "freeuser",
   "tier": "free",
-  "created_at": "",
-  "projects_count": 1,
-  "projects_limit": 1,
+  "created_at": "2026-02-01T12:00:00.000Z",
+  "projects_count": 3,
   "tier_limits": {
-    "max_projects": 1,
-    "max_events_lifetime": 1,
-    "retention_days": 1,
-    "rate_limit_rpm": 1
+    "max_events_lifetime": 1000,
+    "retention_days": 7,
+    "rate_limit_rpm": 10
   },
   "monthly_spend_cap_dollars": null
 }
@@ -7106,5 +7060,49 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
   },
   "sufficient_data": true,
   "recommendation": "'new_cta' is the winner with 94% probability (47% lift over baseline)"
+}
+```
+
+## Additional Response Examples
+
+### `GET /account`
+
+Status: `200` · Content-Type: `application/json`
+
+#### freeTier — Free tier account
+
+```json
+{
+  "id": "acc_free123",
+  "email": "free@example.com",
+  "github_login": "freeuser",
+  "tier": "free",
+  "created_at": "2026-02-01T12:00:00.000Z",
+  "projects_count": 3,
+  "tier_limits": {
+    "max_events_lifetime": 1000,
+    "retention_days": 7,
+    "rate_limit_rpm": 10
+  },
+  "monthly_spend_cap_dollars": null
+}
+```
+
+#### proTier — Pro tier account
+
+```json
+{
+  "id": "acc_pro123",
+  "email": "pro@example.com",
+  "github_login": "prouser",
+  "tier": "pro",
+  "created_at": "2026-02-01T12:00:00.000Z",
+  "projects_count": 42,
+  "tier_limits": {
+    "max_events_lifetime": -1,
+    "retention_days": 365,
+    "rate_limit_rpm": 1000
+  },
+  "monthly_spend_cap_dollars": 50
 }
 ```

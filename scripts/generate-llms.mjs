@@ -3,15 +3,76 @@ import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 import { parse } from 'yaml'
 
 const spec = readFileSync('openapi.yaml', 'utf-8')
+const doc = parse(spec)
+
+function collectMultiResponseExamples(openapiDoc) {
+  const entries = []
+
+  for (const [path, pathItem] of Object.entries(openapiDoc.paths || {})) {
+    for (const [method, operation] of Object.entries(pathItem || {})) {
+      if (typeof operation !== 'object' || !operation) continue
+
+      const methodUpper = method.toUpperCase()
+      const responses = operation.responses || {}
+      for (const [status, response] of Object.entries(responses)) {
+        const content = response?.content || {}
+        for (const [contentType, media] of Object.entries(content)) {
+          const examples = media?.examples
+          if (!examples || typeof examples !== 'object') continue
+
+          const namedExamples = Object.entries(examples)
+            .filter(([, ex]) => ex && typeof ex === 'object' && Object.prototype.hasOwnProperty.call(ex, 'value'))
+            .map(([name, ex]) => ({
+              name,
+              summary: ex.summary || '',
+              value: ex.value,
+            }))
+
+          if (namedExamples.length < 2) continue
+
+          entries.push({
+            method: methodUpper,
+            path,
+            status,
+            contentType,
+            namedExamples,
+          })
+        }
+      }
+    }
+  }
+
+  return entries
+}
+
+function buildAdditionalExamplesSection(entries) {
+  if (entries.length === 0) return ''
+
+  let out = '## Additional Response Examples\n\n'
+  for (const entry of entries) {
+    out += `### \`${entry.method} ${entry.path}\`\n\n`
+    out += `Status: \`${entry.status}\` · Content-Type: \`${entry.contentType}\`\n\n`
+
+    for (const ex of entry.namedExamples) {
+      const title = ex.summary ? `${ex.name} — ${ex.summary}` : ex.name
+      out += `#### ${title}\n\n`
+      out += `\`\`\`json\n${JSON.stringify(ex.value, null, 2)}\n\`\`\`\n\n`
+    }
+  }
+
+  return out.trimEnd()
+}
 
 // --- llms-full.txt (existing) ---
 const markdown = await createMarkdownFromOpenApi(spec)
-writeFileSync('llms-full.txt', markdown)
-console.log('Generated llms-full.txt (%d bytes)', Buffer.byteLength(markdown))
+const additionalExamples = buildAdditionalExamplesSection(collectMultiResponseExamples(doc))
+const llmsFull = additionalExamples
+  ? `${markdown.trimEnd()}\n\n${additionalExamples}\n`
+  : markdown
+writeFileSync('llms-full.txt', llmsFull)
+console.log('Generated llms-full.txt (%d bytes)', Buffer.byteLength(llmsFull))
 
 // --- llms.txt (auto-generated from openapi.yaml) ---
-const doc = parse(spec)
-
 // Group paths by first tag
 const tagOrder = (doc.tags || []).map(t => t.name)
 const groups = new Map()
