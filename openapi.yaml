@@ -2931,6 +2931,8 @@ paths:
 
         The tracker auto-collects: `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, `timezone` (IANA), UTM parameters, `session_count`, `days_since_first_visit`, and first-touch UTMs (`first_utm_source`, etc.). On Chromium browsers, Client Hints (`navigator.userAgentData`) enhance browser/OS/device detection accuracy. No cookies are used.
 
+        **SPA routing:** Both `pushState`/`replaceState` routing and hash-based routing (e.g. `/#/about` → `/#/pricing`) are detected automatically. No configuration needed.
+
         ## Script Attributes
 
         | Attribute | Required | Default | Description |
