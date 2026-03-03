@@ -128,6 +128,7 @@ npx skills add Agent-Analytics/agent-analytics-mcp
 1. Sign up at https://app.agentanalytics.sh and get your API key
 2. Create a project: \`POST /projects\` with \`X-API-Key\` header
 3. Add the tracking snippet (returned in project creation response)
+   - If using Astro, add \`is:inline\` to the tracker \`<script>\` tag.
 4. Query stats: \`GET /stats?project=my-site\` with \`X-API-Key\` header
 
 ## Authentication
