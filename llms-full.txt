@@ -628,6 +628,8 @@ Called automatically by the tracker's `aa.identify("user_123")` method. Can also
 
 Returns an overview of a project's analytics: time series, top events, session metrics, and totals.
 
+Bounce metrics are computed from event names at query time. A session is a bounce when it has only non-interactive events: `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
 **CLI:** `npx @agent-analytics/cli stats my-site --since 7d`
 
 #### Responses
@@ -684,7 +686,7 @@ Returns an overview of a project's analytics: time series, top events, session m
 
   - **`bounce_rate`**
 
-    `number`
+    `number` — Bounce rate computed from event names at query time. A session is a bounce when it has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
   - **`pages_per_session`**
 
@@ -1319,6 +1321,8 @@ Returns which property keys appear on which event names, sampled from recent eve
 
 Returns individual session records with duration, entry/exit pages, event count, and bounce status. Filter by user ID and/or bounce status.
 
+`is_bounce` is computed from event names at query time. `1` means the session has only non-interactive events: `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
 #### Responses
 
 ##### Status: 200 Session list
@@ -1361,7 +1365,7 @@ Returns individual session records with duration, entry/exit pages, event count,
 
   - **`is_bounce`**
 
-    `integer`, possible values: `0, 1`
+    `integer`, possible values: `0, 1` — Computed from event names at query time. \`1\` means the session has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
   - **`project_id`**
 
@@ -1547,6 +1551,8 @@ Use `property=country` to see visitor geography (ISO 3166-1 alpha-2 codes). Coun
 - **Tags:** Analytics
 
 Compares the current period against the previous period of the same length. Returns change metrics and an overall trend indicator (`growing`, `stable`, `declining`).
+
+`bounce_rate` is computed from event names at query time. A session is a bounce when it has only non-interactive events: `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
 
 **CLI:** `npx @agent-analytics/cli insights my-site --period 7d`
 
@@ -1791,6 +1797,8 @@ Compares the current period against the previous period of the same length. Retu
 
 Returns top entry pages, exit pages, or both — with session count, bounce rate, and average duration per page.
 
+`bounce_rate` is computed from event names at query time. A session is a bounce when it has only non-interactive events: `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
 **CLI:** `npx @agent-analytics/cli pages my-site --type entry`
 
 #### Responses
@@ -1815,7 +1823,7 @@ Returns top entry pages, exit pages, or both — with session count, bounce rate
 
   - **`bounce_rate`**
 
-    `number`
+    `number` — Bounce rate computed from event names at query time. A session is a bounce when it has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
   - **`bounces`**
 
@@ -1845,7 +1853,7 @@ Returns top entry pages, exit pages, or both — with session count, bounce rate
 
   - **`bounce_rate`**
 
-    `number`
+    `number` — Bounce rate computed from event names at query time. A session is a bounce when it has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
   - **`bounces`**
 
@@ -1941,6 +1949,8 @@ Returns top entry pages, exit pages, or both — with session count, bounce rate
 
 Returns a histogram of session durations in predefined buckets, with the median bucket and engaged session percentage (sessions >= 30 seconds).
 
+`bounces` in each bucket are computed from event names at query time. A session is a bounce when it has only non-interactive events: `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
 **CLI:** `npx @agent-analytics/cli sessions distribution my-site`
 
 #### Responses
@@ -1961,7 +1971,7 @@ Returns a histogram of session durations in predefined buckets, with the median 
 
   - **`bounces`**
 
-    `integer`
+    `integer` — Number of bounce sessions in this duration bucket (computed from event names at query time).
 
   - **`bucket`**
 
@@ -5480,7 +5490,7 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
   - **`bounce_rate`**
 
-    `number`
+    `number` — Bounce rate computed from event names at query time. A session is a bounce when it has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
   - **`pages_per_session`**
 
@@ -5804,7 +5814,7 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
 * **`is_bounce`**
 
-  `integer`, possible values: `0, 1`
+  `integer`, possible values: `0, 1` — Computed from event names at query time. \`1\` means the session has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
 * **`project_id`**
 
@@ -6141,7 +6151,7 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
   - **`bounce_rate`**
 
-    `number`
+    `number` — Bounce rate computed from event names at query time. A session is a bounce when it has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
   - **`bounces`**
 
@@ -6171,7 +6181,7 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
   - **`bounce_rate`**
 
-    `number`
+    `number` — Bounce rate computed from event names at query time. A session is a bounce when it has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
   - **`bounces`**
 
@@ -6231,7 +6241,7 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
 * **`bounce_rate`**
 
-  `number`
+  `number` — Bounce rate computed from event names at query time. A session is a bounce when it has only non-interactive events: \`page\_view\`, \`$impression\`, \`$scroll\_depth\`, \`$error\`, \`$time\_on\_page\`, \`$performance\`, \`$web\_vitals\`.
 
 * **`bounces`**
 
@@ -6274,7 +6284,7 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
   - **`bounces`**
 
-    `integer`
+    `integer` — Number of bounce sessions in this duration bucket (computed from event names at query time).
 
   - **`bucket`**
 

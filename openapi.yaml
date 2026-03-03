@@ -417,6 +417,10 @@ components:
             bounce_rate:
               type: number
               example: 0.45
+              description: |
+                Bounce rate computed from event names at query time.
+                A session is a bounce when it has only non-interactive events:
+                `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
             avg_duration:
               type: integer
               description: Average session duration in milliseconds
@@ -562,6 +566,10 @@ components:
         is_bounce:
           type: integer
           enum: [0, 1]
+          description: |
+            Computed from event names at query time.
+            `1` means the session has only non-interactive events:
+            `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
         date:
           type: string
 
@@ -670,6 +678,10 @@ components:
         bounce_rate:
           type: number
           example: 0.45
+          description: |
+            Bounce rate computed from event names at query time.
+            A session is a bounce when it has only non-interactive events:
+            `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
         avg_duration:
           type: number
           description: Average session duration in milliseconds
@@ -693,6 +705,7 @@ components:
                 type: integer
               bounces:
                 type: integer
+                description: Number of bounce sessions in this duration bucket (computed from event names at query time).
               avg_events:
                 type: number
               pct:
@@ -1365,6 +1378,10 @@ paths:
       description: |
         Returns an overview of a project's analytics: time series, top events, session metrics, and totals.
 
+        Bounce metrics are computed from event names at query time.
+        A session is a bounce when it has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
         **CLI:** `npx @agent-analytics/cli stats my-site --since 7d`
       tags: [Analytics]
       security:
@@ -1664,6 +1681,10 @@ paths:
       description: |
         Returns individual session records with duration, entry/exit pages, event count, and bounce status.
         Filter by user ID and/or bounce status.
+
+        `is_bounce` is computed from event names at query time.
+        `1` means the session has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
       tags: [Analytics]
       security:
         - ApiKey: []
@@ -1773,6 +1794,10 @@ paths:
         Compares the current period against the previous period of the same length.
         Returns change metrics and an overall trend indicator (`growing`, `stable`, `declining`).
 
+        `bounce_rate` is computed from event names at query time.
+        A session is a bounce when it has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
         **CLI:** `npx @agent-analytics/cli insights my-site --period 7d`
       tags: [Analytics]
       security:
@@ -1813,6 +1838,10 @@ paths:
       summary: Entry/exit page stats
       description: |
         Returns top entry pages, exit pages, or both — with session count, bounce rate, and average duration per page.
+
+        `bounce_rate` is computed from event names at query time.
+        A session is a bounce when it has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
 
         **CLI:** `npx @agent-analytics/cli pages my-site --type entry`
       tags: [Analytics]
@@ -1864,6 +1893,10 @@ paths:
       summary: Session duration histogram
       description: |
         Returns a histogram of session durations in predefined buckets, with the median bucket and engaged session percentage (sessions >= 30 seconds).
+
+        `bounces` in each bucket are computed from event names at query time.
+        A session is a bounce when it has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
 
         **CLI:** `npx @agent-analytics/cli sessions distribution my-site`
       tags: [Analytics]
