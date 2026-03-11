@@ -71,6 +71,7 @@ npx skills add Agent-Analytics/agent-analytics-mcp
 
 ### Account
 - `GET /account` — Get account info
+- `GET /account/all-sites` — Historical all-sites overview
 - `POST /account/revoke-key` — Revoke and regenerate API key
 
 ### Experiments

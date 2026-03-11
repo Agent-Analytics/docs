@@ -118,6 +118,7 @@ Works with Claude Code, OpenAI Codex, and other compatible agents. Teaches your 
 | --------------------- | ---------------------------------------------------- |
 | `list_projects`       | List all your projects                               |
 | `create_project`      | Create a new project (returns tracker snippet)       |
+| `all_sites_overview`  | Historical summary across all your projects          |
 | `analytics_overview`  | Time series chart + KPIs (events, users) over N days |
 | `analytics_insights`  | Period-over-period comparison with trend             |
 | `analytics_breakdown` | Top property values (pages, referrers, UTM sources)  |
@@ -142,6 +143,7 @@ You can use the [CLI](https://www.npmjs.com/package/@agent-analytics/cli) or cal
 | CLI Command                                                                                                      | API Endpoint                                           |
 | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `npx @agent-analytics/cli stats my-site`                                                                         | `GET /stats?project=my-site`                           |
+| `npx @agent-analytics/cli all-sites --period 7d`                                                                 | `GET /account/all-sites?period=7d`                     |
 | `npx @agent-analytics/cli events my-site`                                                                        | `GET /events?project=my-site`                          |
 | `npx @agent-analytics/cli query --project my-site --metrics event_count`                                         | `POST /query`                                          |
 | `npx @agent-analytics/cli experiments list my-site`                                                              | `GET /experiments?project=my-site`                     |
@@ -3562,6 +3564,213 @@ Returns your account details, tier, limits, and project count.
 }
 ```
 
+### Historical all-sites overview
+
+- **Method:** `GET`
+- **Path:** `/account/all-sites`
+- **Tags:** Account
+
+Returns a lightweight historical summary across all active projects in your account.
+
+This endpoint is optimized for a single account-level dashboard view: total event trend, active project count, daily event time series, and a top-project list.
+
+Use `/live` for real-time account-wide activity. Use project-scoped endpoints like `/stats` and `/insights` when you want deeper analysis for one project.
+
+**CLI:** `npx @agent-analytics/cli all-sites --period 7d`
+
+#### Responses
+
+##### Status: 200 Account-wide historical overview
+
+###### Content-Type: application/json
+
+- **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`, format: `date`
+
+  - **`label`**
+
+    `string`, possible values: `"1d", "7d", "14d", "30d", "90d"`
+
+  - **`previous_from`**
+
+    `string`, format: `date`
+
+  - **`previous_to`**
+
+    `string`, format: `date`
+
+  - **`to`**
+
+    `string`, format: `date`
+
+- **`projects`**
+
+  `array`
+
+  **Items:**
+
+  - **`events`**
+
+    `integer`
+
+  - **`id`**
+
+    `string`
+
+  - **`last_active_date`**
+
+    `object`
+
+  - **`name`**
+
+    `string`
+
+  - **`share_pct`**
+
+    `number`
+
+- **`remaining_projects`**
+
+  `integer`
+
+- **`scope`**
+
+  `string`, possible values: `"account"`
+
+- **`summary`**
+
+  `object`
+
+  - **`active_projects`**
+
+    `integer`
+
+  - **`total_events`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`total_projects`**
+
+    `integer`
+
+- **`time_series`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`, format: `date`
+
+  - **`events`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "scope": "account",
+  "period": {
+    "label": "7d",
+    "from": "2026-03-03",
+    "to": "2026-03-09",
+    "previous_from": "2026-02-24",
+    "previous_to": "2026-03-02"
+  },
+  "summary": {
+    "total_projects": 3,
+    "active_projects": 2,
+    "total_events": {
+      "current": 120,
+      "previous": 90,
+      "change": 30,
+      "change_pct": 33
+    }
+  },
+  "time_series": [
+    {
+      "date": "2026-03-09",
+      "events": 40
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_123",
+      "name": "my-site",
+      "events": 80,
+      "share_pct": 66.7,
+      "last_active_date": "2026-03-09"
+    }
+  ],
+  "remaining_projects": 1
+}
+```
+
+##### Status: 400 Invalid period
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
 ### Revoke and regenerate API key
 
 - **Method:** `POST`
@@ -6850,6 +7059,326 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
       "timestamp": 1
     }
   ]
+}
+```
+
+### AllSitesPeriod
+
+- **Type:**`object`
+
+* **`from`**
+
+  `string`, format: `date`
+
+* **`label`**
+
+  `string`, possible values: `"1d", "7d", "14d", "30d", "90d"`
+
+* **`previous_from`**
+
+  `string`, format: `date`
+
+* **`previous_to`**
+
+  `string`, format: `date`
+
+* **`to`**
+
+  `string`, format: `date`
+
+**Example:**
+
+```json
+{
+  "label": "7d",
+  "from": "2026-03-03",
+  "to": "2026-03-09",
+  "previous_from": "2026-02-24",
+  "previous_to": "2026-03-02"
+}
+```
+
+### AllSitesMetricDelta
+
+- **Type:**`object`
+
+* **`change`**
+
+  `integer`
+
+* **`change_pct`**
+
+  `object`
+
+* **`current`**
+
+  `integer`
+
+* **`previous`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "current": 120,
+  "previous": 90,
+  "change": 30,
+  "change_pct": 33
+}
+```
+
+### AllSitesSummary
+
+- **Type:**`object`
+
+* **`active_projects`**
+
+  `integer`
+
+* **`total_events`**
+
+  `object`
+
+  - **`change`**
+
+    `integer`
+
+  - **`change_pct`**
+
+    `object`
+
+  - **`current`**
+
+    `integer`
+
+  - **`previous`**
+
+    `integer`
+
+* **`total_projects`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "total_projects": 3,
+  "active_projects": 2,
+  "total_events": {
+    "current": 120,
+    "previous": 90,
+    "change": 30,
+    "change_pct": 33
+  }
+}
+```
+
+### AllSitesTimeSeriesPoint
+
+- **Type:**`object`
+
+* **`date`**
+
+  `string`, format: `date`
+
+* **`events`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "date": "2026-03-09",
+  "events": 40
+}
+```
+
+### AllSitesProjectSummary
+
+- **Type:**`object`
+
+* **`events`**
+
+  `integer`
+
+* **`id`**
+
+  `string`
+
+* **`last_active_date`**
+
+  `object`
+
+* **`name`**
+
+  `string`
+
+* **`share_pct`**
+
+  `number`
+
+**Example:**
+
+```json
+{
+  "id": "proj_123",
+  "name": "my-site",
+  "events": 80,
+  "share_pct": 66.7,
+  "last_active_date": "2026-03-09"
+}
+```
+
+### AllSitesOverviewResponse
+
+- **Type:**`object`
+
+* **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`, format: `date`
+
+  - **`label`**
+
+    `string`, possible values: `"1d", "7d", "14d", "30d", "90d"`
+
+  - **`previous_from`**
+
+    `string`, format: `date`
+
+  - **`previous_to`**
+
+    `string`, format: `date`
+
+  - **`to`**
+
+    `string`, format: `date`
+
+* **`projects`**
+
+  `array`
+
+  **Items:**
+
+  - **`events`**
+
+    `integer`
+
+  - **`id`**
+
+    `string`
+
+  - **`last_active_date`**
+
+    `object`
+
+  - **`name`**
+
+    `string`
+
+  - **`share_pct`**
+
+    `number`
+
+* **`remaining_projects`**
+
+  `integer`
+
+* **`scope`**
+
+  `string`, possible values: `"account"`
+
+* **`summary`**
+
+  `object`
+
+  - **`active_projects`**
+
+    `integer`
+
+  - **`total_events`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`total_projects`**
+
+    `integer`
+
+* **`time_series`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`, format: `date`
+
+  - **`events`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "scope": "account",
+  "period": {
+    "label": "7d",
+    "from": "2026-03-03",
+    "to": "2026-03-09",
+    "previous_from": "2026-02-24",
+    "previous_to": "2026-03-02"
+  },
+  "summary": {
+    "total_projects": 3,
+    "active_projects": 2,
+    "total_events": {
+      "current": 120,
+      "previous": 90,
+      "change": 30,
+      "change_pct": 33
+    }
+  },
+  "time_series": [
+    {
+      "date": "2026-03-09",
+      "events": 40
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_123",
+      "name": "my-site",
+      "events": 80,
+      "share_pct": 66.7,
+      "last_active_date": "2026-03-09"
+    }
+  ],
+  "remaining_projects": 1
 }
 ```
 

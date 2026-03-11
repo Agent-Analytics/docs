@@ -110,6 +110,7 @@ info:
     |------|-------------|
     | `list_projects` | List all your projects |
     | `create_project` | Create a new project (returns tracker snippet) |
+    | `all_sites_overview` | Historical summary across all your projects |
     | `analytics_overview` | Time series chart + KPIs (events, users) over N days |
     | `analytics_insights` | Period-over-period comparison with trend |
     | `analytics_breakdown` | Top property values (pages, referrers, UTM sources) |
@@ -134,6 +135,7 @@ info:
     | CLI Command | API Endpoint |
     |---|---|
     | `npx @agent-analytics/cli stats my-site` | `GET /stats?project=my-site` |
+    | `npx @agent-analytics/cli all-sites --period 7d` | `GET /account/all-sites?period=7d` |
     | `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
     | `npx @agent-analytics/cli query --project my-site --metrics event_count` | `POST /query` |
     | `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
@@ -1017,6 +1019,116 @@ components:
                 type: ['string', 'null']
               timestamp:
                 type: number
+
+    AllSitesPeriod:
+      type: object
+      properties:
+        label:
+          type: string
+          enum: ['1d', '7d', '14d', '30d', '90d']
+          example: 7d
+        from:
+          type: string
+          format: date
+          example: '2026-03-03'
+        to:
+          type: string
+          format: date
+          example: '2026-03-09'
+        previous_from:
+          type: string
+          format: date
+          example: '2026-02-24'
+        previous_to:
+          type: string
+          format: date
+          example: '2026-03-02'
+
+    AllSitesMetricDelta:
+      type: object
+      properties:
+        current:
+          type: integer
+          example: 120
+        previous:
+          type: integer
+          example: 90
+        change:
+          type: integer
+          example: 30
+        change_pct:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 33
+
+    AllSitesSummary:
+      type: object
+      properties:
+        total_projects:
+          type: integer
+          example: 3
+        active_projects:
+          type: integer
+          example: 2
+        total_events:
+          $ref: '#/components/schemas/AllSitesMetricDelta'
+
+    AllSitesTimeSeriesPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2026-03-09'
+        events:
+          type: integer
+          example: 40
+
+    AllSitesProjectSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: proj_123
+        name:
+          type: string
+          example: my-site
+        events:
+          type: integer
+          example: 80
+        share_pct:
+          type: number
+          example: 66.7
+        last_active_date:
+          oneOf:
+            - type: string
+              format: date
+            - type: 'null'
+          example: '2026-03-09'
+
+    AllSitesOverviewResponse:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [account]
+          example: account
+        period:
+          $ref: '#/components/schemas/AllSitesPeriod'
+        summary:
+          $ref: '#/components/schemas/AllSitesSummary'
+        time_series:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllSitesTimeSeriesPoint'
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllSitesProjectSummary'
+        remaining_projects:
+          type: integer
+          example: 1
 
     AccountResponse:
       type: object
@@ -2218,7 +2330,7 @@ paths:
         - name: project
           in: query
           required: false
-          description: Project name. Defaults to first project.
+          description: Optional project name. Omit for an account-wide real-time snapshot across all projects.
           schema:
             type: string
           example: my-site
@@ -2586,6 +2698,59 @@ paths:
                       retention_days: 365
                       rate_limit_rpm: 1000
                     monthly_spend_cap_dollars: 50
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /account/all-sites:
+    get:
+      operationId: getAllSitesOverview
+      summary: Historical all-sites overview
+      description: |
+        Returns a lightweight historical summary across all active projects in your account.
+
+        This endpoint is optimized for a single account-level dashboard view: total event trend, active project count, daily event time series, and a top-project list.
+
+        Use `/live` for real-time account-wide activity. Use project-scoped endpoints like `/stats` and `/insights` when you want deeper analysis for one project.
+
+        **CLI:** `npx @agent-analytics/cli all-sites --period 7d`
+      tags: [Account]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: period
+          in: query
+          required: false
+          description: Comparison period
+          schema:
+            type: string
+            enum: ['1d', '7d', '14d', '30d', '90d']
+            default: '7d'
+        - name: limit
+          in: query
+          required: false
+          description: Max projects to include in the top-project list (1-50, default 10)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Account-wide historical overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllSitesOverviewResponse'
+        '400':
+          description: Invalid period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Missing or invalid API key
           content:
