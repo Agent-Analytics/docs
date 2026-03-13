@@ -1,9 +1,11 @@
 ---
 title: OpenClaw
-description: Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and let the agent handle analytics workflows from chat.
+description: Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and use the official CLI from chat.
 ---
 
-For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps the setup agent-native and gives the model higher-level analytics workflows instead of forcing raw HTTP requests.
+For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native and works well with CLI-oriented workflows.
+
+The important detail: `npx` is only the launcher. The skill is using the official Agent Analytics CLI, and that CLI wraps the same documented HTTP API shown in the docs.
 
 ## Prerequisites
 
@@ -15,13 +17,20 @@ For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps the setup 
 
 Tell OpenClaw:
 
-> Install the Agent Analytics skill from ClawHub. My API key is available in `AGENT_ANALYTICS_API_KEY`.
+> Install the Agent Analytics skill from ClawHub. My API key is available in `AGENT_ANALYTICS_API_KEY`. Use the official Agent Analytics CLI.
 
 The hosted listing is here:
 
 - [Agent Analytics on ClawHub](https://clawhub.ai/dannyshmueli/agent-analytics)
 
 Once installed, OpenClaw can create projects, generate tracking snippets, query stats, inspect funnels, and manage experiments from the same conversation loop.
+
+The public docs still matter because they show exactly what the CLI is wrapping:
+
+- [CLI vs MCP vs API](/reference/cli-mcp-api/)
+- [API Reference](/api/)
+
+That is the right explanation if a security review asks what the `npx` command is doing.
 
 ## Verify the install
 
@@ -35,6 +44,7 @@ If you have not created your first real project yet, go back to [Getting Started
 
 ## Troubleshooting
 
+- If ClawHub flags the skill because of `npx`, point reviewers to [CLI vs MCP vs API](/reference/cli-mcp-api/) and [API Reference](/api/). The CLI is the official wrapper around those documented endpoints.
 - If the skill installs but cannot query data, confirm `AGENT_ANALYTICS_API_KEY` is available in the OpenClaw environment instead of pasted into chat.
 - If OpenClaw can create projects but not read analytics, verify the key belongs to the same Agent Analytics account you expect.
 - If you need endpoint-level debugging, use the [API reference](/api/) with `curl` before returning to the skill flow.
