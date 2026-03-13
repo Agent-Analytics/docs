@@ -1,0 +1,204 @@
+@import "@agent-analytics/theme/variables.css";
+@import "@agent-analytics/theme/recipes.css";
+
+:root {
+  --aa-font-display: var(--font-serif);
+}
+
+html {
+  background: var(--page-background);
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+.aa-page-theme {
+  min-height: 100vh;
+  position: relative;
+  background: var(--page-background);
+  color: var(--text);
+}
+
+.aa-page-theme::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--grid-overlay-image);
+  background-size: var(--grid-overlay-size);
+  mask-image: var(--grid-overlay-mask);
+  opacity: var(--grid-overlay-opacity);
+}
+
+.aa-site-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.aa-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(18px);
+  background: var(--header-backdrop);
+  border-bottom: 1px solid var(--header-border);
+}
+
+.aa-topbar-inner {
+  width: min(1200px, calc(100vw - 32px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 0;
+}
+
+.aa-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.aa-brand img {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.aa-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.aa-nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.aa-nav-links a:hover {
+  color: var(--text);
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.aa-nav-links a[data-active="true"] {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: var(--border);
+}
+
+.aa-intro-shell {
+  width: min(1200px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 40px 0 56px;
+}
+
+.aa-api-hero {
+  margin-bottom: 24px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(247, 242, 230, 0.88));
+  border: 1px solid rgba(16, 19, 19, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--paper-shadow);
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.aa-api-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.aa-api-eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.aa-api-hero h1 {
+  margin: 0 0 14px;
+  font-family: var(--aa-font-display);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+}
+
+.aa-api-hero p {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 1.02rem;
+}
+
+.aa-api-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.aa-api-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.78);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.aa-api-actions a:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+  border-color: var(--accent);
+}
+
+.aa-api-actions a.primary {
+  background: var(--button-dark-background);
+  border-color: var(--button-dark-background);
+  color: var(--button-dark-text);
+}
+
+.aa-api-frame {
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(16, 19, 19, 0.1);
+  box-shadow: var(--paper-shadow);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+@media (max-width: 720px) {
+  .aa-topbar-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .aa-nav-links {
+    justify-content: flex-start;
+  }
+}

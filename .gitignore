@@ -1,3 +1,8 @@
+.astro/
 .wrangler/
+dist/
 node_modules/
 llms-full.txt
+public/llms.txt
+public/llms-full.txt
+public/openapi.yaml

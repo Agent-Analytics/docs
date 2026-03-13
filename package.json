@@ -3,9 +3,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/generate-llms.mjs"
+    "dev": "npm run generate:llms && astro dev",
+    "build": "npm run generate:llms && astro build",
+    "preview": "astro preview",
+    "generate:llms": "node scripts/generate-llms.mjs"
   },
   "devDependencies": {
-    "@scalar/openapi-to-markdown": "^0.3.49"
+    "@agent-analytics/theme": "0.1.0",
+    "@astrojs/sitemap": "^3.7.0",
+    "@astrojs/starlight": "^0.38.1",
+    "@scalar/openapi-to-markdown": "^0.3.49",
+    "astro": "^6.0.1",
+    "sharp": "^0.34.2",
+    "yaml": "^2.8.1"
   }
 }

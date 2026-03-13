@@ -1,106 +1,279 @@
-# Agent Analytics API
+# Agent Analytics Docs
 
-- **OpenAPI Version:** `3.1.0`
-- **API Version:** `1.0.0`
-
-Web analytics platform with an HTTP API that AI agents can query.
-
-**[Homepage](https://agentanalytics.sh)** · **[Dashboard](https://app.agentanalytics.sh)** · **[Blog](https://blog.agentanalytics.sh)** · **[GitHub](https://github.com/Agent-Analytics)**
+> Installation guides, reference pages, and the full API reference for Agent Analytics.
 
 ## Getting Started
 
-### 1. Get your API key
+URL: https://docs.agentanalytics.sh/getting-started/
+
+Create a project, install Agent Analytics in your agent, and verify the first query.
+
+This is the shortest path from zero to a working Agent Analytics setup.
+
+## 1. Get your API key
 
 Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and generate an API key from the dashboard.
 
-### 2. Connect your AI agent
+- Use the API key (`aak_*`) for reads, project management, and agent skill setup.
+- Use the project token (`aat_*`) in the tracking snippet that goes on your site.
 
-See the [MCP Server](#section/MCP-Server) section below for Claude, Cursor, Codex, and other MCP clients.
+## 2. Pick and complete an install path
 
-For direct API access:
+Go to the [installation hub](/installation/) and complete the setup for the environment you actually use:
 
-```bash
-curl -X POST "https://api.agentanalytics.sh/projects" \
-  -H "X-API-Key: aak_..." \
-  -H "Content-Type: application/json" \
-  -d '{"name": "my-site"}'
-```
+- [Claude Code](/installation/claude-code/)
+- [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
+- [Cursor](/installation/cursor/)
+- [OpenClaw](/installation/openclaw/)
+- [OpenAI Codex](/installation/openai-codex/)
 
-### 3. Add tracking to your site
+If none of those are a fit, the [API reference](/api/) stays available for direct integration.
 
-Your agent creates a project and returns a tracking snippet — add it before `</body>`:
+## 3. Create your first project
+
+After your agent is connected, ask it to create the first project for you:
+
+- `Create a project called my-site.com`
+- `Create a project called my-site.com and give me the tracking snippet`
+
+If your agent has code write access to your site, ask it:
+
+- `Set up analytics for my-site.com`
+
+Your agent should create the project and either:
+
+- return the tracker snippet for you to paste, or
+- install the tracker itself if it can edit the site
+
+## 4. Add the tracker manually if needed
+
+If your agent already added the tracker to your site, skip this step.
+
+If it only created the project and returned a snippet, add the script before `</body>`:
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."></script>
+        data-project="my-site"
+        data-token="aat_..."></script>
 ```
 
-Page views are tracked automatically. Add custom events with `data-aa-event` attributes (no JavaScript needed) or `window.aa.track()` for dynamic events. See the [`GET /tracker.js`](#tag/tracking/GET/tracker.js) endpoint for full documentation.
+Page views are tracked automatically. Add custom events later with `data-aa-event` attributes or `window.aa.track()`.
 
-### 4. Query your data
+If your site uses Astro, add `is:inline` to that tracker tag.
 
-Ask your AI agent "How's my site doing?" — it queries analytics, experiments, and traffic. Or call the API directly:
+For advanced tracker options like declarative events, cross-domain identity, consent, scroll depth, vitals, and error tracking, use the [Tracker.js guide](/reference/tracker-js/).
 
-```bash
-curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
-  -H "X-API-Key: aak_..."
-```
+## 5. Verify the loop
 
-### 5. Run experiments
+Once the install is working and the tracker is live, ask your agent one of these:
 
-A/B test headlines, CTAs, and layouts — all managed by your agent. See the [Experiments](#tag/Experiments) section for details.
+- `List my projects`
+- `How is my-site doing this week?`
+- `What are the top pages for my-site this week?`
 
-## Authentication
+If the setup is correct, the agent should answer without you hand-writing requests. 
 
-### API Key (`aak_*`) — for reading data & project management
+## Next
 
-Passed via the `X-API-Key` header or `?key=` query parameter. **Keep this secret.** Used for all read endpoints (`/stats`, `/events`, `/query`, etc.) and project management (`/projects`, `/account`).
+- Use [Installation](/installation/) for the fastest per-agent setup.
+- Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.
+- Use [Authentication](/reference/authentication/) when you need the read token vs write token rules.
+- Use [API Reference](/api/) when you need endpoint-level details.
 
-### Project Token (`aat_*`) — for event ingestion
+## Installation Overview
 
-Passed in the request body as `token`. This is a **public** identifier embedded in your site's HTML — not a secret. Used only for `POST /track` and `POST /track/batch`.
+URL: https://docs.agentanalytics.sh/installation/
 
-## MCP Server (Claude, Cursor, etc.)
+Choose the right install path for Claude, Cursor, OpenClaw, Codex, and related AI tools.
 
-Connect Agent Analytics directly to Claude, Cursor, or any MCP-compatible AI client — no API key management needed.
+Choose the environment your agent already runs in. Each page leads with the recommended path for that environment, then covers alternatives where they matter.
 
-**URL:** `https://mcp.agentanalytics.sh/mcp`
+## Recommended install paths
 
-### Add to Claude Desktop / claude.ai
+## Claude Code
 
-Click **Settings → Connectors → Add → Custom** and enter `https://mcp.agentanalytics.sh/mcp`. You'll sign in with GitHub or Google (must match your Agent Analytics account).
+URL: https://docs.agentanalytics.sh/installation/claude-code/
 
-### Add to Claude Code
+Install Agent Analytics in Claude Code with the hosted plugin first, then use the skill path before dropping to raw MCP setup.
 
-**Plugin (recommended)** — installs MCP server + analytics skill in one step:
+<div class="aa-agent-badge aa-agent-badge--plain">
+  <img src="/logos/claude-code-logo.png" alt="" />
+  <span>Claude Code</span>
+</div>
+
+Use the plugin path first. It gives Claude Code both the MCP server connection and the analytics-specific workflow layer in one install.
+
+## Prerequisites
+
+- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
+- Claude Code installed locally
+- Access to the same GitHub or Google identity you use for Agent Analytics
+
+## Recommended: install the plugin
 
 ```bash
 /plugin marketplace add Agent-Analytics/agent-analytics-plugin
 /plugin install agent-analytics
 ```
 
-**Manual** — MCP server only:
+This is the shortest hosted path for Claude Code because it packages the MCP connection and the usage guidance together.
 
-```bash
-claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
-```
+## Verify the install
 
-### Agent Skill (Claude Code, Codex, and more)
+Ask Claude Code:
 
-Install the analytics skill into any agent that supports the [Agent Skills](https://skills.sh) spec:
+- `List my Agent Analytics projects`
+- `How is my-site doing this week?`
+- `What are the top pages for my-site this week?`
+
+If the plugin is working, Claude Code should be able to reach your account without asking you to hand-roll HTTP requests.
+
+If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+
+## Fallback: install the Claude Code skill
+
+If you do not want the full plugin, use the skill path before raw MCP:
 
 ```bash
 npx skills add Agent-Analytics/agent-analytics-mcp
 ```
 
-Works with Claude Code, OpenAI Codex, and other compatible agents. Teaches your agent how to set up tracking, query analytics, run A/B experiments, and interpret results — no MCP required.
+This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It still requires a valid Agent Analytics API key in the environment used by Claude Code.
 
-### Add to Cursor
+## Lower-level fallback: add only the MCP server
 
-1. Open Command Palette (`Cmd+Shift+P` on Mac, `Ctrl+Shift+P` on Windows)
-2. Search for "MCP" and select **Cursor Settings > Tools & MCP**
-3. Click **Add Custom MCP**
-4. Add the following to your `mcp.json`:
+If you want the MCP server without the plugin or skill layer:
+
+```bash
+claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
+```
+
+Use `--transport http`. The hosted MCP server is not configured for legacy SSE transport.
+
+## Troubleshooting
+
+- Make sure Claude Code is using the same GitHub or Google account as your Agent Analytics dashboard account.
+- If the skill installs but Claude Code cannot query data, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
+- If the MCP command fails, verify you used `--transport http`.
+
+## Related
+
+- [Getting Started](/getting-started/)
+- [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
+- [Authentication](/reference/authentication/)
+- [API Reference](/api/)
+
+## Claude Desktop / Cowork
+
+URL: https://docs.agentanalytics.sh/installation/claude-desktop-cowork/
+
+Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
+
+<div class="aa-agent-badge aa-agent-badge--plain">
+  <img src="/logos/claude-code-logo.png" alt="" />
+  <span>Claude Desktop / Cowork</span>
+</div>
+
+Claude Desktop and Cowork both fit the hosted MCP flow. Use the connector UI instead of manually managing API keys in prompts.
+
+## Prerequisites
+
+- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
+- Claude Desktop or Cowork access
+- GitHub or Google sign-in matching your Agent Analytics account
+
+## Recommended: add the hosted connector
+
+1. Open **Settings**
+2. Open **Connectors**
+3. Choose **Add**
+4. Choose **Custom**
+5. Enter:
+
+```text
+https://mcp.agentanalytics.sh/mcp
+```
+
+You will be asked to sign in with GitHub or Google. Use the same identity that owns the projects in Agent Analytics.
+
+## Verify the install
+
+Ask Claude:
+
+- `List my projects`
+- `Show me a 7 day overview for my-site`
+- `Where do users drop off between signup and purchase?`
+
+This path is the best hosted experience for conversational analytics because the MCP server can return structured tool results and rich UI where supported.
+
+If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+
+## Manual notes
+
+- The hosted MCP server URL stays the same across Claude Desktop and Cowork.
+- You do not need to manually pass an `X-API-Key` once the connector sign-in succeeds.
+
+## Troubleshooting
+
+- If authentication succeeds but no projects appear, confirm the signed-in account matches your Agent Analytics dashboard account.
+- If a custom connector URL is rejected, re-enter the exact MCP endpoint: `https://mcp.agentanalytics.sh/mcp`
+- If you need lower-level debugging, switch to the [API reference](/api/) and test the same workflow with direct HTTP calls.
+
+## Related
+
+- [Getting Started](/getting-started/)
+- [Claude Code](/installation/claude-code/)
+- [Cursor](/installation/cursor/)
+- [API Reference](/api/)
+
+## Cursor
+
+URL: https://docs.agentanalytics.sh/installation/cursor/
+
+Install the Agent Analytics skill in Cursor and use CLI-style workflows first. Use MCP only when you specifically want connector-style tool calls.
+
+<div class="aa-agent-badge aa-agent-badge--plain">
+  <img src="/logos/cursor-final.png" alt="" />
+  <span>Cursor</span>
+</div>
+
+For Cursor, start with the Agent Analytics skill plus CLI-style workflows. In practice this is usually faster, cheaper on tokens, and easier to steer than MCP for day-to-day use.
+
+## Prerequisites
+
+- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
+- Cursor installed
+- `npx` available in the environment Cursor uses
+- A valid Agent Analytics API key available as `AGENT_ANALYTICS_API_KEY`
+
+## Recommended: install the agent skill
+
+```bash
+npx skills add Agent-Analytics/agent-analytics-mcp
+export AGENT_ANALYTICS_API_KEY=aak_...
+```
+
+This gives Cursor the Agent Analytics workflow layer plus CLI-oriented execution in the same environment. That is usually the best tradeoff when you want lower latency and less token overhead than MCP tool calls.
+
+## Verify the install
+
+Ask Cursor:
+
+- `List my Agent Analytics projects`
+- `How is my-site doing this week?`
+- `What are the top pages for my-site this week?`
+
+If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+
+## Alternative: add a custom MCP server
+
+Use MCP in Cursor if you specifically want connector-style tool calls instead of skill + CLI execution.
+
+1. Open the Command Palette
+2. Search for `MCP`
+3. Choose **Cursor Settings > Tools & MCP**
+4. Click **Add Custom MCP**
+5. Add this to your `mcp.json`:
 
 ```json
 {
@@ -112,74 +285,268 @@ Works with Claude Code, OpenAI Codex, and other compatible agents. Teaches your 
 }
 ```
 
-### Available MCP Tools
+Save the file and reload Cursor if the tool list does not refresh automatically. MCP works, but it usually adds more latency and token overhead than the skill path.
 
-| Tool                  | Description                                          |
-| --------------------- | ---------------------------------------------------- |
-| `list_projects`       | List all your projects                               |
-| `create_project`      | Create a new project (returns tracker snippet)       |
-| `all_sites_overview`  | Historical summary across all your projects          |
-| `analytics_overview`  | Time series chart + KPIs (events, users) over N days |
-| `analytics_insights`  | Period-over-period comparison with trend             |
-| `analytics_breakdown` | Top property values (pages, referrers, UTM sources)  |
-| `analytics_pages`     | Entry/exit page stats with bounce rate               |
-| `analytics_sessions`  | Session duration histogram                           |
-| `analytics_heatmap`   | Day-of-week x hour traffic grid                      |
-| `analytics_funnel`    | Funnel analysis: where users drop off                |
-| `properties`          | Discover event names and property keys               |
-| `properties_received` | Property keys by event name (sampled)                |
-| `sessions`            | List individual session records                      |
-| `list_experiments`    | List A/B experiments                                 |
-| `create_experiment`   | Create an A/B experiment                             |
-| `get_experiment`      | Get experiment details with results                  |
-| `update_experiment`   | Update experiment status (pause/resume/complete)     |
-| `delete_experiment`   | Delete an experiment                                 |
-| `live_now`            | Real-time snapshot (active visitors, events/min)     |
+## Lower-level fallback: direct API
 
-## CLI vs API
+If you want to bypass both the skill and MCP, call the hosted API directly:
 
-You can use the [CLI](https://www.npmjs.com/package/@agent-analytics/cli) or call the API directly. Every CLI command maps to an API endpoint.
+```bash
+curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
+  -H "X-API-Key: aak_..."
+```
 
-| CLI Command                                                                                                      | API Endpoint                                           |
-| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `npx @agent-analytics/cli stats my-site`                                                                         | `GET /stats?project=my-site`                           |
-| `npx @agent-analytics/cli all-sites --period 7d`                                                                 | `GET /account/all-sites?period=7d`                     |
-| `npx @agent-analytics/cli events my-site`                                                                        | `GET /events?project=my-site`                          |
-| `npx @agent-analytics/cli query --project my-site --metrics event_count`                                         | `POST /query`                                          |
-| `npx @agent-analytics/cli experiments list my-site`                                                              | `GET /experiments?project=my-site`                     |
-| `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"`                                    | `POST /funnel`                                         |
-| `npx @agent-analytics/cli retention my-site --period week --cohorts 8`                                           | `GET /retention?project=my-site&period=week&cohorts=8` |
-| `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments`                                    |
-| `npx @agent-analytics/cli experiments get exp_abc123`                                                            | `GET /experiments/{id}`                                |
-| `npx @agent-analytics/cli projects`                                                                              | `GET /projects`                                        |
+That lower-level path is useful for debugging auth, but the skill + CLI flow is the recommended installation for day-to-day Cursor usage.
+
+## Troubleshooting
+
+- If the skill installs but queries fail, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
+- Confirm the `mcp.json` entry is valid JSON if you choose the MCP path.
+- Reload Cursor after adding the custom MCP server if the tools panel still shows the old state.
+- If Cursor can see the MCP server but not your projects, verify the hosted sign-in completed with the correct account.
+
+## Related
+
+- [Getting Started](/getting-started/)
+- [CLI vs MCP vs API](/reference/cli-mcp-api/)
+- [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
+- [OpenAI Codex](/installation/openai-codex/)
+- [API Reference](/api/)
+
+## OpenAI Codex
+
+URL: https://docs.agentanalytics.sh/installation/openai-codex/
+
+Install the Agent Analytics skill for OpenAI Codex, set the API key once, and use direct queries or guided workflows from there.
+
+<div class="aa-agent-badge aa-agent-badge--inverse">
+  <img src="/logos/openai-white.png" alt="" />
+  <span>OpenAI Codex</span>
+</div>
+
+For OpenAI Codex, the cleanest path today is the Agent Skills install. It keeps the workflow agent-native and does not require the MCP connector flow.
+
+## Prerequisites
+
+- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
+- A valid Agent Analytics API key
+- `npx` available in the environment Codex uses
+
+## Recommended: install the Agent Analytics skill
+
+```bash
+npx skills add Agent-Analytics/agent-analytics-mcp
+```
+
+Then expose your API key to the agent environment:
+
+```bash
+export AGENT_ANALYTICS_API_KEY=aak_...
+```
+
+The skill teaches Codex how to set up tracking, query analytics, inspect project health, and run experiments from the same conversation loop.
+
+## Verify the install
+
+Ask Codex:
+
+- `List my Agent Analytics projects`
+- `How is my-site doing this week?`
+- `Create an experiment for the signup CTA on my-site`
+
+If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+
+## Direct API fallback
+
+If you want to bypass the skill and test the raw contract:
+
+```bash
+curl -X POST "https://api.agentanalytics.sh/projects" \
+  -H "X-API-Key: aak_..." \
+  -H "Content-Type: application/json" \
+  -d '{"name":"my-site"}'
+```
+
+## Troubleshooting
+
+- If the skill installs but queries fail, check that `AGENT_ANALYTICS_API_KEY` is present in the environment the agent actually runs in.
+- If `npx` is unavailable, install the required Node.js runtime first or use the direct API route temporarily.
+- If you need endpoint-level debugging, use the [API reference](/api/) and test with `curl`.
+
+## Related
+
+- [Getting Started](/getting-started/)
+- [Claude Code](/installation/claude-code/)
+- [Authentication](/reference/authentication/)
+- [API Reference](/api/)
+
+## Authentication
+
+URL: https://docs.agentanalytics.sh/reference/authentication/
+
+Understand the difference between API keys and project tokens before you wire an agent or a tracker.
+
+Agent Analytics uses two different credentials. They serve different jobs and should not be swapped.
+
+## API key (`aak_*`)
+
+Use the API key for:
+
+- reading analytics data
+- creating or listing projects
+- account-level endpoints
+- direct API access from scripts, tools, and agents
+
+Pass it with the `X-API-Key` header or the `?key=` query parameter.
+
+```bash
+curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
+  -H "X-API-Key: aak_..."
+```
+
+Treat it as secret material.
+
+## Project token (`aat_*`)
+
+Use the project token for:
+
+- `POST /track`
+- `POST /track/batch`
+- the browser tracker snippet embedded on your site
+
+The token is public by design. It identifies the project for event ingestion and is expected to appear in HTML.
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site"
+        data-token="aat_..."></script>
+```
+
+## Common mistake
+
+Do not put the API key in the client-side tracker. The tracker uses the public project token only.
+
+## Related
+
+- [Getting Started](/getting-started/)
+- [Error Format](/reference/error-format/)
+- [API Reference](/api/)
 
 ## Rate Limits
 
-| Tier | Requests/min | Event Limit    | Data Retention |
-| ---- | ------------ | -------------- | -------------- |
-| Free | 10           | 1,000 lifetime | 7 days         |
-| Pro  | 1,000        | Unlimited      | 365 days       |
+URL: https://docs.agentanalytics.sh/reference/rate-limits/
 
-Experiments (A/B testing) are **pro-only** features. Free tier accounts receive `PRO_REQUIRED`.
+Hosted Agent Analytics uses account-level API limits and event-volume limits that vary by plan.
 
-### Streaming Limits
+## Standard limits
 
-| Limit                  | Value                     |
-| ---------------------- | ------------------------- |
-| Concurrent SSE streams | 10 per account            |
-| `/live` rate           | Standard API rate limit   |
-| Inactivity timeout     | 30 minutes                |
-| Ring buffer            | 5 minutes / 10,000 events |
+| Tier | Requests / minute | Event limit | Data retention |
+| --- | --- | --- | --- |
+| Free | 10 | 100,000 / month | 90 days |
+| Pro | 1,000 | Unlimited | 365 days |
+
+Free hosted accounts also get:
+
+- up to 2 projects
+- 500 agent/API read actions per month
+- MCP access for `list_projects`, `create_project`, `all_sites_overview`, and `analytics_overview`
+
+Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO_REQUIRED` on query, funnels, retention, experiments, and the richer analytics endpoints.
+
+## Streaming limits
+
+| Limit | Value |
+| --- | --- |
+| Concurrent SSE streams | 10 per account |
+| `/live` rate | Standard API rate limit |
+| Inactivity timeout | 30 minutes |
+| Ring buffer | 5 minutes / 10,000 events |
+
+## What to do if you hit a limit
+
+- back off and retry instead of hammering the same endpoint
+- reduce polling frequency for overview queries
+- batch ingestion where possible
+- move experiments and heavier analysis to a pro account if that is the bottleneck
+
+## Related
+
+- [Error Format](/reference/error-format/)
+- [API Reference](/api/)
 
 ## Error Format
 
-All errors return JSON with `error` (machine-readable code) and `message` (human-readable):
+URL: https://docs.agentanalytics.sh/reference/error-format/
+
+All API errors return a machine-readable code plus a human-readable message.
+
+All errors return JSON with an `error` code and a `message`.
 
 ```json
-{ "error": "AUTH_REQUIRED", "message": "API key required" }
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
 ```
 
-Common error codes: `AUTH_REQUIRED`, `FORBIDDEN`, `PROJECT_REQUIRED`, `MISSING_FIELDS`, `RATE_LIMITED`, `INVALID_TOKEN`, `BATCH_TOO_LARGE`, `INVALID_METRIC`, `INVALID_GROUP_BY`, `INVALID_FILTER_OP`, `INVALID_PROPERTY_KEY`, `NOT_FOUND`, `EXPERIMENT_NOT_FOUND`, `EXPERIMENT_NAME_EXISTS`, `INVALID_VARIANTS`, `INVALID_EXPERIMENT_STATUS`, `PRO_REQUIRED`, `STREAM_LIMIT`, `INVALID_FUNNEL_STEPS`.
+## Common error codes
+
+- `AUTH_REQUIRED`
+- `FORBIDDEN`
+- `PROJECT_REQUIRED`
+- `MISSING_FIELDS`
+- `RATE_LIMITED`
+- `INVALID_TOKEN`
+- `BATCH_TOO_LARGE`
+- `INVALID_METRIC`
+- `INVALID_GROUP_BY`
+- `INVALID_FILTER_OP`
+- `INVALID_PROPERTY_KEY`
+- `NOT_FOUND`
+- `EXPERIMENT_NOT_FOUND`
+- `EXPERIMENT_NAME_EXISTS`
+- `INVALID_VARIANTS`
+- `INVALID_EXPERIMENT_STATUS`
+- `PRO_REQUIRED`
+- `STREAM_LIMIT`
+- `INVALID_FUNNEL_STEPS`
+
+## How to debug
+
+1. check the `error` field first and branch on that in your code
+2. use the `message` field for logs and human-readable tool output
+3. confirm whether the failure came from auth, a missing project, or invalid query shape before retrying
+
+## Related
+
+- [Authentication](/reference/authentication/)
+- [Rate Limits](/reference/rate-limits/)
+- [API Reference](/api/)
+
+## API Reference
+
+# Agent Analytics API
+
+- **OpenAPI Version:** `3.1.0`
+- **API Version:** `1.0.0`
+
+Web analytics platform with an HTTP API that AI agents can query.
+
+**Docs:** [Home](https://docs.agentanalytics.sh) · [Getting Started](https://docs.agentanalytics.sh/getting-started/) · [Installation](https://docs.agentanalytics.sh/installation/) · [API Reference](https://docs.agentanalytics.sh/api/) · [OpenAPI Spec](https://docs.agentanalytics.sh/openapi.yaml)
+
+**Quick start:**
+
+1. Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and get an API key.
+2. Create a project with `POST /projects`.
+3. Add the returned tracker snippet to your site.
+4. Query analytics with `GET /stats`.
+
+**Authentication:**
+
+- `aak_*` API keys are secret and used for reads plus project management.
+- `aat_*` project tokens are public and used for ingestion only.
+
+Installation guides for Claude Code, Claude Desktop / Cowork, Cursor, and OpenAI Codex now live in the docs site instead of this OpenAPI intro block.
 
 ## Servers
 
@@ -3512,7 +3879,15 @@ Returns your account details, tier, limits, and project count.
 
   `object`
 
-  - **`max_events_lifetime`**
+  - **`max_events_per_month`**
+
+    `integer`
+
+  - **`max_projects`**
+
+    `integer`
+
+  - **`max_reads_per_month`**
 
     `integer`
 
@@ -3533,10 +3908,12 @@ Returns your account details, tier, limits, and project count.
   "github_login": "freeuser",
   "tier": "free",
   "created_at": "2026-02-01T12:00:00.000Z",
-  "projects_count": 3,
+  "projects_count": 2,
   "tier_limits": {
-    "max_events_lifetime": 1000,
-    "retention_days": 7,
+    "max_events_per_month": 100000,
+    "max_projects": 2,
+    "max_reads_per_month": 500,
+    "retention_days": 90,
     "rate_limit_rpm": 10
   },
   "monthly_spend_cap_dollars": null
@@ -4857,56 +5234,23 @@ Permanently deletes an experiment. Event data (exposures, conversions) is preser
 - **Path:** `/tracker.js`
 - **Tags:** Tracking
 
-Returns the lightweight (\~8KB) JavaScript tracker. Embed it in your HTML:
+Returns the lightweight JavaScript tracker used for browser-side analytics.
+
+Embed it in your HTML:
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
         data-project="my-site" data-token="aat_..."></script>
 ```
 
-The tracker auto-collects: `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, `timezone` (IANA), UTM parameters, `session_count`, `days_since_first_visit`, and first-touch UTMs (`first_utm_source`, etc.). On Chromium browsers, Client Hints (`navigator.userAgentData`) enhance browser/OS/device detection accuracy. No cookies are used.
+Required attributes:
 
-**SPA routing:** Both `pushState`/`replaceState` routing and hash-based routing (e.g. `/#/about` → `/#/pricing`) are detected automatically. No configuration needed.
+- `data-project`: project name
+- `data-token`: project token (`aat_*`)
 
-## Script Attributes
+The tracker auto-collects page URL, pathname, referrer, browser, OS, device, language, timezone, UTM parameters, session count, and first-touch attribution. SPA routing is detected automatically. No cookies are required.
 
-| Attribute                 | Required | Default   | Description                                                                                                                                     |
-| ------------------------- | -------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data-project`            | Yes      | —         | Project name                                                                                                                                    |
-| `data-token`              | Yes      | —         | Project token (`aat_*`)                                                                                                                         |
-| `data-link-domains`       | No       | Disabled  | Comma-separated domains for cross-subdomain identity linking                                                                                    |
-| `data-do-not-track`       | No       | `"false"` | Honor the browser's DNT signal                                                                                                                  |
-| `data-track-outgoing`     | No       | `"false"` | Auto-track external link clicks as `outgoing_link` events                                                                                       |
-| `data-heartbeat`          | No       | Disabled  | Seconds for time-on-page tracking (e.g. `"15"`). Min 15s.                                                                                       |
-| `data-track-errors`       | No       | `"false"` | Auto-track JS errors as `$error` events                                                                                                         |
-| `data-track-performance`  | No       | `"false"` | Collect Navigation Timing metrics on page\_view (`perf_dns`, `perf_tcp`, `perf_ttfb`, `perf_dom_interactive`, `perf_dom_complete`, `perf_load`) |
-| `data-track-clicks`       | No       | `"false"` | Auto-track `<a>` and `<button>` clicks as `$click` events with `{ tag, text, href, id, classes, is_external, type }`                            |
-| `data-track-vitals`       | No       | `"false"` | Collect Core Web Vitals (LCP, CLS, INP) via PerformanceObserver. Merges into page\_view — zero event bloat.                                     |
-| `data-track-downloads`    | No       | `"false"` | Auto-track file download link clicks as `$download` events with `{ href, filename, extension }`. Matches 28 common file extensions.             |
-| `data-track-forms`        | No       | `"false"` | Auto-track form submissions as `$form_submit` events with `{ id, name, action, method, classes }`                                               |
-| `data-track-404`          | No       | `"false"` | Auto-track 404 pages as `$404` events via `<meta name="aa-status" content="404">` or Navigation Timing `responseStatus`                         |
-| `data-track-scroll-depth` | No       | `"false"` | Track max scroll depth (0-100%) per page view. Merges into page\_view — zero event bloat.                                                       |
-| `data-require-consent`    | No       | `"false"` | Enable consent management — events buffer until `aa.grantConsent()`                                                                             |
-
-## Element Attributes (no script-tag opt-in)
-
-| Attribute              | Description                                                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `data-aa-impression`   | Content impression tracking — fires `$impression` event when 50% visible. Value becomes `name` property.     |
-| `data-aa-impression-*` | Extra properties on impression events (e.g. `data-aa-impression-placement="hero"` adds `placement: "hero"`). |
-
-## JavaScript API (`window.aa`)
-
-| Method                          | Description                                                      |
-| ------------------------------- | ---------------------------------------------------------------- |
-| `aa.track(event, properties)`   | Send a custom event                                              |
-| `aa.page(name)`                 | Send a page view (called automatically on load + SPA navigation) |
-| `aa.identify(id)`               | Link anonymous user to known ID                                  |
-| `aa.experiment(name, variants)` | Deterministic A/B test variant assignment                        |
-| `aa.set(properties)`            | Set global properties on all subsequent events                   |
-| `aa.requireConsent()`           | Enter consent buffer mode                                        |
-| `aa.grantConsent()`             | Flush buffer, persist consent, resume tracking                   |
-| `aa.revokeConsent()`            | Discard buffer, remove consent, block sends                      |
+Full tracker documentation now lives in the docs site: <https://docs.agentanalytics.sh/reference/tracker-js/>
 
 #### Responses
 
@@ -4923,609 +5267,6 @@ true
 ```
 
 ##### Status: 404 Not found
-
-### Cross-subdomain tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/cross-subdomain`
-- **Tags:** Tracking
-
-By default, each subdomain has its own anonymous user ID (stored in `localStorage`, which is per-origin). To track users across subdomains — e.g. for funnels spanning `example.com` → `docs.example.com` → `app.example.com` — add `data-link-domains`:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-link-domains="example.com"></script>
-```
-
-**How it works:** When a user clicks a link to a sibling subdomain, the tracker appends `?_aa=<user_id>` to the URL. The tracker on the destination page adopts that ID and strips the parameter from the URL. No cookies are involved.
-
-- Load the **same tracker snippet** (same project + token) on all subdomains you want to link
-- The `hostname` property is collected on every event, so you can still filter/breakdown by subdomain
-- Multiple root domains can be comma-separated: `data-link-domains="example.com, other.com"`
-- Without this attribute, no click listener is registered and there is zero overhead
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Declarative event tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/declarative-events`
-- **Tags:** Tracking
-
-Track clicks without writing JavaScript. Add `data-aa-event` to any HTML element and the tracker handles it automatically.
-
-```html
-<button data-aa-event="cta_click" data-aa-event-id="hero_signup">Get Started</button>
-```
-
-When clicked, this fires a `cta_click` event with `{ id: "hero_signup" }` as properties.
-
-Add custom properties with `data-aa-event-*` attributes:
-
-```html
-<a href="/pricing" data-aa-event="cta_click" data-aa-event-id="nav_pricing" data-aa-event-section="header">
-  Pricing
-</a>
-```
-
-This fires `cta_click` with `{ id: "nav_pricing", section: "header" }`.
-
-**When to use declarative vs programmatic tracking:**
-
-| Use declarative (`data-aa-event`)             | Use programmatic (`window.aa.track()`)                                               |
-| --------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Simple click tracking on buttons, links, CTAs | Events that aren't triggered by clicks (form submissions, scroll milestones, timers) |
-| Static HTML sites, CMS platforms              | When you need to compute property values dynamically                                 |
-| Non-technical team members adding tracking    | When the event depends on application state (e.g., cart total, user tier)            |
-| Quick setup — no JavaScript needed            | When you need conditional logic (only track if user is logged in)                    |
-
-Both approaches produce identical events in your analytics. You can mix them freely on the same page.
-
-**Notes:**
-
-- The tracker uses a single document-level `click` listener — no per-element binding
-- Events bubble up, so `data-aa-event` works on child elements too (the tracker walks up the DOM via `closest()`)
-- All `data-aa-event-*` property values are strings. For non-string data, use `window.aa.track()` instead
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Do Not Track & disable
-
-- **Method:** `GET`
-- **Path:** `/tracker/do-not-track`
-- **Tags:** Tracking
-
-## Do Not Track
-
-Add `data-do-not-track="true"` to honor the browser's [Do Not Track](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/DNT) signal:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-do-not-track="true"></script>
-```
-
-When enabled, the tracker silently exits if `navigator.doNotTrack === '1'`. This is **opt-in** — without the attribute, DNT is not checked.
-
-## Disable Tracking
-
-Users or developers can disable tracking entirely via localStorage:
-
-```js
-localStorage.setItem('aa_disabled', 'true');  // disable tracking
-localStorage.removeItem('aa_disabled');         // re-enable tracking
-```
-
-When `aa_disabled` is set to `'true'`, the tracker silently exits on page load. This is useful for:
-
-- Internal team members who don't want to pollute analytics
-- QA and testing environments
-- Implementing a user-facing opt-out toggle
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Outgoing link tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/outgoing-links`
-- **Tags:** Tracking
-
-Track clicks on external links automatically. Add `data-track-outgoing="true"` to the script tag:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-track-outgoing="true"></script>
-```
-
-When a visitor clicks a link pointing to a different domain, the tracker fires an `outgoing_link` event with these properties:
-
-| Property   | Description                        | Example                        |
-| ---------- | ---------------------------------- | ------------------------------ |
-| `href`     | Full URL of the link               | `https://github.com/some-repo` |
-| `text`     | Link text (truncated to 200 chars) | `View on GitHub`               |
-| `hostname` | Destination hostname               | `github.com`                   |
-
-**Notes:**
-
-- Only `http://` and `https://` links are tracked — `mailto:`, `tel:`, and `javascript:` links are ignored
-- Without the attribute, no click listener is registered and there is zero overhead
-- Use the `breakdown` endpoint with `property=hostname` and `event=outgoing_link` to see top exit domains
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Time-on-page tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/time-on-page`
-- **Tags:** Tracking
-
-Add `data-heartbeat="15"` to measure how long visitors actually engage with each page:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-heartbeat="15"></script>
-```
-
-The tracker silently counts seconds while the tab is visible. On page exit (tab hidden, tab closed, or SPA navigation), the `time_on_page` property is added to the original `page_view` event — zero extra events stored.
-
-- Timer pauses when the tab is hidden, resumes when visible
-- Minimum interval is 15 seconds (values below 15 are clamped)
-- Works with SPA navigation — each page gets its own `time_on_page`
-- Query via `page_view` events with `properties.time_on_page > 0`
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### JS error tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/error-tracking`
-- **Tags:** Tracking
-
-Add `data-track-errors="true"` to automatically capture JavaScript errors:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-track-errors="true"></script>
-```
-
-The tracker hooks `window.addEventListener('error')` and `window.addEventListener('unhandledrejection')` to send `$error` events with these properties:
-
-| Property  | Description                            | Example                                       |
-| --------- | -------------------------------------- | --------------------------------------------- |
-| `message` | Error message (truncated to 500 chars) | `TypeError: Cannot read property 'x' of null` |
-| `source`  | Script filename                        | `https://mysite.com/app.js`                   |
-| `line`    | Line number                            | `42`                                          |
-| `col`     | Column number                          | `10`                                          |
-
-**Safety features:**
-
-- Max 5 errors per page view — prevents runaway logging from error loops
-- Deduplicates by `message + source + line` — same error on the same line is only tracked once
-- Resets on SPA navigation (new page = fresh count)
-- Does not interfere with other error handlers (uses `addEventListener`, not `window.onerror` assignment)
-- No stack traces — keeps payloads small
-
-**Querying errors:**
-
-- `GET /breakdown?property=message&event=$error` — top error messages
-- `GET /breakdown?property=source&event=$error` — errors by source file
-- `GET /events?event=$error` — raw error event log
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Global properties (aa.set)
-
-- **Method:** `GET`
-- **Path:** `/tracker/global-properties`
-- **Tags:** Tracking
-
-Use `aa.set()` to attach properties to ALL subsequent events without repeating them in every `track()` call:
-
-```js
-// After login, tag all future events with the user's plan
-window.aa?.set({ plan: 'pro', team: 'acme' });
-
-// These events now include plan='pro' and team='acme' automatically
-window.aa?.track('feature_used', { feature: 'export' });
-```
-
-**Behavior:**
-
-- Merge order: auto-collected → UTM → global (`set`) → event-specific. Event-specific properties always win.
-- Multiple `set()` calls merge: `set({a:1}); set({b:2})` results in `{a:1, b:2}`
-- Remove a key: `aa.set({ plan: null })`
-- In-memory only — does not persist across page reloads
-
-**Common use cases:**
-
-- After login: `aa.set({ plan: user.plan, role: user.role })`
-- Feature flags: `aa.set({ feature_x: 'variant_b' })`
-- Any session-level context that applies to all events
-
-**Query global properties** like any other property:
-
-- `GET /breakdown?property=plan&event=page_view` — page views by plan
-- `POST /query` with `group_by: ["properties.plan"]`
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Performance timing
-
-- **Method:** `GET`
-- **Path:** `/tracker/performance`
-- **Tags:** Tracking
-
-Add `data-track-performance="true"` to collect page load performance metrics:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-track-performance="true"></script>
-```
-
-After `window.load`, the tracker reads the Navigation Timing API and merges these properties into the `page_view` event (no extra events stored):
-
-| Property               | What it measures               | Example |
-| ---------------------- | ------------------------------ | ------- |
-| `perf_dns`             | DNS lookup time (ms)           | `14`    |
-| `perf_tcp`             | TCP handshake time (ms)        | `27`    |
-| `perf_ttfb`            | Time to first byte (ms)        | `75`    |
-| `perf_dom_interactive` | DOM ready for interaction (ms) | `450`   |
-| `perf_dom_complete`    | DOM fully loaded (ms)          | `981`   |
-| `perf_load`            | Full page load (ms)            | `1002`  |
-
-**Behavior:**
-
-- Fires once per page load — SPA navigations via pushState don't create new Navigation Timing entries
-- Merges into the existing `page_view` event (same zero-bloat UPDATE pattern as time-on-page)
-- All values are integers (milliseconds, rounded)
-- Falls back gracefully if the Navigation Timing API is unavailable
-
-**Querying performance data:**
-
-- `GET /events?event=page_view` — look for `perf_*` keys in event properties
-- `GET /breakdown?property=perf_ttfb&event=page_view` — TTFB distribution
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Consent management (GDPR/CCPA)
-
-- **Method:** `GET`
-- **Path:** `/tracker/consent`
-- **Tags:** Tracking
-
-For sites that require user consent before tracking:
-
-```html
-<script defer data-project="mysite" data-token="aat_..."
-  data-require-consent="true"
-  src="https://api.agentanalytics.sh/tracker.js"></script>
-```
-
-```js
-// Events buffer until consent is granted
-aa.grantConsent();   // flush buffer + persist to localStorage
-aa.revokeConsent();  // discard buffer + block sends
-```
-
-**Methods:**
-
-- `aa.requireConsent()` — programmatic alternative to `data-require-consent="true"`
-- `aa.grantConsent()` — flush buffered events, save `aa_consent=granted` in localStorage, resume normal tracking
-- `aa.revokeConsent()` — clear buffer, remove localStorage consent, block future sends
-
-**Behavior:**
-
-- Events queue in-memory but never send until consent is granted
-- Pre-consent events are preserved (not discarded) — zero data loss
-- On next page load, prior consent auto-detected from localStorage
-- No cookies, no server-side state — fully client-side
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Content impression tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/impressions`
-- **Tags:** Tracking
-
-Track which elements users actually see using `IntersectionObserver`. Add `data-aa-impression` to any HTML element:
-
-```html
-<div data-aa-impression="hero_cta">Get Started Free</div>
-
-<!-- With extra properties -->
-<section data-aa-impression="pricing_card"
-         data-aa-impression-plan="pro"
-         data-aa-impression-position="above-fold">
-  Pro Plan - $29/mo
-</section>
-```
-
-When 50% of the element is visible in the viewport, the tracker fires a `$impression` event with these properties:
-
-| Property   | Source                            | Example                                 |
-| ---------- | --------------------------------- | --------------------------------------- |
-| `name`     | `data-aa-impression` value        | `"hero_cta"`                            |
-| *(extras)* | `data-aa-impression-*` attributes | `plan: "pro"`, `position: "above-fold"` |
-
-**Behavior:**
-
-- Each element fires once per page view — scrolling past the same element again does not re-fire
-- On SPA navigation, elements are re-scanned and can fire again on the new page
-- No script-tag opt-in needed — element-driven, same model as `data-aa-event`
-- Zero overhead if no elements have the attribute (`querySelectorAll` returns empty)
-- Browsers without `IntersectionObserver` (<3%) silently skip — no errors
-
-**Querying impression data:**
-
-- `GET /events?event=$impression` — raw impression events
-- `GET /breakdown?property=name&event=$impression` — which elements are seen most
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Visitor intelligence (session count & first visit)
-
-- **Method:** `GET`
-- **Path:** `/tracker/visitor-intelligence`
-- **Tags:** Tracking
-
-Every event automatically includes two visitor-level properties — no configuration needed:
-
-| Property                 | Type    | Description                                                                |
-| ------------------------ | ------- | -------------------------------------------------------------------------- |
-| `session_count`          | integer | How many sessions this visitor has had (1 = first visit, 2 = second, etc.) |
-| `days_since_first_visit` | integer | Days since this visitor's very first visit (0 on first day)                |
-
-**How it works:**
-
-- Session count is persisted in localStorage and incremented each time a new session starts (30-min inactivity timeout)
-- First visit timestamp is persisted in localStorage — set once, never overwritten
-- Both properties are included on every event automatically
-
-**Querying visitor intelligence:**
-
-- `GET /breakdown?property=session_count&event=page_view` — distribution of new vs returning visitors
-- Filter for first-time visitors: `filters: [{ field: "properties.session_count", op: "eq", value: 1 }]`
-- Filter for returning visitors: `filters: [{ field: "properties.session_count", op: "gt", value: 1 }]`
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Campaign attribution (UTM persistence & first-touch)
-
-- **Method:** `GET`
-- **Path:** `/tracker/campaign-attribution`
-- **Tags:** Tracking
-
-Two improvements to UTM tracking — no configuration needed:
-
-**UTM session persistence:**
-
-**Problem:** User lands on `/?utm_source=google`, navigates to `/pricing` — the `/pricing` page\_view loses all UTM data.
-
-**Fix:** UTMs from the landing page URL are saved to sessionStorage and automatically restored on every subsequent page view within the same session. Internal navigation no longer loses campaign data.
-
-**First-touch attribution:**
-
-The first-ever UTM parameters are stored in localStorage and never overwritten. These appear on every event as `first_utm_*` properties:
-
-| Property             | Description                   |
-| -------------------- | ----------------------------- |
-| `first_utm_source`   | Original acquisition source   |
-| `first_utm_medium`   | Original acquisition medium   |
-| `first_utm_campaign` | Original acquisition campaign |
-| `first_utm_content`  | Original ad content           |
-| `first_utm_term`     | Original search term          |
-
-First-touch properties only exist if the visitor originally arrived via a UTM-tagged link. Visitors who arrive organically will not have `first_utm_*` properties.
-
-**Querying attribution data:**
-
-- `GET /breakdown?property=first_utm_source&event=page_view` — which channels originally acquired your users
-- Compare first-touch vs last-touch: `first_utm_source` (acquisition) vs `utm_source` (current session)
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### File download tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/file-downloads`
-- **Tags:** Tracking
-
-Track clicks on download links automatically. Add `data-track-downloads="true"` to the script tag:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-track-downloads="true"></script>
-```
-
-When a visitor clicks a link whose URL ends with a known file extension, the tracker fires a `$download` event with these properties:
-
-| Property    | Description                                        | Example                              |
-| ----------- | -------------------------------------------------- | ------------------------------------ |
-| `href`      | Full URL without query string (avoids PII leakage) | `https://cdn.example.com/report.pdf` |
-| `filename`  | Extracted filename from the URL path               | `report.pdf`                         |
-| `extension` | File extension, lowercase                          | `pdf`                                |
-
-**Supported extensions (28):** `pdf`, `xlsx`, `xls`, `docx`, `doc`, `txt`, `rtf`, `csv`, `exe`, `key`, `pps`, `pptx`, `ppt`, `7z`, `pkg`, `rar`, `gz`, `zip`, `avi`, `mov`, `mp4`, `mpeg`, `wmv`, `midi`, `mp3`, `wav`, `wma`, `dmg`, `iso`, `msi`
-
-**Behavior:**
-
-- Case-insensitive matching (`.PDF`, `.Zip` both work)
-- Query strings are stripped from `href` to avoid tracking tokens or PII in download URLs
-- Only `http://` and `https://` links are tracked — `mailto:`, `tel:`, `javascript:` are skipped
-- Elements with `data-aa-event` are skipped to avoid double-tracking with declarative events
-
-**Querying download data:**
-
-- `GET /events?event=$download` — raw download event log
-- `GET /breakdown?property=extension&event=$download` — downloads by file type
-- `GET /breakdown?property=filename&event=$download` — most downloaded files
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Form submission tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/form-submissions`
-- **Tags:** Tracking
-
-Track form submissions automatically. Add `data-track-forms="true"` to the script tag:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-track-forms="true"></script>
-```
-
-When a visitor submits a form, the tracker fires a `$form_submit` event with these properties:
-
-| Property  | Description                               | Example                        |
-| --------- | ----------------------------------------- | ------------------------------ |
-| `id`      | Form element ID (or empty string)         | `"contact-form"`               |
-| `name`    | Form name attribute (or empty string)     | `"contact"`                    |
-| `action`  | Form action URL (truncated to 500 chars)  | `"https://example.com/submit"` |
-| `method`  | HTTP method, uppercased (defaults to GET) | `"POST"`                       |
-| `classes` | Form CSS classes (truncated to 200 chars) | `"form-inline"`                |
-
-**Behavior:**
-
-- Uses a capture-phase `submit` listener to fire before any `preventDefault()` calls
-- Forms with `data-aa-event` attribute are skipped to avoid double-tracking
-- Respects `form.checkValidity()` — invalid forms are NOT tracked (unless the form has the `novalidate` attribute)
-- No form data is captured — only metadata about the form element itself
-
-**Querying form data:**
-
-- `GET /events?event=$form_submit` — raw form submission log
-- `GET /breakdown?property=id&event=$form_submit` — submissions by form
-- `GET /breakdown?property=method&event=$form_submit` — GET vs POST breakdown
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### 404 page tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker/404-tracking`
-- **Tags:** Tracking
-
-Track 404 (not found) pages automatically. Add `data-track-404="true"` to the script tag:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-track-404="true"></script>
-```
-
-The tracker detects 404 pages using two signals:
-
-1. **Meta tag:** `<meta name="aa-status" content="404">` in the page HTML. Add this to your 404 page template.
-2. **Navigation Timing API:** `responseStatus === 404` (Chrome 109+, automatic, no markup needed).
-
-When a 404 is detected, the tracker fires a `$404` event with these properties:
-
-| Property   | Description                                     | Example                       |
-| ---------- | ----------------------------------------------- | ----------------------------- |
-| `path`     | Current page pathname                           | `"/blog/old-post"`            |
-| `referrer` | `document.referrer` (where the broken link was) | `"https://example.com/links"` |
-| `title`    | Page title                                      | `"Page Not Found"`            |
-
-**Behavior:**
-
-- Fires on initial page load (after DOM is ready) and on each SPA navigation
-- The `$404` event fires after the `page_view` event, so both are recorded
-- Uses `referrer` to identify which pages contain broken links
-
-**Setup — add meta tag to your 404 template:**
-
-```html
-<!-- In your 404.html template -->
-<head>
-  <meta name="aa-status" content="404">
-</head>
-```
-
-**Querying 404 data:**
-
-- `GET /events?event=$404` — all 404 events
-- `GET /breakdown?property=path&event=$404` — most common broken URLs
-- `GET /breakdown?property=referrer&event=$404` — pages linking to broken URLs
-
-#### Responses
-
-##### Status: 200 Documentation only
-
-### Scroll Depth Tracking
-
-- **Method:** `GET`
-- **Path:** `/tracker.js#scroll-depth`
-- **Tags:** Tracking
-
-Track how far users scroll on each page. Add `data-track-scroll-depth="true"` to the script tag:
-
-```html
-<script defer src="https://api.agentanalytics.sh/tracker.js"
-        data-project="my-site" data-token="aat_..."
-        data-track-scroll-depth="true"></script>
-```
-
-On page exit (tab switch, navigation, or close), the tracker sends the maximum scroll depth (0-100%) as a `scroll_depth` property merged into the existing `page_view` event — zero event bloat, no extra rows.
-
-| Property       | Type    | Description                            | Example |
-| -------------- | ------- | -------------------------------------- | ------- |
-| `scroll_depth` | integer | Max scroll depth as percentage (0-100) | `72`    |
-
-**How it works:**
-
-- Measures scroll position on every scroll event (passive listener, no jank)
-- Uses robust cross-browser document height measurement (max of 6 body/documentElement values)
-- Re-measures document height after page load (catches lazy-loaded content)
-- Only tracks the **maximum** depth reached — scrolling back up doesn't decrease it
-- Short pages where the viewport covers the full document report `100`
-- Fires exactly once per page view (idempotency guard prevents duplicate sends)
-- SPA-aware: flushes previous page's depth on navigation, resets for the new page
-
-**Querying scroll depth data:**
-
-- `GET /events?event=page_view` — `scroll_depth` is in page\_view properties
-- `POST /query` with `filters: [{field: "properties.scroll_depth", op: "gte", value: 75}]` — find deeply engaged visitors
-
-#### Responses
-
-##### Status: 200 Documentation only
 
 ## Schemas
 
@@ -7418,7 +7159,15 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
 
   `object`
 
-  - **`max_events_lifetime`**
+  - **`max_events_per_month`**
+
+    `integer`
+
+  - **`max_projects`**
+
+    `integer`
+
+  - **`max_reads_per_month`**
 
     `integer`
 
@@ -7439,10 +7188,12 @@ On page exit (tab switch, navigation, or close), the tracker sends the maximum s
   "github_login": "freeuser",
   "tier": "free",
   "created_at": "2026-02-01T12:00:00.000Z",
-  "projects_count": 3,
+  "projects_count": 2,
   "tier_limits": {
-    "max_events_lifetime": 1000,
-    "retention_days": 7,
+    "max_events_per_month": 100000,
+    "max_projects": 2,
+    "max_reads_per_month": 500,
+    "retention_days": 90,
     "rate_limit_rpm": 10
   },
   "monthly_spend_cap_dollars": null
@@ -7617,10 +7368,12 @@ Status: `200` · Content-Type: `application/json`
   "github_login": "freeuser",
   "tier": "free",
   "created_at": "2026-02-01T12:00:00.000Z",
-  "projects_count": 3,
+  "projects_count": 2,
   "tier_limits": {
-    "max_events_lifetime": 1000,
-    "retention_days": 7,
+    "max_events_per_month": 100000,
+    "max_projects": 2,
+    "max_reads_per_month": 500,
+    "retention_days": 90,
     "rate_limit_rpm": 10
   },
   "monthly_spend_cap_dollars": null
@@ -7638,7 +7391,9 @@ Status: `200` · Content-Type: `application/json`
   "created_at": "2026-02-01T12:00:00.000Z",
   "projects_count": 42,
   "tier_limits": {
-    "max_events_lifetime": -1,
+    "max_events_per_month": -1,
+    "max_projects": -1,
+    "max_reads_per_month": -1,
     "retention_days": 365,
     "rate_limit_rpm": 1000
   },

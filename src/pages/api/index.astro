@@ -1,0 +1,90 @@
+---
+import '../../styles/site.css';
+
+const links = [
+  { href: '/', label: 'Docs', active: false },
+  { href: '/getting-started/', label: 'Getting Started', active: false },
+  { href: '/installation/', label: 'Installation', active: false },
+  { href: 'https://app.agentanalytics.sh', label: 'Dashboard', active: false },
+  { href: 'https://blog.agentanalytics.sh', label: 'Blog', active: false },
+  { href: 'https://github.com/Agent-Analytics', label: 'GitHub', active: false },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Analytics API Reference</title>
+    <meta
+      name="description"
+      content="Interactive API reference for Agent Analytics. Backed by the canonical OpenAPI spec."
+    />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="canonical" href="https://docs.agentanalytics.sh/api/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="help" type="text/plain" href="/llms.txt" title="LLM-friendly docs index" />
+    <link rel="help" type="text/plain" href="/llms-full.txt" title="LLM-friendly full docs and API reference" />
+  </head>
+  <body class="aa-page-theme">
+    <div class="aa-site-shell">
+      <header class="aa-topbar">
+        <div class="aa-topbar-inner">
+          <a class="aa-brand" href="/">
+            <img src="/favicon.png" alt="" />
+            <span>Agent Analytics</span>
+          </a>
+          <nav class="aa-nav-links" aria-label="Primary">
+            {links.map((link) => (
+              <a href={link.href} data-active={link.active ? 'true' : 'false'}>
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      <main class="aa-intro-shell">
+        <section class="aa-api-hero">
+          <div class="aa-api-eyebrow">OpenAPI Source of Truth</div>
+          <h1>Interactive API reference for every Agent Analytics endpoint.</h1>
+          <p>
+            The guides live in the docs shell. The API contract stays in <code>/openapi.yaml</code> and
+            renders here via Scalar so you keep a fast, browsable reference without hiding the install docs.
+          </p>
+          <div class="aa-api-actions">
+            <a class="primary" href="/installation/">Browse install guides</a>
+            <a href="/openapi.yaml">Download OpenAPI</a>
+            <a href="/llms-full.txt">LLM full text</a>
+          </div>
+        </section>
+
+        <section class="aa-api-frame">
+          <script id="api-reference" data-url="/openapi.yaml"></script>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script
+      is:inline
+      defer
+      src="https://api.agentanalytics.sh/tracker.js"
+      data-project="agentanalytics-landing"
+      data-token="aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b"
+      data-link-domains="agentanalytics.sh"
+      data-track-outgoing="true"
+      data-heartbeat="15"
+      data-track-errors="true"
+      data-track-performance="true"
+      data-track-clicks="true"
+      data-track-vitals="true"
+      data-track-scroll-depth="true"></script>
+  </body>
+</html>
