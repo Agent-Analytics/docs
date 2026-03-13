@@ -24,6 +24,8 @@ Required attributes:
 
 The tracker automatically collects page URL, pathname, referrer, browser, OS, device, language, timezone, UTM params, session count, and first-touch attribution. No cookies are required.
 
+Automated traffic that reaches the tracker is filtered out of your normal analytics. Use [Bot Traffic](/reference/bot-traffic/) if you want to inspect those automated requests separately.
+
 If your agent can edit code, ask it to add the snippet for you. If not, create the project in [Getting Started](/getting-started/#3-create-your-first-project) and paste the returned snippet manually.
 
 ## Common options
@@ -146,5 +148,6 @@ On localhost, the tracker switches to dev mode and logs activity to the browser 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Bot Traffic](/reference/bot-traffic/)
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)

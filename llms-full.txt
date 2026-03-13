@@ -70,6 +70,7 @@ Once the install is working and the tracker is live, ask your agent one of these
 - `List my projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
+- `Show bot traffic for my-site this week`
 
 If the setup is correct, the agent should answer without you hand-writing requests. 
 
@@ -77,6 +78,7 @@ If the setup is correct, the agent should answer without you hand-writing reques
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
 - Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.
+- Use [Bot Traffic](/reference/bot-traffic/) to inspect filtered automated callers separately from normal analytics.
 - Use [Authentication](/reference/authentication/) when you need the read token vs write token rules.
 - Use [API Reference](/api/) when you need endpoint-level details.
 
@@ -313,6 +315,55 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 - [OpenAI Codex](/installation/openai-codex/)
 - [API Reference](/api/)
 
+## OpenClaw
+
+URL: https://docs.agentanalytics.sh/installation/openclaw/
+
+Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and let the agent handle analytics workflows from chat.
+
+For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps the setup agent-native and gives the model higher-level analytics workflows instead of forcing raw HTTP requests.
+
+## Prerequisites
+
+- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
+- A valid Agent Analytics API key stored as `AGENT_ANALYTICS_API_KEY`
+- Access to the OpenClaw environment where you want the skill installed
+
+## Recommended: install from ClawHub
+
+Tell OpenClaw:
+
+> Install the Agent Analytics skill from ClawHub. My API key is available in `AGENT_ANALYTICS_API_KEY`.
+
+The hosted listing is here:
+
+- [Agent Analytics on ClawHub](https://clawhub.ai/dannyshmueli/agent-analytics)
+
+Once installed, OpenClaw can create projects, generate tracking snippets, query stats, inspect funnels, and manage experiments from the same conversation loop.
+
+## Verify the install
+
+Ask OpenClaw:
+
+- `List my Agent Analytics projects`
+- `How is my-site doing this week?`
+- `Send me a daily analytics summary every morning`
+
+If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+
+## Troubleshooting
+
+- If the skill installs but cannot query data, confirm `AGENT_ANALYTICS_API_KEY` is available in the OpenClaw environment instead of pasted into chat.
+- If OpenClaw can create projects but not read analytics, verify the key belongs to the same Agent Analytics account you expect.
+- If you need endpoint-level debugging, use the [API reference](/api/) with `curl` before returning to the skill flow.
+
+## Related
+
+- [Getting Started](/getting-started/)
+- [Claude Code](/installation/claude-code/)
+- [OpenAI Codex](/installation/openai-codex/)
+- [API Reference](/api/)
+
 ## OpenAI Codex
 
 URL: https://docs.agentanalytics.sh/installation/openai-codex/
@@ -369,6 +420,161 @@ If you have not created your first real project yet, go back to [Getting Started
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)
 
+## Tracker.js
+
+URL: https://docs.agentanalytics.sh/reference/tracker-js/
+
+Add Agent Analytics to any site with one script tag, then turn on declarative events, consent, performance tracking, and other browser-side features.
+
+`tracker.js` is the browser-side part of Agent Analytics. Use it when you want page views, custom events, and client-side experiments without shipping a heavy SDK.
+
+The API reference now treats `GET /tracker.js` as the script endpoint only. The setup and feature guide lives here.
+
+## Base snippet
+
+Add this before `</body>`:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site"
+        data-token="aat_..."></script>
+```
+
+Required attributes:
+
+- `data-project`: your project name
+- `data-token`: the public project token (`aat_*`)
+
+The tracker automatically collects page URL, pathname, referrer, browser, OS, device, language, timezone, UTM params, session count, and first-touch attribution. No cookies are required.
+
+Automated traffic that reaches the tracker is filtered out of your normal analytics. Use [Bot Traffic](/reference/bot-traffic/) if you want to inspect those automated requests separately.
+
+If your agent can edit code, ask it to add the snippet for you. If not, create the project in [Getting Started](/getting-started/#3-create-your-first-project) and paste the returned snippet manually.
+
+## Common options
+
+| Attribute | What it does |
+| --- | --- |
+| `data-link-domains="example.com"` | Link anonymous identity across sibling domains or subdomains |
+| `data-do-not-track="true"` | Respect the browser Do Not Track signal |
+| `data-heartbeat="15"` | Measure active time on page while the tab is visible |
+| `data-track-outgoing="true"` | Track external link clicks as `outgoing_link` |
+| `data-track-clicks="true"` | Track `<a>` and `<button>` clicks as `$click` |
+| `data-track-errors="true"` | Capture uncaught JS errors and promise rejections as `$error` |
+| `data-track-performance="true"` | Add Navigation Timing metrics to `page_view` |
+| `data-track-vitals="true"` | Add Core Web Vitals to `page_view` |
+| `data-track-downloads="true"` | Track download link clicks as `$download` |
+| `data-track-forms="true"` | Track form submissions as `$form_submit` |
+| `data-track-404="true"` | Track 404 pages as `$404` |
+| `data-track-scroll-depth="true"` | Add max scroll depth to `page_view` |
+| `data-require-consent="true"` | Buffer events until consent is granted |
+
+Example:
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site"
+        data-token="aat_..."
+        data-track-outgoing="true"
+        data-track-performance="true"
+        data-track-vitals="true"
+        data-track-errors="true"
+        data-track-scroll-depth="true"
+        data-heartbeat="15"></script>
+```
+
+## Declarative events
+
+For simple click tracking, you usually do not need custom JavaScript. Add `data-aa-event` directly in HTML:
+
+```html
+<button data-aa-event="signup" data-aa-event-plan="pro">
+  Sign up for Pro
+</button>
+```
+
+That fires a `signup` event with `{ plan: "pro" }`.
+
+This is usually the easiest path for agents too. They can add attributes to existing markup instead of wiring `onclick` handlers or editing application code.
+
+## Impressions
+
+Track whether a section was actually seen:
+
+```html
+<section data-aa-impression="pricing_table"
+         data-aa-impression-plan="pro">
+  ...
+</section>
+```
+
+When the element becomes visible, the tracker sends an `$impression` event.
+
+## `window.aa` API
+
+Use the JavaScript API when the event depends on runtime state:
+
+```js
+window.aa?.track('checkout_started', { plan: 'pro' });
+window.aa?.identify('user_123');
+window.aa?.set({ plan: 'pro', team: 'acme' });
+```
+
+Useful methods:
+
+- `aa.track(event, properties)`: send a custom event
+- `aa.page(name)`: manually send a page view
+- `aa.identify(id)`: link anonymous behavior to a known user ID
+- `aa.set(properties)`: attach global properties to future events
+- `aa.experiment(name, variants)`: assign variants deterministically client-side
+- `aa.grantConsent()` / `aa.revokeConsent()`: manage consent mode
+
+## Common recipes
+
+### Cross-domain identity
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site"
+        data-token="aat_..."
+        data-link-domains="example.com,app.example.com,docs.example.com"></script>
+```
+
+### Privacy and consent
+
+```html
+<script defer src="https://api.agentanalytics.sh/tracker.js"
+        data-project="my-site"
+        data-token="aat_..."
+        data-do-not-track="true"
+        data-require-consent="true"></script>
+```
+
+```js
+window.aa?.grantConsent();
+window.aa?.revokeConsent();
+```
+
+### Experiments
+
+```html
+<h1 data-aa-experiment="hero_text"
+    data-aa-variant-b="Try it free today!">
+  Start your free trial
+</h1>
+```
+
+### Local development
+
+On localhost, the tracker switches to dev mode and logs activity to the browser console instead of sending production data. That keeps local testing out of your real analytics.
+
+## Related
+
+- [Getting Started](/getting-started/)
+- [Bot Traffic](/reference/bot-traffic/)
+- [Authentication](/reference/authentication/)
+- [API Reference](/api/)
+
 ## Authentication
 
 URL: https://docs.agentanalytics.sh/reference/authentication/
@@ -421,6 +627,92 @@ Do not put the API key in the client-side tracker. The tracker uses the public p
 - [Error Format](/reference/error-format/)
 - [API Reference](/api/)
 
+## CLI vs MCP vs API
+
+URL: https://docs.agentanalytics.sh/reference/cli-mcp-api/
+
+Agent Analytics can be used through MCP, the CLI, or raw HTTP. Choose the interface that fits the environment your agent already has.
+
+Agent Analytics has three real access modes:
+
+- `MCP` for chat-native and editor-native tool use
+- `CLI` for shell-oriented agent workflows
+- `API` for raw HTTP control
+
+The CLI is a convenience wrapper around the same public HTTP API. If an environment is strict about transient package execution or security scanners dislike `npx`, use the API docs directly and keep the same underlying workflows.
+
+Which one is best depends on what your agent can already do.
+
+## When to use each
+
+### MCP
+
+Use MCP when your agent already runs inside a tool that supports connectors or MCP servers, such as Claude Desktop, Cowork, Cursor, or Claude Code plugin flows.
+
+MCP is usually the best fit when:
+
+- you want the install to feel native inside chat
+- you want tool calls instead of shell commands
+- you do not want to hand-roll auth headers or request payloads
+- you want quick project or account summaries like `analytics_overview`, `bot_traffic_overview`, or `all_sites_bot_traffic`
+
+Tradeoff:
+
+- MCP often adds more latency and token overhead than skill + CLI flows because the model has to manage more tool-call round trips and tool result payloads.
+
+### CLI
+
+Use the CLI when your agent already has terminal access and is comfortable executing commands.
+
+CLI is usually the best fit when:
+
+- your agent already lives in a shell-first environment
+- you want predictable command output
+- you prefer command composition over tool integration
+- you want lower overhead than MCP in editor-style agents like Cursor
+
+### API
+
+Use the API when you want strict control over requests, retries, and response parsing.
+
+API is usually the best fit when:
+
+- you are integrating from your own code
+- you need exact HTTP-level behavior
+- you are debugging auth or payload shape directly
+
+## CLI to API mapping
+
+Every major CLI workflow maps directly to an HTTP endpoint:
+
+| CLI Command | API Endpoint |
+| --- | --- |
+| `npx @agent-analytics/cli stats my-site` | `GET /stats?project=my-site` |
+| `npx @agent-analytics/cli all-sites --period 7d` | `GET /account/all-sites?period=7d` |
+| `npx @agent-analytics/cli bot-traffic my-site --period 7d` | `GET /bot-traffic?project=my-site&period=7d` |
+| `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
+| `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
+| `npx @agent-analytics/cli query --project my-site --metrics event_count` | `POST /query` |
+| `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
+| `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
+| `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
+| `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
+| `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
+| `npx @agent-analytics/cli projects` | `GET /projects` |
+
+## Quick rule of thumb
+
+- Choose `CLI` first in shell-capable environments like Cursor when the agent can run commands directly.
+- Choose `MCP` when you specifically want native connector-style tool use or do not have a good shell path.
+- Choose `API` when you need full control or lower-level debugging.
+
+## Related
+
+- [Bot Traffic](/reference/bot-traffic/)
+- [Installation Overview](/installation/)
+- [Authentication](/reference/authentication/)
+- [API Reference](/api/)
+
 ## Rate Limits
 
 URL: https://docs.agentanalytics.sh/reference/rate-limits/
@@ -438,7 +730,9 @@ Free hosted accounts also get:
 
 - up to 2 projects
 - 500 agent/API read actions per month
-- MCP access for `list_projects`, `create_project`, `all_sites_overview`, and `analytics_overview`
+- MCP access for `list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `bot_traffic_overview`, and `all_sites_bot_traffic`
+
+Bot traffic overview stays available on both hosted tiers through API, CLI, and MCP.
 
 Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO_REQUIRED` on query, funnels, retention, experiments, and the richer analytics endpoints.
 
@@ -460,6 +754,7 @@ Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO
 
 ## Related
 
+- [Bot Traffic](/reference/bot-traffic/)
 - [Error Format](/reference/error-format/)
 - [API Reference](/api/)
 
@@ -560,6 +855,8 @@ Add the tracker to your site and it handles everything:
 ```
 
 The response is `202 Accepted` — events are queued and written asynchronously.
+
+Automated traffic that reaches this endpoint is filtered out of normal analytics and reported separately via `/bot-traffic` and `/account/bot-traffic`.
 
 #### Request Body
 
@@ -709,6 +1006,8 @@ The response is `202 Accepted` — events are queued and written asynchronously.
 Record up to 100 events in a single request. All events must use the same project token.
 
 Like `/track`, this is called by the browser tracker — not by agents or CLI.
+
+Automated traffic that reaches this endpoint is filtered out of normal analytics and reported separately via `/bot-traffic` and `/account/bot-traffic`.
 
 #### Request Body
 
@@ -3930,6 +4229,292 @@ Returns your account details, tier, limits, and project count.
 }
 ```
 
+### Filtered automated traffic for one project
+
+- **Method:** `GET`
+- **Path:** `/bot-traffic`
+- **Tags:** Analytics
+
+Returns a project-scoped summary of automated traffic that reached Agent Analytics and was filtered out of normal analytics.
+
+This endpoint reports daily aggregates only: automated request count, dropped event count, category breakdown, top actors, and a zero-filled time series for the selected period.
+
+This is **not** full site bot visibility like CDN logs. It only includes automated requests that actually reached `POST /track` or `POST /track/batch`.
+
+**CLI:** `npx @agent-analytics/cli bot-traffic my-site --period 7d --limit 5`
+
+**MCP:** `bot_traffic_overview`
+
+#### Responses
+
+##### Status: 200 Project bot traffic overview
+
+###### Content-Type: application/json
+
+- **`actors`**
+
+  `array`
+
+  **Items:**
+
+  - **`actor`**
+
+    `string`
+
+  - **`category`**
+
+    `string`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`last_seen_at`**
+
+    `object`
+
+  - **`requests`**
+
+    `integer`
+
+- **`categories`**
+
+  `array`
+
+  **Items:**
+
+  - **`category`**
+
+    `string`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`requests`**
+
+    `integer`
+
+  - **`share_pct`**
+
+    `number`
+
+- **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`, format: `date`
+
+  - **`label`**
+
+    `string`, possible values: `"1d", "7d", "14d", "30d", "90d"`
+
+  - **`previous_from`**
+
+    `string`, format: `date`
+
+  - **`previous_to`**
+
+    `string`, format: `date`
+
+  - **`to`**
+
+    `string`, format: `date`
+
+- **`project`**
+
+  `string`
+
+- **`scope`**
+
+  `string`, possible values: `"project"`
+
+- **`summary`**
+
+  `object`
+
+  - **`automated_requests`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`dropped_events`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`last_seen_at`**
+
+    `object`
+
+- **`time_series`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`, format: `date`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`requests`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "scope": "project",
+  "project": "my-site",
+  "period": {
+    "label": "7d",
+    "from": "2026-03-03",
+    "to": "2026-03-09",
+    "previous_from": "2026-02-24",
+    "previous_to": "2026-03-02"
+  },
+  "summary": {
+    "automated_requests": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "dropped_events": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "last_seen_at": 1773459600000
+  },
+  "categories": [
+    {
+      "category": "ai_agent",
+      "requests": 3,
+      "dropped_events": 5,
+      "share_pct": 60
+    }
+  ],
+  "actors": [
+    {
+      "actor": "ChatGPT-User",
+      "category": "ai_agent",
+      "requests": 3,
+      "dropped_events": 5,
+      "last_seen_at": 1773459600000
+    }
+  ],
+  "time_series": [
+    {
+      "date": "2026-03-13",
+      "requests": 5,
+      "dropped_events": 7
+    }
+  ]
+}
+```
+
+##### Status: 400 Invalid period or missing project
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found or unauthorized
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
 ### Historical all-sites overview
 
 - **Method:** `GET`
@@ -4092,6 +4677,286 @@ Use `/live` for real-time account-wide activity. Use project-scoped endpoints li
     }
   ],
   "remaining_projects": 1
+}
+```
+
+##### Status: 400 Invalid period
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Filtered automated traffic across all active projects
+
+- **Method:** `GET`
+- **Path:** `/account/bot-traffic`
+- **Tags:** Account
+
+Returns an account-scoped summary of automated traffic that reached Agent Analytics and was filtered out of normal analytics.
+
+This endpoint is optimized for a lightweight all-sites view: total filtered requests, dropped events, active-project count, top-project list, category breakdown, and a zero-filled daily time series.
+
+Deleted projects are excluded from the totals and rankings.
+
+**CLI:** `npx @agent-analytics/cli bot-traffic --all --period 7d --limit 10`
+
+**MCP:** `all_sites_bot_traffic`
+
+#### Responses
+
+##### Status: 200 Account-wide bot traffic overview
+
+###### Content-Type: application/json
+
+- **`categories`**
+
+  `array`
+
+  **Items:**
+
+  - **`category`**
+
+    `string`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`requests`**
+
+    `integer`
+
+  - **`share_pct`**
+
+    `number`
+
+- **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`, format: `date`
+
+  - **`label`**
+
+    `string`, possible values: `"1d", "7d", "14d", "30d", "90d"`
+
+  - **`previous_from`**
+
+    `string`, format: `date`
+
+  - **`previous_to`**
+
+    `string`, format: `date`
+
+  - **`to`**
+
+    `string`, format: `date`
+
+- **`projects`**
+
+  `array`
+
+  **Items:**
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`id`**
+
+    `string`
+
+  - **`last_seen_at`**
+
+    `object`
+
+  - **`name`**
+
+    `string`
+
+  - **`requests`**
+
+    `integer`
+
+  - **`share_pct`**
+
+    `number`
+
+- **`remaining_projects`**
+
+  `integer`
+
+- **`scope`**
+
+  `string`, possible values: `"account"`
+
+- **`summary`**
+
+  `object`
+
+  - **`active_projects`**
+
+    `integer`
+
+  - **`automated_requests`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`dropped_events`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`last_seen_at`**
+
+    `object`
+
+  - **`total_projects`**
+
+    `integer`
+
+- **`time_series`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`, format: `date`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`requests`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "scope": "account",
+  "period": {
+    "label": "7d",
+    "from": "2026-03-03",
+    "to": "2026-03-09",
+    "previous_from": "2026-02-24",
+    "previous_to": "2026-03-02"
+  },
+  "summary": {
+    "automated_requests": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "dropped_events": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "active_projects": 1,
+    "total_projects": 4,
+    "last_seen_at": 1773459600000
+  },
+  "categories": [
+    {
+      "category": "ai_agent",
+      "requests": 3,
+      "dropped_events": 5,
+      "share_pct": 60
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_123",
+      "name": "my-site",
+      "requests": 3,
+      "dropped_events": 4,
+      "share_pct": 60,
+      "last_seen_at": 1773459600000
+    }
+  ],
+  "remaining_projects": 3,
+  "time_series": [
+    {
+      "date": "2026-03-13",
+      "requests": 5,
+      "dropped_events": 7
+    }
+  ]
 }
 ```
 
@@ -7112,6 +7977,742 @@ true
 }
 ```
 
+### BotTrafficMetricDelta
+
+- **Type:**`object`
+
+* **`change`**
+
+  `integer`
+
+* **`change_pct`**
+
+  `object`
+
+* **`current`**
+
+  `integer`
+
+* **`previous`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "current": 5,
+  "previous": 1,
+  "change": 4,
+  "change_pct": 400
+}
+```
+
+### BotTrafficTimeSeriesPoint
+
+- **Type:**`object`
+
+* **`date`**
+
+  `string`, format: `date`
+
+* **`dropped_events`**
+
+  `integer`
+
+* **`requests`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "date": "2026-03-13",
+  "requests": 5,
+  "dropped_events": 7
+}
+```
+
+### BotTrafficCategorySummary
+
+- **Type:**`object`
+
+* **`category`**
+
+  `string`
+
+* **`dropped_events`**
+
+  `integer`
+
+* **`requests`**
+
+  `integer`
+
+* **`share_pct`**
+
+  `number`
+
+**Example:**
+
+```json
+{
+  "category": "ai_agent",
+  "requests": 3,
+  "dropped_events": 5,
+  "share_pct": 60
+}
+```
+
+### BotTrafficActorSummary
+
+- **Type:**`object`
+
+* **`actor`**
+
+  `string`
+
+* **`category`**
+
+  `string`
+
+* **`dropped_events`**
+
+  `integer`
+
+* **`last_seen_at`**
+
+  `object`
+
+* **`requests`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "actor": "ChatGPT-User",
+  "category": "ai_agent",
+  "requests": 3,
+  "dropped_events": 5,
+  "last_seen_at": 1773459600000
+}
+```
+
+### BotTrafficProjectSummary
+
+- **Type:**`object`
+
+* **`dropped_events`**
+
+  `integer`
+
+* **`id`**
+
+  `string`
+
+* **`last_seen_at`**
+
+  `object`
+
+* **`name`**
+
+  `string`
+
+* **`requests`**
+
+  `integer`
+
+* **`share_pct`**
+
+  `number`
+
+**Example:**
+
+```json
+{
+  "id": "proj_123",
+  "name": "my-site",
+  "requests": 3,
+  "dropped_events": 4,
+  "share_pct": 60,
+  "last_seen_at": 1773459600000
+}
+```
+
+### BotTrafficProjectSummaryMetrics
+
+- **Type:**`object`
+
+* **`automated_requests`**
+
+  `object`
+
+  - **`change`**
+
+    `integer`
+
+  - **`change_pct`**
+
+    `object`
+
+  - **`current`**
+
+    `integer`
+
+  - **`previous`**
+
+    `integer`
+
+* **`dropped_events`**
+
+  `object`
+
+  - **`change`**
+
+    `integer`
+
+  - **`change_pct`**
+
+    `object`
+
+  - **`current`**
+
+    `integer`
+
+  - **`previous`**
+
+    `integer`
+
+* **`last_seen_at`**
+
+  `object`
+
+**Example:**
+
+```json
+{
+  "automated_requests": {
+    "current": 5,
+    "previous": 1,
+    "change": 4,
+    "change_pct": 400
+  },
+  "dropped_events": {
+    "current": 5,
+    "previous": 1,
+    "change": 4,
+    "change_pct": 400
+  },
+  "last_seen_at": 1773459600000
+}
+```
+
+### BotTrafficAccountSummary
+
+- **Type:**`object`
+
+* **`active_projects`**
+
+  `integer`
+
+* **`automated_requests`**
+
+  `object`
+
+  - **`change`**
+
+    `integer`
+
+  - **`change_pct`**
+
+    `object`
+
+  - **`current`**
+
+    `integer`
+
+  - **`previous`**
+
+    `integer`
+
+* **`dropped_events`**
+
+  `object`
+
+  - **`change`**
+
+    `integer`
+
+  - **`change_pct`**
+
+    `object`
+
+  - **`current`**
+
+    `integer`
+
+  - **`previous`**
+
+    `integer`
+
+* **`last_seen_at`**
+
+  `object`
+
+* **`total_projects`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "automated_requests": {
+    "current": 5,
+    "previous": 1,
+    "change": 4,
+    "change_pct": 400
+  },
+  "dropped_events": {
+    "current": 5,
+    "previous": 1,
+    "change": 4,
+    "change_pct": 400
+  },
+  "active_projects": 1,
+  "total_projects": 4,
+  "last_seen_at": 1773459600000
+}
+```
+
+### BotTrafficOverviewResponse
+
+- **Type:**`object`
+
+* **`actors`**
+
+  `array`
+
+  **Items:**
+
+  - **`actor`**
+
+    `string`
+
+  - **`category`**
+
+    `string`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`last_seen_at`**
+
+    `object`
+
+  - **`requests`**
+
+    `integer`
+
+* **`categories`**
+
+  `array`
+
+  **Items:**
+
+  - **`category`**
+
+    `string`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`requests`**
+
+    `integer`
+
+  - **`share_pct`**
+
+    `number`
+
+* **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`, format: `date`
+
+  - **`label`**
+
+    `string`, possible values: `"1d", "7d", "14d", "30d", "90d"`
+
+  - **`previous_from`**
+
+    `string`, format: `date`
+
+  - **`previous_to`**
+
+    `string`, format: `date`
+
+  - **`to`**
+
+    `string`, format: `date`
+
+* **`project`**
+
+  `string`
+
+* **`scope`**
+
+  `string`, possible values: `"project"`
+
+* **`summary`**
+
+  `object`
+
+  - **`automated_requests`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`dropped_events`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`last_seen_at`**
+
+    `object`
+
+* **`time_series`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`, format: `date`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`requests`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "scope": "project",
+  "project": "my-site",
+  "period": {
+    "label": "7d",
+    "from": "2026-03-03",
+    "to": "2026-03-09",
+    "previous_from": "2026-02-24",
+    "previous_to": "2026-03-02"
+  },
+  "summary": {
+    "automated_requests": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "dropped_events": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "last_seen_at": 1773459600000
+  },
+  "categories": [
+    {
+      "category": "ai_agent",
+      "requests": 3,
+      "dropped_events": 5,
+      "share_pct": 60
+    }
+  ],
+  "actors": [
+    {
+      "actor": "ChatGPT-User",
+      "category": "ai_agent",
+      "requests": 3,
+      "dropped_events": 5,
+      "last_seen_at": 1773459600000
+    }
+  ],
+  "time_series": [
+    {
+      "date": "2026-03-13",
+      "requests": 5,
+      "dropped_events": 7
+    }
+  ]
+}
+```
+
+### AllSitesBotTrafficOverviewResponse
+
+- **Type:**`object`
+
+* **`categories`**
+
+  `array`
+
+  **Items:**
+
+  - **`category`**
+
+    `string`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`requests`**
+
+    `integer`
+
+  - **`share_pct`**
+
+    `number`
+
+* **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`, format: `date`
+
+  - **`label`**
+
+    `string`, possible values: `"1d", "7d", "14d", "30d", "90d"`
+
+  - **`previous_from`**
+
+    `string`, format: `date`
+
+  - **`previous_to`**
+
+    `string`, format: `date`
+
+  - **`to`**
+
+    `string`, format: `date`
+
+* **`projects`**
+
+  `array`
+
+  **Items:**
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`id`**
+
+    `string`
+
+  - **`last_seen_at`**
+
+    `object`
+
+  - **`name`**
+
+    `string`
+
+  - **`requests`**
+
+    `integer`
+
+  - **`share_pct`**
+
+    `number`
+
+* **`remaining_projects`**
+
+  `integer`
+
+* **`scope`**
+
+  `string`, possible values: `"account"`
+
+* **`summary`**
+
+  `object`
+
+  - **`active_projects`**
+
+    `integer`
+
+  - **`automated_requests`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`dropped_events`**
+
+    `object`
+
+    - **`change`**
+
+      `integer`
+
+    - **`change_pct`**
+
+      `object`
+
+    - **`current`**
+
+      `integer`
+
+    - **`previous`**
+
+      `integer`
+
+  - **`last_seen_at`**
+
+    `object`
+
+  - **`total_projects`**
+
+    `integer`
+
+* **`time_series`**
+
+  `array`
+
+  **Items:**
+
+  - **`date`**
+
+    `string`, format: `date`
+
+  - **`dropped_events`**
+
+    `integer`
+
+  - **`requests`**
+
+    `integer`
+
+**Example:**
+
+```json
+{
+  "scope": "account",
+  "period": {
+    "label": "7d",
+    "from": "2026-03-03",
+    "to": "2026-03-09",
+    "previous_from": "2026-02-24",
+    "previous_to": "2026-03-02"
+  },
+  "summary": {
+    "automated_requests": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "dropped_events": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "active_projects": 1,
+    "total_projects": 4,
+    "last_seen_at": 1773459600000
+  },
+  "categories": [
+    {
+      "category": "ai_agent",
+      "requests": 3,
+      "dropped_events": 5,
+      "share_pct": 60
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_123",
+      "name": "my-site",
+      "requests": 3,
+      "dropped_events": 4,
+      "share_pct": 60,
+      "last_seen_at": 1773459600000
+    }
+  ],
+  "remaining_projects": 3,
+  "time_series": [
+    {
+      "date": "2026-03-13",
+      "requests": 5,
+      "dropped_events": 7
+    }
+  ]
+}
+```
+
 ### AccountResponse
 
 - **Type:**`object`
@@ -7387,5 +8988,117 @@ Status: `200` · Content-Type: `application/json`
     "rate_limit_rpm": 1000
   },
   "monthly_spend_cap_dollars": 50
+}
+```
+
+### `GET /bot-traffic`
+
+Status: `200` · Content-Type: `application/json`
+
+#### empty — Empty state
+
+```json
+{
+  "scope": "project",
+  "project": "my-site",
+  "period": {
+    "label": "7d",
+    "from": "2026-03-07",
+    "to": "2026-03-13",
+    "previous_from": "2026-02-28",
+    "previous_to": "2026-03-06"
+  },
+  "summary": {
+    "automated_requests": {
+      "current": 0,
+      "previous": 0,
+      "change": 0,
+      "change_pct": 0
+    },
+    "dropped_events": {
+      "current": 0,
+      "previous": 0,
+      "change": 0,
+      "change_pct": 0
+    },
+    "last_seen_at": null
+  },
+  "categories": [],
+  "actors": [],
+  "time_series": [
+    {
+      "date": "2026-03-13",
+      "requests": 0,
+      "dropped_events": 0
+    }
+  ]
+}
+```
+
+#### active — Active bot traffic
+
+```json
+{
+  "scope": "project",
+  "project": "my-site",
+  "period": {
+    "label": "7d",
+    "from": "2026-03-07",
+    "to": "2026-03-13",
+    "previous_from": "2026-02-28",
+    "previous_to": "2026-03-06"
+  },
+  "summary": {
+    "automated_requests": {
+      "current": 5,
+      "previous": 1,
+      "change": 4,
+      "change_pct": 400
+    },
+    "dropped_events": {
+      "current": 7,
+      "previous": 1,
+      "change": 6,
+      "change_pct": 600
+    },
+    "last_seen_at": 1773459600000
+  },
+  "categories": [
+    {
+      "category": "ai_agent",
+      "requests": 3,
+      "dropped_events": 5,
+      "share_pct": 60
+    },
+    {
+      "category": "search_crawler",
+      "requests": 2,
+      "dropped_events": 2,
+      "share_pct": 40
+    }
+  ],
+  "actors": [
+    {
+      "actor": "ChatGPT-User",
+      "category": "ai_agent",
+      "requests": 3,
+      "dropped_events": 5,
+      "last_seen_at": 1773459600000
+    },
+    {
+      "actor": "Googlebot",
+      "category": "search_crawler",
+      "requests": 2,
+      "dropped_events": 2,
+      "last_seen_at": 1773456000000
+    }
+  ],
+  "time_series": [
+    {
+      "date": "2026-03-13",
+      "requests": 5,
+      "dropped_events": 7
+    }
+  ]
 }
 ```

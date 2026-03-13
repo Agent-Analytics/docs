@@ -9,6 +9,8 @@ Agent Analytics has three real access modes:
 - `CLI` for shell-oriented agent workflows
 - `API` for raw HTTP control
 
+The CLI is a convenience wrapper around the same public HTTP API. If an environment is strict about transient package execution or security scanners dislike `npx`, use the API docs directly and keep the same underlying workflows.
+
 Which one is best depends on what your agent can already do.
 
 ## When to use each
@@ -22,6 +24,7 @@ MCP is usually the best fit when:
 - you want the install to feel native inside chat
 - you want tool calls instead of shell commands
 - you do not want to hand-roll auth headers or request payloads
+- you want quick project or account summaries like `analytics_overview`, `bot_traffic_overview`, or `all_sites_bot_traffic`
 
 Tradeoff:
 
@@ -56,6 +59,8 @@ Every major CLI workflow maps directly to an HTTP endpoint:
 | --- | --- |
 | `npx @agent-analytics/cli stats my-site` | `GET /stats?project=my-site` |
 | `npx @agent-analytics/cli all-sites --period 7d` | `GET /account/all-sites?period=7d` |
+| `npx @agent-analytics/cli bot-traffic my-site --period 7d` | `GET /bot-traffic?project=my-site&period=7d` |
+| `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
 | `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
 | `npx @agent-analytics/cli query --project my-site --metrics event_count` | `POST /query` |
 | `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
@@ -73,6 +78,7 @@ Every major CLI workflow maps directly to an HTTP endpoint:
 
 ## Related
 
+- [Bot Traffic](/reference/bot-traffic/)
 - [Installation Overview](/installation/)
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)

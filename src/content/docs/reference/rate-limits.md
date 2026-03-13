@@ -14,7 +14,9 @@ Free hosted accounts also get:
 
 - up to 2 projects
 - 500 agent/API read actions per month
-- MCP access for `list_projects`, `create_project`, `all_sites_overview`, and `analytics_overview`
+- MCP access for `list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `bot_traffic_overview`, and `all_sites_bot_traffic`
+
+Bot traffic overview stays available on both hosted tiers through API, CLI, and MCP.
 
 Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO_REQUIRED` on query, funnels, retention, experiments, and the richer analytics endpoints.
 
@@ -36,5 +38,6 @@ Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO
 
 ## Related
 
+- [Bot Traffic](/reference/bot-traffic/)
 - [Error Format](/reference/error-format/)
 - [API Reference](/api/)

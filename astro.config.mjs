@@ -49,6 +49,7 @@ export default defineConfig({
           label: 'Reference',
           items: [
             { slug: 'reference/tracker-js' },
+            { slug: 'reference/bot-traffic' },
             { slug: 'reference/authentication' },
             { slug: 'reference/cli-mcp-api' },
             { slug: 'reference/rate-limits' },

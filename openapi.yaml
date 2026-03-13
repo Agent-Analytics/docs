@@ -983,6 +983,185 @@ components:
           type: integer
           example: 1
 
+    BotTrafficMetricDelta:
+      type: object
+      properties:
+        current:
+          type: integer
+          example: 5
+        previous:
+          type: integer
+          example: 1
+        change:
+          type: integer
+          example: 4
+        change_pct:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 400
+
+    BotTrafficTimeSeriesPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2026-03-13'
+        requests:
+          type: integer
+          example: 5
+        dropped_events:
+          type: integer
+          example: 7
+
+    BotTrafficCategorySummary:
+      type: object
+      properties:
+        category:
+          type: string
+          example: ai_agent
+        requests:
+          type: integer
+          example: 3
+        dropped_events:
+          type: integer
+          example: 5
+        share_pct:
+          type: number
+          example: 60
+
+    BotTrafficActorSummary:
+      type: object
+      properties:
+        actor:
+          type: string
+          example: ChatGPT-User
+        category:
+          type: string
+          example: ai_agent
+        requests:
+          type: integer
+          example: 3
+        dropped_events:
+          type: integer
+          example: 5
+        last_seen_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 1773459600000
+
+    BotTrafficProjectSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: proj_123
+        name:
+          type: string
+          example: my-site
+        requests:
+          type: integer
+          example: 3
+        dropped_events:
+          type: integer
+          example: 4
+        share_pct:
+          type: number
+          example: 60
+        last_seen_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 1773459600000
+
+    BotTrafficProjectSummaryMetrics:
+      type: object
+      properties:
+        automated_requests:
+          $ref: '#/components/schemas/BotTrafficMetricDelta'
+        dropped_events:
+          $ref: '#/components/schemas/BotTrafficMetricDelta'
+        last_seen_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 1773459600000
+
+    BotTrafficAccountSummary:
+      type: object
+      properties:
+        automated_requests:
+          $ref: '#/components/schemas/BotTrafficMetricDelta'
+        dropped_events:
+          $ref: '#/components/schemas/BotTrafficMetricDelta'
+        active_projects:
+          type: integer
+          example: 1
+        total_projects:
+          type: integer
+          example: 4
+        last_seen_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 1773459600000
+
+    BotTrafficOverviewResponse:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [project]
+          example: project
+        project:
+          type: string
+          example: my-site
+        period:
+          $ref: '#/components/schemas/AllSitesPeriod'
+        summary:
+          $ref: '#/components/schemas/BotTrafficProjectSummaryMetrics'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficCategorySummary'
+        actors:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficActorSummary'
+        time_series:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficTimeSeriesPoint'
+
+    AllSitesBotTrafficOverviewResponse:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [account]
+          example: account
+        period:
+          $ref: '#/components/schemas/AllSitesPeriod'
+        summary:
+          $ref: '#/components/schemas/BotTrafficAccountSummary'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficCategorySummary'
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficProjectSummary'
+        remaining_projects:
+          type: integer
+          example: 3
+        time_series:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficTimeSeriesPoint'
+
     AccountResponse:
       type: object
       properties:
@@ -1157,6 +1336,8 @@ paths:
         ```
 
         The response is `202 Accepted` — events are queued and written asynchronously.
+
+        Automated traffic that reaches this endpoint is filtered out of normal analytics and reported separately via `/bot-traffic` and `/account/bot-traffic`.
       tags: [Ingestion]
       security: []
       x-codeSamples:
@@ -1219,6 +1400,8 @@ paths:
         Record up to 100 events in a single request. All events must use the same project token.
 
         Like `/track`, this is called by the browser tracker — not by agents or CLI.
+
+        Automated traffic that reaches this endpoint is filtered out of normal analytics and reported separately via `/bot-traffic` and `/account/bot-traffic`.
       tags: [Ingestion]
       security: []
       x-codeSamples:
@@ -2568,6 +2751,145 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /bot-traffic:
+    get:
+      operationId: getBotTrafficOverview
+      summary: Filtered automated traffic for one project
+      description: |
+        Returns a project-scoped summary of automated traffic that reached Agent Analytics and was filtered out of normal analytics.
+
+        This endpoint reports daily aggregates only: automated request count, dropped event count, category breakdown, top actors, and a zero-filled time series for the selected period.
+
+        This is **not** full site bot visibility like CDN logs. It only includes automated requests that actually reached `POST /track` or `POST /track/batch`.
+
+        **CLI:** `npx @agent-analytics/cli bot-traffic my-site --period 7d --limit 5`
+
+        **MCP:** `bot_traffic_overview`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - name: period
+          in: query
+          required: false
+          description: Comparison period
+          schema:
+            type: string
+            enum: ['1d', '7d', '14d', '30d', '90d']
+            default: '7d'
+        - name: limit
+          in: query
+          required: false
+          description: Max actors to include in the top-actor list (1-50, default 10)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Project bot traffic overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotTrafficOverviewResponse'
+              examples:
+                empty:
+                  summary: Empty state
+                  value:
+                    scope: project
+                    project: my-site
+                    period:
+                      label: 7d
+                      from: '2026-03-07'
+                      to: '2026-03-13'
+                      previous_from: '2026-02-28'
+                      previous_to: '2026-03-06'
+                    summary:
+                      automated_requests:
+                        current: 0
+                        previous: 0
+                        change: 0
+                        change_pct: 0
+                      dropped_events:
+                        current: 0
+                        previous: 0
+                        change: 0
+                        change_pct: 0
+                      last_seen_at: null
+                    categories: []
+                    actors: []
+                    time_series:
+                      - date: '2026-03-13'
+                        requests: 0
+                        dropped_events: 0
+                active:
+                  summary: Active bot traffic
+                  value:
+                    scope: project
+                    project: my-site
+                    period:
+                      label: 7d
+                      from: '2026-03-07'
+                      to: '2026-03-13'
+                      previous_from: '2026-02-28'
+                      previous_to: '2026-03-06'
+                    summary:
+                      automated_requests:
+                        current: 5
+                        previous: 1
+                        change: 4
+                        change_pct: 400
+                      dropped_events:
+                        current: 7
+                        previous: 1
+                        change: 6
+                        change_pct: 600
+                      last_seen_at: 1773459600000
+                    categories:
+                      - category: ai_agent
+                        requests: 3
+                        dropped_events: 5
+                        share_pct: 60
+                      - category: search_crawler
+                        requests: 2
+                        dropped_events: 2
+                        share_pct: 40
+                    actors:
+                      - actor: ChatGPT-User
+                        category: ai_agent
+                        requests: 3
+                        dropped_events: 5
+                        last_seen_at: 1773459600000
+                      - actor: Googlebot
+                        category: search_crawler
+                        requests: 2
+                        dropped_events: 2
+                        last_seen_at: 1773456000000
+                    time_series:
+                      - date: '2026-03-13'
+                        requests: 5
+                        dropped_events: 7
+        '400':
+          description: Invalid period or missing project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /account/all-sites:
     get:
       operationId: getAllSitesOverview
@@ -2608,6 +2930,113 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AllSitesOverviewResponse'
+        '400':
+          description: Invalid period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /account/bot-traffic:
+    get:
+      operationId: getAllSitesBotTrafficOverview
+      summary: Filtered automated traffic across all active projects
+      description: |
+        Returns an account-scoped summary of automated traffic that reached Agent Analytics and was filtered out of normal analytics.
+
+        This endpoint is optimized for a lightweight all-sites view: total filtered requests, dropped events, active-project count, top-project list, category breakdown, and a zero-filled daily time series.
+
+        Deleted projects are excluded from the totals and rankings.
+
+        **CLI:** `npx @agent-analytics/cli bot-traffic --all --period 7d --limit 10`
+
+        **MCP:** `all_sites_bot_traffic`
+      tags: [Account]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: period
+          in: query
+          required: false
+          description: Comparison period
+          schema:
+            type: string
+            enum: ['1d', '7d', '14d', '30d', '90d']
+            default: '7d'
+        - name: limit
+          in: query
+          required: false
+          description: Max projects to include in the top-project list (1-50, default 10)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Account-wide bot traffic overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllSitesBotTrafficOverviewResponse'
+              examples:
+                accountOverview:
+                  summary: Account bot traffic overview
+                  value:
+                    scope: account
+                    period:
+                      label: 7d
+                      from: '2026-03-07'
+                      to: '2026-03-13'
+                      previous_from: '2026-02-28'
+                      previous_to: '2026-03-06'
+                    summary:
+                      automated_requests:
+                        current: 5
+                        previous: 1
+                        change: 4
+                        change_pct: 400
+                      dropped_events:
+                        current: 6
+                        previous: 1
+                        change: 5
+                        change_pct: 500
+                      active_projects: 2
+                      total_projects: 4
+                      last_seen_at: 1773459600000
+                    categories:
+                      - category: ai_agent
+                        requests: 3
+                        dropped_events: 4
+                        share_pct: 60
+                      - category: search_crawler
+                        requests: 2
+                        dropped_events: 2
+                        share_pct: 40
+                    projects:
+                      - id: proj_123
+                        name: my-site
+                        requests: 3
+                        dropped_events: 4
+                        share_pct: 60
+                        last_seen_at: 1773459600000
+                      - id: proj_456
+                        name: second-site
+                        requests: 2
+                        dropped_events: 2
+                        share_pct: 40
+                        last_seen_at: 1773456000000
+                    remaining_projects: 0
+                    time_series:
+                      - date: '2026-03-13'
+                        requests: 5
+                        dropped_events: 6
         '400':
           description: Invalid period
           content:

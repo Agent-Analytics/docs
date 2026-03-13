@@ -19,10 +19,13 @@ API base URL: https://api.agentanalytics.sh
 - [Claude Code](https://docs.agentanalytics.sh/installation/claude-code/): Install Agent Analytics in Claude Code with the hosted plugin first, then use the skill path before dropping to raw MCP setup.
 - [Claude Desktop / Cowork](https://docs.agentanalytics.sh/installation/claude-desktop-cowork/): Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
 - [Cursor](https://docs.agentanalytics.sh/installation/cursor/): Install the Agent Analytics skill in Cursor and use CLI-style workflows first. Use MCP only when you specifically want connector-style tool calls.
+- [OpenClaw](https://docs.agentanalytics.sh/installation/openclaw/): Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and let the agent handle analytics workflows from chat.
 - [OpenAI Codex](https://docs.agentanalytics.sh/installation/openai-codex/): Install the Agent Analytics skill for OpenAI Codex, set the API key once, and use direct queries or guided workflows from there.
 
 ### Reference
+- [Tracker.js](https://docs.agentanalytics.sh/reference/tracker-js/): Add Agent Analytics to any site with one script tag, then turn on declarative events, consent, performance tracking, and other browser-side features.
 - [Authentication](https://docs.agentanalytics.sh/reference/authentication/): Understand the difference between API keys and project tokens before you wire an agent or a tracker.
+- [CLI vs MCP vs API](https://docs.agentanalytics.sh/reference/cli-mcp-api/): Agent Analytics can be used through MCP, the CLI, or raw HTTP. Choose the interface that fits the environment your agent already has.
 - [Rate Limits](https://docs.agentanalytics.sh/reference/rate-limits/): Hosted Agent Analytics uses account-level API limits and event-volume limits that vary by plan.
 - [Error Format](https://docs.agentanalytics.sh/reference/error-format/): All API errors return a machine-readable code plus a human-readable message.
 
@@ -35,9 +38,9 @@ Add to Claude Code:
 claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
 ```
 
-Tools: `list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `analytics_insights`, `analytics_breakdown`, `analytics_pages`, `analytics_sessions`, `analytics_heatmap`, `analytics_funnel`, `analytics_retention`, `properties`, `properties_received`, `sessions`, `list_experiments`, `create_experiment`, `get_experiment`, `update_experiment`, `delete_experiment`, `live_now`, `query`
+Tools: `list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `bot_traffic_overview`, `all_sites_bot_traffic`, `analytics_insights`, `analytics_breakdown`, `analytics_pages`, `analytics_sessions`, `analytics_heatmap`, `analytics_funnel`, `analytics_retention`, `properties`, `properties_received`, `sessions`, `list_experiments`, `create_experiment`, `get_experiment`, `update_experiment`, `delete_experiment`, `live_now`, `query`
 
-Hosted free accounts can use MCP for `list_projects`, `create_project`, `all_sites_overview`, and `analytics_overview`. The rest of the MCP tool surface requires a paid account.
+Hosted free accounts can use MCP for `list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `bot_traffic_overview`, and `all_sites_bot_traffic`. The rest of the MCP tool surface requires a paid account.
 
 ## Agent Skill
 
@@ -80,6 +83,7 @@ npx skills add Agent-Analytics/agent-analytics-mcp
 - `GET /sessions/distribution` — Session duration histogram
 - `GET /heatmap` — Day-of-week x hour traffic grid
 - `GET /retention` — Cohort retention analysis
+- `GET /bot-traffic` — Filtered automated traffic for one project
 
 ### Projects
 - `GET /projects` — List all projects
@@ -91,6 +95,7 @@ npx skills add Agent-Analytics/agent-analytics-mcp
 ### Account
 - `GET /account` — Get account info
 - `GET /account/all-sites` — Historical all-sites overview
+- `GET /account/bot-traffic` — Filtered automated traffic across all active projects
 - `POST /account/revoke-key` — Revoke and regenerate API key
 
 ### Experiments

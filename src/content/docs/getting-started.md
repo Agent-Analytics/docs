@@ -65,6 +65,7 @@ Once the install is working and the tracker is live, ask your agent one of these
 - `List my projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
+- `Show bot traffic for my-site this week`
 
 If the setup is correct, the agent should answer without you hand-writing requests. 
 
@@ -72,5 +73,6 @@ If the setup is correct, the agent should answer without you hand-writing reques
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
 - Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.
+- Use [Bot Traffic](/reference/bot-traffic/) to inspect filtered automated callers separately from normal analytics.
 - Use [Authentication](/reference/authentication/) when you need the read token vs write token rules.
 - Use [API Reference](/api/) when you need endpoint-level details.

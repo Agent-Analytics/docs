@@ -15,9 +15,12 @@ const docOrder = [
   'installation/claude-code',
   'installation/claude-desktop-cowork',
   'installation/cursor',
+  'installation/openclaw',
   'installation/openai-codex',
+  'reference/tracker-js',
+  'reference/bot-traffic',
   'reference/authentication',
-  'reference/cli-vs-api',
+  'reference/cli-mcp-api',
   'reference/rate-limits',
   'reference/error-format',
 ]
@@ -29,11 +32,11 @@ const docGroups = [
   },
   {
     title: 'Installation',
-    slugs: ['installation', 'installation/claude-code', 'installation/claude-desktop-cowork', 'installation/cursor', 'installation/openai-codex'],
+    slugs: ['installation', 'installation/claude-code', 'installation/claude-desktop-cowork', 'installation/cursor', 'installation/openclaw', 'installation/openai-codex'],
   },
   {
     title: 'Reference',
-    slugs: ['reference/authentication', 'reference/cli-vs-api', 'reference/rate-limits', 'reference/error-format'],
+    slugs: ['reference/tracker-js', 'reference/bot-traffic', 'reference/authentication', 'reference/cli-mcp-api', 'reference/rate-limits', 'reference/error-format'],
   },
 ]
 
@@ -247,9 +250,9 @@ Add to Claude Code:
 claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
 \`\`\`
 
-Tools: \`list_projects\`, \`create_project\`, \`all_sites_overview\`, \`analytics_overview\`, \`analytics_insights\`, \`analytics_breakdown\`, \`analytics_pages\`, \`analytics_sessions\`, \`analytics_heatmap\`, \`analytics_funnel\`, \`analytics_retention\`, \`properties\`, \`properties_received\`, \`sessions\`, \`list_experiments\`, \`create_experiment\`, \`get_experiment\`, \`update_experiment\`, \`delete_experiment\`, \`live_now\`, \`query\`
+Tools: \`list_projects\`, \`create_project\`, \`all_sites_overview\`, \`analytics_overview\`, \`bot_traffic_overview\`, \`all_sites_bot_traffic\`, \`analytics_insights\`, \`analytics_breakdown\`, \`analytics_pages\`, \`analytics_sessions\`, \`analytics_heatmap\`, \`analytics_funnel\`, \`analytics_retention\`, \`properties\`, \`properties_received\`, \`sessions\`, \`list_experiments\`, \`create_experiment\`, \`get_experiment\`, \`update_experiment\`, \`delete_experiment\`, \`live_now\`, \`query\`
 
-Hosted free accounts can use MCP for \`list_projects\`, \`create_project\`, \`all_sites_overview\`, and \`analytics_overview\`. The rest of the MCP tool surface requires a paid account.
+Hosted free accounts can use MCP for \`list_projects\`, \`create_project\`, \`all_sites_overview\`, \`analytics_overview\`, \`bot_traffic_overview\`, and \`all_sites_bot_traffic\`. The rest of the MCP tool surface requires a paid account.
 
 ## Agent Skill
 
