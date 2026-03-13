@@ -3,13 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npm run generate:llms && astro dev",
-    "build": "npm run generate:llms && astro build",
+    "sync-shared-ui": "node scripts/sync-shared-ui.mjs",
+    "dev": "npm run sync-shared-ui && npm run generate:llms && astro dev",
+    "build": "npm run sync-shared-ui && npm run generate:llms && astro build",
     "preview": "astro preview",
     "generate:llms": "node scripts/generate-llms.mjs"
   },
   "devDependencies": {
-    "@agent-analytics/theme": "0.1.0",
+    "@agent-analytics/shared-ui": "0.1.0",
     "@astrojs/sitemap": "^3.7.0",
     "@astrojs/starlight": "^0.38.1",
     "@scalar/openapi-to-markdown": "^0.3.49",

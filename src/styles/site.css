@@ -1,5 +1,5 @@
-@import "@agent-analytics/theme/variables.css";
-@import "@agent-analytics/theme/recipes.css";
+@import "./generated/shared-ui-variables.css";
+@import "./generated/shared-ui-recipes.css";
 
 :root {
   --aa-font-display: var(--font-serif);
@@ -34,6 +34,16 @@ body {
 .aa-site-shell {
   position: relative;
   z-index: 1;
+}
+
+.aa-api-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.aa-api-page main {
+  flex: 1;
 }
 
 .aa-topbar {

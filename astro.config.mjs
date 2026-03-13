@@ -20,6 +20,9 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/Agent-Analytics/docs/blob/main/',
       },
+      components: {
+        Footer: './src/components/Footer.astro',
+      },
       customCss: ['./src/styles/starlight.css'],
       favicon: '/favicon.png',
       lastUpdated: false,
