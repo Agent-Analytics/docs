@@ -166,6 +166,7 @@
 .aa-footer__mark img {
   width: 3rem;
   height: 3rem;
+  object-fit: contain;
   border-radius: 1rem;
 }
 

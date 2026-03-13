@@ -62,6 +62,7 @@ export default defineConfig({
         },
       ],
       head: [
+        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/favicon.png' } },
         { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.googleapis.com' } },
         { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' } },
         {
