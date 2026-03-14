@@ -1,37 +1,37 @@
 ---
 title: Bot Traffic
-description: See which automated callers hit your tracker, how many events were filtered, and which actors generated that traffic.
+description: ראו אילו קריאות אוטומטיות פגעו בטרקר שלכם, כמה אירועים סוננו, ואילו actors יצרו את התעבורה הזאת.
 ---
 
-Bot Traffic shows automated requests that reached Agent Analytics and were filtered out of your normal analytics.
+Bot Traffic מציג בקשות אוטומטיות שהגיעו אל Agent Analytics וסוננו מחוץ לאנליטיקה הרגילה שלכם.
 
-Use it when you want to answer questions like:
+השתמשו בזה כשאתם רוצים לענות על שאלות כמו:
 
-- Did ChatGPT or another agent actually hit this site?
-- Are search crawlers or preview bots touching the tracker?
-- How many analytics events were dropped because they came from automation?
+- האם ChatGPT או סוכן אחר באמת פגע באתר הזה?
+- האם סורקי חיפוש או preview bots נוגעים בטרקר?
+- כמה אירועי אנליטיקה נזרקו כי הם הגיעו מאוטומציה?
 
-## Important scope
+## היקף חשוב
 
-This feature is intentionally narrower than CDN or reverse-proxy logs.
+היכולת הזאת בכוונה צרה יותר מלוגים של CDN או reverse proxy.
 
-- It is **not** full site traffic visibility like Cloudflare.
-- It only includes automated requests that reached `POST /track` or `POST /track/batch`.
-- It stores daily aggregates, not raw request logs.
-- It does **not** store IPs.
-- It does **not** add bot hits to your normal event analytics, sessions, or billing.
+- זה **לא** שקול לראיית כל תעבורת האתר כמו Cloudflare.
+- היא כוללת רק בקשות אוטומטיות שהגיעו ל-`POST /track` או ל-`POST /track/batch`.
+- היא שומרת אגרגציות יומיות, לא לוגים גולמיים של בקשות.
+- היא **לא** שומרת כתובות IP.
+- היא **לא** מוסיפה פגיעות של בוטים לאנליטיקת האירועים, ל-sessions או לחיוב.
 
-## What you get back
+## מה מקבלים בחזרה
 
-Project and account views return:
+תצוגות פרויקט וחשבון מחזירות:
 
-- `automated_requests`: how many filtered tracking requests were received
-- `dropped_events`: how many analytics events were discarded inside those requests
-- `categories`: grouped buckets like `ai_agent`, `search_crawler`, `social_preview`, `monitoring_perf`
-- `actors`: normalized sources like `ChatGPT-User`, `Googlebot`, `ClaudeBot`, `curl`
-- `time_series`: zero-filled daily rollup for the selected period
+- `automated_requests`: כמה בקשות tracking מסוננות התקבלו
+- `dropped_events`: כמה אירועי אנליטיקה נזרקו מתוך אותן בקשות
+- `categories`: קטגוריות מקובצות כמו `ai_agent`, `search_crawler`, `social_preview`, `monitoring_perf`
+- `actors`: מקורות מנורמלים כמו `ChatGPT-User`, `Googlebot`, `ClaudeBot`, `curl`
+- `time_series`: רולאפ יומי עם מילוי אפסים לתקופה שנבחרה
 
-## Access paths
+## מסלולי גישה
 
 ### CLI
 
@@ -42,10 +42,10 @@ npx @agent-analytics/cli bot-traffic --all --period 7d --limit 10
 
 ### MCP
 
-Use:
+השתמשו ב:
 
-- `bot_traffic_overview` for one project
-- `all_sites_bot_traffic` for account scope
+- `bot_traffic_overview` עבור פרויקט אחד
+- `all_sites_bot_traffic` עבור טווח ברמת החשבון
 
 ### API
 
@@ -59,25 +59,25 @@ curl "https://api.agentanalytics.sh/account/bot-traffic?period=7d&limit=10" \
   -H "X-API-Key: aak_..."
 ```
 
-## Project vs account scope
+## פרויקט מול חשבון
 
-Use project scope when you want top actors and category breakdown for one site.
+השתמשו בטווח של פרויקט כשאתם רוצים actors מובילים ופילוח לפי קטגוריות עבור אתר אחד.
 
-Use account scope when you want:
+השתמשו בטווח של חשבון כשאתם רוצים:
 
-- total filtered automation across all active projects
-- which projects are seeing that traffic
-- a lightweight all-sites overview instead of per-project details
+- סך כל האוטומציה המסוננת בכל הפרויקטים הפעילים
+- אילו פרויקטים רואים את התעבורה הזאת
+- סקירה קלה של כל האתרים במקום פירוט לכל פרויקט
 
-Deleted projects are excluded from account rankings and totals.
+פרויקטים שנמחקו מוחרגים מהדירוגים ומהסכומים ברמת החשבון.
 
-## Availability
+## זמינות
 
-Bot traffic overview is available on both hosted free and pro plans through API, CLI, and MCP.
+Bot traffic overview זמין גם בתוכניות hosted free וגם בתוכניות pro דרך API, CLI ו-MCP.
 
-## Related
+## קשור
 
-- [Tracker.js](/reference/tracker-js/)
-- [CLI vs MCP vs API](/reference/cli-mcp-api/)
-- [Rate Limits](/reference/rate-limits/)
-- [API Reference](/api/)
+- [Tracker.js](/he/reference/tracker-js/)
+- [CLI vs MCP vs API](/he/reference/cli-mcp-api/)
+- [Rate Limits](/he/reference/rate-limits/)
+- [API Reference](/he/api/)

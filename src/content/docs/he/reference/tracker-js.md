@@ -1,15 +1,15 @@
 ---
 title: Tracker.js
-description: Add Agent Analytics to any site with one script tag, then turn on declarative events, consent, performance tracking, and other browser-side features.
+description: הוסיפו את Agent Analytics לכל אתר עם תגית script אחת, ואז הפעילו אירועים דקלרטיביים, consent, מעקב ביצועים ועוד יכולות צד-דפדפן.
 ---
 
-`tracker.js` is the browser-side part of Agent Analytics. Use it when you want page views, custom events, and client-side experiments without shipping a heavy SDK.
+`tracker.js` הוא החלק הדפדפני של Agent Analytics. השתמשו בו כשאתם רוצים צפיות דף, אירועים מותאמים אישית וניסויים בצד הלקוח בלי לשלוח SDK כבד.
 
-The API reference now treats `GET /tracker.js` as the script endpoint only. The setup and feature guide lives here.
+עיון ה-API מתייחס עכשיו ל-`GET /tracker.js` כנקודת הקצה של הסקריפט בלבד. מדריך ההגדרה והיכולות נמצא כאן.
 
-## Base snippet
+## סניפט בסיסי
 
-Add this before `</body>`:
+הוסיפו את זה לפני `</body>`:
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -17,36 +17,36 @@ Add this before `</body>`:
         data-token="aat_..."></script>
 ```
 
-Required attributes:
+מאפיינים נדרשים:
 
-- `data-project`: your project name
-- `data-token`: the public project token (`aat_*`)
+- `data-project`: שם הפרויקט שלכם
+- `data-token`: טוקן הפרויקט הציבורי (`aat_*`)
 
-The tracker automatically collects page URL, pathname, referrer, browser, OS, device, language, timezone, UTM params, session count, and first-touch attribution. No cookies are required.
+הטרקר אוסף אוטומטית את כתובת הדף, pathname, referrer, דפדפן, מערכת הפעלה, מכשיר, שפה, אזור זמן, פרמטרי UTM, מספר session ו-first-touch attribution. אין צורך בעוגיות.
 
-Automated traffic that reaches the tracker is filtered out of your normal analytics. Use [Bot Traffic](/reference/bot-traffic/) if you want to inspect those automated requests separately.
+תעבורה אוטומטית שמגיעה לטרקר מסוננת מהאנליטיקה הרגילה שלכם. השתמשו ב-[Bot Traffic](/he/reference/bot-traffic/) אם אתם רוצים לבדוק את הבקשות האוטומטיות בנפרד.
 
-If your agent can edit code, ask it to add the snippet for you. If not, create the project in [Getting Started](/getting-started/#3-create-your-first-project) and paste the returned snippet manually.
+אם הסוכן שלכם יכול לערוך קוד, בקשו ממנו להוסיף עבורכם את הסניפט. אם לא, צרו את הפרויקט ב-[התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) והדביקו ידנית את הסניפט שהוחזר.
 
-## Common options
+## אפשרויות נפוצות
 
-| Attribute | What it does |
+| Attribute | מה זה עושה |
 | --- | --- |
-| `data-link-domains="example.com"` | Link anonymous identity across sibling domains or subdomains |
-| `data-do-not-track="true"` | Respect the browser Do Not Track signal |
-| `data-heartbeat="15"` | Measure active time on page while the tab is visible |
-| `data-track-outgoing="true"` | Track external link clicks as `outgoing_link` |
-| `data-track-clicks="true"` | Track `<a>` and `<button>` clicks as `$click` |
-| `data-track-errors="true"` | Capture uncaught JS errors and promise rejections as `$error` |
-| `data-track-performance="true"` | Add Navigation Timing metrics to `page_view` |
-| `data-track-vitals="true"` | Add Core Web Vitals to `page_view` |
-| `data-track-downloads="true"` | Track download link clicks as `$download` |
-| `data-track-forms="true"` | Track form submissions as `$form_submit` |
-| `data-track-404="true"` | Track 404 pages as `$404` |
-| `data-track-scroll-depth="true"` | Add max scroll depth to `page_view` |
-| `data-require-consent="true"` | Buffer events until consent is granted |
+| `data-link-domains="example.com"` | מחבר זהות אנונימית בין דומיינים או תתי-דומיינים אחים |
+| `data-do-not-track="true"` | מכבד את אות Do Not Track של הדפדפן |
+| `data-heartbeat="15"` | מודד זמן פעיל בדף בזמן שהטאב גלוי |
+| `data-track-outgoing="true"` | עוקב אחרי קליקים על קישורים חיצוניים בתור `outgoing_link` |
+| `data-track-clicks="true"` | עוקב אחרי קליקים על `<a>` ו-`<button>` בתור `$click` |
+| `data-track-errors="true"` | לוכד שגיאות JS לא מטופלות ו-promise rejections בתור `$error` |
+| `data-track-performance="true"` | מוסיף מדדי Navigation Timing ל-`page_view` |
+| `data-track-vitals="true"` | מוסיף Core Web Vitals ל-`page_view` |
+| `data-track-downloads="true"` | עוקב אחרי קליקים על קישורי הורדה בתור `$download` |
+| `data-track-forms="true"` | עוקב אחרי שליחת טפסים בתור `$form_submit` |
+| `data-track-404="true"` | עוקב אחרי דפי 404 בתור `$404` |
+| `data-track-scroll-depth="true"` | מוסיף עומק גלילה מקסימלי ל-`page_view` |
+| `data-require-consent="true"` | מחזיק אירועים בבאפר עד שניתן consent |
 
-Example:
+דוגמה:
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -60,9 +60,9 @@ Example:
         data-heartbeat="15"></script>
 ```
 
-## Declarative events
+## אירועים דקלרטיביים
 
-For simple click tracking, you usually do not need custom JavaScript. Add `data-aa-event` directly in HTML:
+למעקב קליקים פשוט, לרוב לא צריך JavaScript מותאם אישית. הוסיפו `data-aa-event` ישירות ל-HTML:
 
 ```html
 <button data-aa-event="signup" data-aa-event-plan="pro">
@@ -70,13 +70,13 @@ For simple click tracking, you usually do not need custom JavaScript. Add `data-
 </button>
 ```
 
-That fires a `signup` event with `{ plan: "pro" }`.
+זה ישלח אירוע `signup` עם `{ plan: "pro" }`.
 
-This is usually the easiest path for agents too. They can add attributes to existing markup instead of wiring `onclick` handlers or editing application code.
+ברוב המקרים זהו גם המסלול הקל ביותר לסוכנים. הם יכולים להוסיף מאפיינים ל-markup קיים במקום לחווט `onclick` handlers או לערוך קוד אפליקציה.
 
-## Impressions
+## חשיפות
 
-Track whether a section was actually seen:
+עקבו אחרי האם מקטע מסוים באמת נצפה:
 
 ```html
 <section data-aa-impression="pricing_table"
@@ -85,11 +85,11 @@ Track whether a section was actually seen:
 </section>
 ```
 
-When the element becomes visible, the tracker sends an `$impression` event.
+כשהאלמנט הופך לגלוי, הטרקר שולח אירוע `$impression`.
 
-## `window.aa` API
+## API של `window.aa`
 
-Use the JavaScript API when the event depends on runtime state:
+השתמשו ב-JavaScript API כשהאירוע תלוי במצב runtime:
 
 ```js
 window.aa?.track('checkout_started', { plan: 'pro' });
@@ -97,18 +97,18 @@ window.aa?.identify('user_123');
 window.aa?.set({ plan: 'pro', team: 'acme' });
 ```
 
-Useful methods:
+שיטות שימושיות:
 
-- `aa.track(event, properties)`: send a custom event
-- `aa.page(name)`: manually send a page view
-- `aa.identify(id)`: link anonymous behavior to a known user ID
-- `aa.set(properties)`: attach global properties to future events
-- `aa.experiment(name, variants)`: assign variants deterministically client-side
-- `aa.grantConsent()` / `aa.revokeConsent()`: manage consent mode
+- `aa.track(event, properties)`: שליחת אירוע מותאם אישית
+- `aa.page(name)`: שליחת page view ידנית
+- `aa.identify(id)`: קישור התנהגות אנונימית למזהה משתמש ידוע
+- `aa.set(properties)`: צירוף מאפיינים גלובליים לאירועים עתידיים
+- `aa.experiment(name, variants)`: שיוך וריאנטים בצד הלקוח בצורה דטרמיניסטית
+- `aa.grantConsent()` / `aa.revokeConsent()`: ניהול מצב consent
 
-## Common recipes
+## מתכונים נפוצים
 
-### Cross-domain identity
+### זהות חוצת-דומיינים
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -117,7 +117,7 @@ Useful methods:
         data-link-domains="example.com,app.example.com,docs.example.com"></script>
 ```
 
-### Privacy and consent
+### פרטיות ו-consent
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -132,7 +132,7 @@ window.aa?.grantConsent();
 window.aa?.revokeConsent();
 ```
 
-### Experiments
+### ניסויים
 
 ```html
 <h1 data-aa-experiment="hero_text"
@@ -141,13 +141,13 @@ window.aa?.revokeConsent();
 </h1>
 ```
 
-### Local development
+### פיתוח מקומי
 
-On localhost, the tracker switches to dev mode and logs activity to the browser console instead of sending production data. That keeps local testing out of your real analytics.
+ב-localhost הטרקר עובר למצב פיתוח ורושם פעילות לקונסול של הדפדפן במקום לשלוח נתוני production. כך בדיקות מקומיות לא מזהמות את האנליטיקה האמיתית שלכם.
 
-## Related
+## קשור
 
-- [Getting Started](/getting-started/)
-- [Bot Traffic](/reference/bot-traffic/)
-- [Authentication](/reference/authentication/)
-- [API Reference](/api/)
+- [התחלה מהירה](/he/getting-started/)
+- [Bot Traffic](/he/reference/bot-traffic/)
+- [Authentication](/he/reference/authentication/)
+- [API Reference](/he/api/)

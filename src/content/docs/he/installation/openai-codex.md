@@ -1,6 +1,6 @@
 ---
 title: OpenAI Codex
-description: Install the Agent Analytics skill for OpenAI Codex, set the API key once, and use direct queries or guided workflows from there.
+description: התקינו את Agent Analytics skill עבור OpenAI Codex, הגדירו את מפתח ה-API פעם אחת, ואז השתמשו בשאילתות ישירות או ב-workflow מודרך.
 ---
 
 <div class="aa-agent-badge aa-agent-badge--inverse">
@@ -8,47 +8,47 @@ description: Install the Agent Analytics skill for OpenAI Codex, set the API key
   <span>OpenAI Codex</span>
 </div>
 
-For OpenAI Codex, the cleanest path today is the Agent Skills install. It keeps the workflow agent-native and does not require the MCP connector flow.
+עבור OpenAI Codex, המסלול הנקי ביותר כרגע הוא התקנה דרך Agent Skills. כך ה-workflow נשאר agent-native ואין צורך ב-connector של MCP.
 
-## Prerequisites
+## דרישות מקדימות
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- A valid Agent Analytics API key
-- `npx` available in the environment Codex uses
+- חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
+- מפתח API תקין של Agent Analytics
+- `npx` זמין בסביבה שבה Codex משתמש
 
-## Recommended: install the Agent Analytics skill
+## מומלץ: התקנת Agent Analytics skill
 
 ```bash
 npx skills add Agent-Analytics/agent-analytics-mcp
 ```
 
-Then expose your API key to the agent environment:
+אחר כך חשפו את מפתח ה-API לסביבת הסוכן:
 
 ```bash
 export AGENT_ANALYTICS_API_KEY=aak_...
 ```
 
-The skill teaches Codex how to set up tracking, query analytics, inspect project health, and run experiments from the same conversation loop.
+ה-skill מלמד את Codex איך להגדיר מעקב, לשאול אנליטיקה, לבדוק את מצב הפרויקט ולהריץ ניסויים מתוך אותו לולאת שיחה.
 
-## Verify the install
+## בדיקת ההתקנה
 
-Ask Codex:
+בקשו מ-Codex:
 
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `Create an experiment for the signup CTA on my-site`
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
 
-## Troubleshooting
+## פתרון תקלות
 
-- If the skill installs but queries fail, check that `AGENT_ANALYTICS_API_KEY` is present in the environment the agent actually runs in.
-- If `npx` is unavailable, install the required Node.js runtime first or use the direct API route temporarily.
-- If you need endpoint-level debugging, use the [API reference](/api/) and test with `curl`.
+- אם ה-skill מותקן אבל השאילתות נכשלות, בדקו ש-`AGENT_ANALYTICS_API_KEY` קיים בסביבה שבה הסוכן באמת רץ.
+- אם `npx` לא זמין, התקינו קודם את סביבת Node.js הנדרשת או עברו זמנית למסלול של API ישיר.
+- אם אתם צריכים דיבוג ברמת endpoint, השתמשו ב-[API reference](/he/api/) ובדקו עם `curl`.
 
-## Related
+## קשור
 
-- [Getting Started](/getting-started/)
-- [Claude Code](/installation/claude-code/)
-- [Authentication](/reference/authentication/)
-- [API Reference](/api/)
+- [התחלה מהירה](/he/getting-started/)
+- [Claude Code](/he/installation/claude-code/)
+- [Authentication](/he/reference/authentication/)
+- [API Reference](/he/api/)

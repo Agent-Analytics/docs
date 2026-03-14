@@ -1,60 +1,60 @@
 ---
-title: CLI vs MCP vs API
-description: Agent Analytics can be used through MCP, the CLI, or raw HTTP. Choose the interface that fits the environment your agent already has.
+title: CLI מול MCP מול API
+description: אפשר להשתמש ב-Agent Analytics דרך MCP, דרך CLI או דרך HTTP גולמי. בחרו את הממשק שמתאים לסביבה שבה הסוכן כבר רץ.
 ---
 
-Agent Analytics has three real access modes:
+ל-Agent Analytics יש שלושה מצבי גישה אמיתיים:
 
-- `MCP` for chat-native and editor-native tool use
-- `CLI` for shell-oriented agent workflows
-- `API` for raw HTTP control
+- `MCP` עבור שימוש בכלים מתוך צ'אט או מתוך עורך
+- `CLI` עבור workflow של סוכנים מוכווני shell
+- `API` עבור שליטה ישירה ב-HTTP
 
-The CLI is a convenience wrapper around the same public HTTP API. If an environment is strict about transient package execution or security scanners dislike `npx`, use the API docs directly and keep the same underlying workflows.
+ה-CLI הוא wrapper נוח סביב אותו HTTP API ציבורי. אם הסביבה שלכם מחמירה לגבי הרצת חבילות זמניות או שסורקי אבטחה לא אוהבים `npx`, השתמשו ישירות ב-API docs ותישארו עם אותו workflow בסיסי.
 
-Which one is best depends on what your agent can already do.
+מה הכי טוב תלוי במה שהסוכן שלכם כבר יודע לעשות.
 
-## When to use each
+## מתי להשתמש בכל אחד
 
 ### MCP
 
-Use MCP when your agent already runs inside a tool that supports connectors or MCP servers, such as Claude Desktop, Cowork, Cursor, or Claude Code plugin flows.
+השתמשו ב-MCP כשהסוכן כבר רץ בתוך כלי שתומך ב-connectors או בשרתי MCP, כמו Claude Desktop, Cowork, Cursor או זרימות העבודה של Claude Code plugin.
 
-MCP is usually the best fit when:
+MCP בדרך כלל מתאים במיוחד כש:
 
-- you want the install to feel native inside chat
-- you want tool calls instead of shell commands
-- you do not want to hand-roll auth headers or request payloads
-- you want quick project or account summaries like `analytics_overview`, `bot_traffic_overview`, or `all_sites_bot_traffic`
+- אתם רוצים שההתקנה תרגיש טבעית בתוך הצ'אט
+- אתם רוצים tool calls במקום פקודות shell
+- אתם לא רוצים לכתוב ידנית כותרות auth או payloads
+- אתם רוצים סיכומים מהירים של פרויקט או חשבון כמו `analytics_overview`, `bot_traffic_overview` או `all_sites_bot_traffic`
 
 Tradeoff:
 
-- MCP often adds more latency and token overhead than skill + CLI flows because the model has to manage more tool-call round trips and tool result payloads.
+- MCP לרוב מוסיף יותר latency ויותר overhead של טוקנים מאשר skill + CLI, כי המודל צריך לנהל יותר round trips של tool calls ויותר payloads של תוצאות.
 
 ### CLI
 
-Use the CLI when your agent already has terminal access and is comfortable executing commands.
+השתמשו ב-CLI כשהסוכן כבר עובד טוב עם טרמינל ויודע להריץ פקודות.
 
-CLI is usually the best fit when:
+CLI בדרך כלל מתאים במיוחד כש:
 
-- your agent already lives in a shell-first environment
-- you want predictable command output
-- you prefer command composition over tool integration
-- you want lower overhead than MCP in editor-style agents like Cursor
-- you want simple local auth helpers like `login` and `logout` around the same API
+- הסוכן כבר חי בסביבה שמתחילה מה-shell
+- אתם רוצים פלט פקודות צפוי
+- אתם מעדיפים הרכבת פקודות על פני אינטגרציה לכלים
+- אתם רוצים פחות overhead מ-MCP בסוכנים בסגנון עורך כמו Cursor
+- אתם רוצים עזרי auth פשוטים כמו `login` ו-`logout` סביב אותו API
 
 ### API
 
-Use the API when you want strict control over requests, retries, and response parsing.
+השתמשו ב-API כשאתם רוצים שליטה מלאה על הבקשות, ניסיונות חוזרים וניתוח התגובות.
 
-API is usually the best fit when:
+API בדרך כלל מתאים במיוחד כש:
 
-- you are integrating from your own code
-- you need exact HTTP-level behavior
-- you are debugging auth or payload shape directly
+- אתם מטמיעים מתוך קוד משלכם
+- אתם צריכים התנהגות מדויקת ברמת HTTP
+- אתם מדבגים auth או מבנה payload ישירות
 
-## CLI to API mapping
+## מיפוי CLI ל-API
 
-Most CLI workflows map directly to an HTTP endpoint. The main exception is local auth convenience commands such as `logout`, which only modify local CLI state:
+רוב ה-workflows של ה-CLI ממופים ישירות לנקודת קצה ב-HTTP. החריג המרכזי הוא פקודות נוחות של auth מקומי כמו `logout`, שמשנות רק מצב מקומי של ה-CLI:
 
 | CLI Command | API Endpoint |
 | --- | --- |
@@ -70,19 +70,19 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 | `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
 | `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
 | `npx @agent-analytics/cli projects` | `GET /projects` |
-| `npx @agent-analytics/cli logout` | None. Local-only command that clears saved CLI auth and does not call the API. |
+| `npx @agent-analytics/cli logout` | None. פקודה מקומית בלבד שמוחקת auth שמור של CLI ולא קוראת ל-API. |
 
-`logout` clears the API key saved by the CLI on disk. It does not revoke the key on the server. If you exported `AGENT_ANALYTICS_API_KEY` in your shell, the CLI will still authenticate with that environment variable until you unset it.
+`logout` מוחק את ה-API key שנשמר על הדיסק על ידי ה-CLI. הוא לא מבטל את המפתח בשרת. אם ייצאתם את `AGENT_ANALYTICS_API_KEY` ב-shell, ה-CLI עדיין יתחבר עם משתנה הסביבה הזה עד שתבטלו אותו.
 
-## Quick rule of thumb
+## כלל אצבע מהיר
 
-- Choose `CLI` first in shell-capable environments like Cursor when the agent can run commands directly.
-- Choose `MCP` when you specifically want native connector-style tool use or do not have a good shell path.
-- Choose `API` when you need full control or lower-level debugging.
+- בחרו ב-`CLI` תחילה בסביבות שמסוגלות להריץ shell, כמו Cursor, כשהסוכן יכול להריץ פקודות ישירות.
+- בחרו ב-`MCP` כשאתם רוצים במפורש כלים בסגנון connector או כשאין מסלול shell טוב.
+- בחרו ב-`API` כשאתם צריכים שליטה מלאה או דיבוג ברמה נמוכה יותר.
 
-## Related
+## קשור
 
-- [Bot Traffic](/reference/bot-traffic/)
-- [Installation Overview](/installation/)
-- [Authentication](/reference/authentication/)
-- [API Reference](/api/)
+- [Bot Traffic](/he/reference/bot-traffic/)
+- [סקירת התקנה](/he/installation/)
+- [Authentication](/he/reference/authentication/)
+- [API Reference](/he/api/)

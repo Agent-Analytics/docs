@@ -1,6 +1,6 @@
 ---
 title: Claude Code
-description: Install Agent Analytics in Claude Code with the hosted plugin first, then use the skill path before dropping to raw MCP setup.
+description: התקינו את Agent Analytics ב-Claude Code דרך התוסף המארח תחילה, ורק אחר כך עברו ל-skill או ל-MCP גולמי.
 ---
 
 <div class="aa-agent-badge aa-agent-badge--plain">
@@ -8,64 +8,64 @@ description: Install Agent Analytics in Claude Code with the hosted plugin first
   <span>Claude Code</span>
 </div>
 
-Use the plugin path first. It gives Claude Code both the MCP server connection and the analytics-specific workflow layer in one install.
+התחילו ממסלול התוסף. הוא נותן ל-Claude Code גם חיבור לשרת ה-MCP וגם את שכבת ה-workflow הייעודית לאנליטיקה בהתקנה אחת.
 
-## Prerequisites
+## דרישות מקדימות
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- Claude Code installed locally
-- Access to the same GitHub or Google identity you use for Agent Analytics
+- חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
+- Claude Code מותקן מקומית
+- גישה לאותה זהות GitHub או Google שבה אתם משתמשים ב-Agent Analytics
 
-## Recommended: install the plugin
+## מומלץ: התקנת התוסף
 
 ```bash
 /plugin marketplace add Agent-Analytics/agent-analytics-plugin
 /plugin install agent-analytics
 ```
 
-This is the shortest hosted path for Claude Code because it packages the MCP connection and the usage guidance together.
+זהו המסלול המארח הקצר ביותר עבור Claude Code, כי הוא אורז יחד את חיבור ה-MCP ואת ההנחיות לשימוש.
 
-## Verify the install
+## בדיקת ההתקנה
 
-Ask Claude Code:
+בקשו מ-Claude Code:
 
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
 
-If the plugin is working, Claude Code should be able to reach your account without asking you to hand-roll HTTP requests.
+אם התוסף עובד, Claude Code אמור להגיע לחשבון שלכם בלי לבקש מכם לכתוב בקשות HTTP ידנית.
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
 
-## Fallback: install the Claude Code skill
+## מסלול חלופי: התקנת ה-skill של Claude Code
 
-If you do not want the full plugin, use the skill path before raw MCP:
+אם אתם לא רוצים את התוסף המלא, עברו למסלול ה-skill לפני שאתם יורדים ל-MCP גולמי:
 
 ```bash
 npx skills add Agent-Analytics/agent-analytics-mcp
 ```
 
-This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It still requires a valid Agent Analytics API key in the environment used by Claude Code.
+המסלול הזה מלמד את Claude Code איך להגדיר מעקב, לשאול אנליטיקה ולהריץ ניסויים. עדיין צריך מפתח API תקין של Agent Analytics בסביבת העבודה שבה Claude Code רץ.
 
-## Lower-level fallback: add only the MCP server
+## חלופה ברמה נמוכה יותר: חיבור שרת MCP בלבד
 
-If you want the MCP server without the plugin or skill layer:
+אם אתם רוצים רק את שרת ה-MCP בלי שכבת התוסף או ה-skill:
 
 ```bash
 claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
 ```
 
-Use `--transport http`. The hosted MCP server is not configured for legacy SSE transport.
+השתמשו ב-`--transport http`. שרת ה-MCP המארח לא מוגדר ל-legacy SSE transport.
 
-## Troubleshooting
+## פתרון תקלות
 
-- Make sure Claude Code is using the same GitHub or Google account as your Agent Analytics dashboard account.
-- If the skill installs but Claude Code cannot query data, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
-- If the MCP command fails, verify you used `--transport http`.
+- ודאו ש-Claude Code משתמש באותו חשבון GitHub או Google כמו חשבון הדשבורד שלכם ב-Agent Analytics.
+- אם ה-skill מותקן אבל Claude Code לא מצליח לשאול נתונים, ודאו שהסביבה חושפת את `AGENT_ANALYTICS_API_KEY`.
+- אם פקודת ה-MCP נכשלת, בדקו שהשתמשתם ב-`--transport http`.
 
-## Related
+## קשור
 
-- [Getting Started](/getting-started/)
-- [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
-- [Authentication](/reference/authentication/)
-- [API Reference](/api/)
+- [התחלה מהירה](/he/getting-started/)
+- [Claude Desktop / Cowork](/he/installation/claude-desktop-cowork/)
+- [Authentication](/he/reference/authentication/)
+- [API Reference](/he/api/)

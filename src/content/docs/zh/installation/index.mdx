@@ -1,28 +1,28 @@
 ---
-title: Installation Overview
-description: Choose the right install path for Claude, Cursor, OpenClaw, Codex, and related AI tools.
+title: 安装总览
+description: 为 Claude、Cursor、OpenClaw、Codex 以及相关 AI 工具选择合适的安装路径。
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-Choose the environment your agent already runs in. Each page leads with the recommended path for that environment, then covers alternatives where they matter.
+选择你的代理已经运行的环境。每一页都会先给出该环境的推荐路径，再在需要时补充其他替代方案。
 
-## Recommended install paths
+## 推荐安装路径
 
 <CardGrid stagger>
-  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/claude-code-logo.png' alt='' /></span> Claude Code" href="/installation/claude-code/">
-    Plugin-first setup for Claude Code, with MCP and manual alternatives when the plugin is not available.
+  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/claude-code-logo.png' alt='' /></span> Claude Code" href="/zh/installation/claude-code/">
+    先走 Claude Code 的插件路径，只有在插件不可用时再退回到 MCP 或手动方式。
   </LinkCard>
-  <LinkCard title="OpenClaw 🦞" href="/installation/openclaw/">
-    Install the ClawHub skill, point OpenClaw at your API key once, and use scheduled analytics workflows from chat.
+  <LinkCard title="OpenClaw 🦞" href="/zh/installation/openclaw/">
+    从 ClawHub 安装 skill，一次性把 API 密钥交给 OpenClaw，然后直接在聊天里使用定时分析工作流。
   </LinkCard>
-  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/claude-code-logo.png' alt='' /></span> Claude Desktop / Cowork" href="/installation/claude-desktop-cowork/">
-    Connect the hosted MCP server from the desktop connector flow and verify rich analytics tools in chat.
+  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/claude-code-logo.png' alt='' /></span> Claude Desktop / Cowork" href="/zh/installation/claude-desktop-cowork/">
+    通过 connector 流程接入托管 MCP 服务器，并在聊天中验证更丰富的分析工具。
   </LinkCard>
-  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/cursor-final.png' alt='' /></span> Cursor" href="/installation/cursor/">
-    Start with the Agent Analytics skill plus CLI workflows in Cursor. Use MCP only when you specifically want connector-style tool calls.
+  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/cursor-final.png' alt='' /></span> Cursor" href="/zh/installation/cursor/">
+    先用 Agent Analytics skill 加 CLI 工作流。只有当你明确需要 connector 风格的工具调用时再用 MCP。
   </LinkCard>
-  <LinkCard title="<span class='aa-install-logo aa-install-logo--inverse'><img src='/logos/openai-white.png' alt='' /></span> OpenAI Codex" href="/installation/openai-codex/">
-    Install the Agent Analytics skill, provide the API key once, and let Codex query data directly.
+  <LinkCard title="<span class='aa-install-logo aa-install-logo--inverse'><img src='/logos/openai-white.png' alt='' /></span> OpenAI Codex" href="/zh/installation/openai-codex/">
+    安装 Agent Analytics skill，一次提供 API 密钥，然后让 Codex 直接查询数据。
   </LinkCard>
 </CardGrid>

@@ -1,37 +1,37 @@
 ---
 title: Authentication
-description: Understand the difference between API keys and project tokens before you wire an agent or a tracker.
+description: 在接入代理或跟踪器之前，先理解 API key 和 project token 的区别。
 ---
 
-Agent Analytics uses two different credentials. They serve different jobs and should not be swapped.
+Agent Analytics 使用两种不同的凭证。它们承担不同职责，不能互换。
 
 ## API key (`aak_*`)
 
-Use the API key for:
+API key 用于：
 
-- reading analytics data
-- creating or listing projects
-- account-level endpoints
-- direct API access from scripts, tools, and agents
+- 读取分析数据
+- 创建或列出项目
+- 账户级端点
+- 从脚本、工具和代理中直接访问 API
 
-Pass it with the `X-API-Key` header or the `?key=` query parameter.
+可以通过 `X-API-Key` 头或 `?key=` 查询参数传递。
 
 ```bash
 curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
   -H "X-API-Key: aak_..."
 ```
 
-Treat it as secret material.
+请把它当作密钥信息处理。
 
 ## Project token (`aat_*`)
 
-Use the project token for:
+Project token 用于：
 
 - `POST /track`
 - `POST /track/batch`
-- the browser tracker snippet embedded on your site
+- 嵌入在网站中的浏览器 tracker 代码片段
 
-The token is public by design. It identifies the project for event ingestion and is expected to appear in HTML.
+这个 token 设计上就是公开的。它用于标识事件接收时对应的项目，因此本来就会出现在 HTML 中。
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -39,24 +39,24 @@ The token is public by design. It identifies the project for event ingestion and
         data-token="aat_..."></script>
 ```
 
-## Common mistake
+## 常见错误
 
-Do not put the API key in the client-side tracker. The tracker uses the public project token only.
+不要把 API key 放进客户端 tracker 中。tracker 只使用公开的 project token。
 
-## CLI auth helpers
+## CLI 的 auth 辅助命令
 
-If you use the official CLI, it provides two local auth convenience commands around the API key:
+如果你使用官方 CLI，它提供了两个围绕 API key 的本地 auth 便利命令：
 
-- `npx @agent-analytics/cli login --token aak_...` saves the API key locally for later CLI reads.
-- `npx @agent-analytics/cli logout` clears the saved local CLI auth.
+- `npx @agent-analytics/cli login --token aak_...`：把 API key 保存在本地，供之后的 CLI 读取使用。
+- `npx @agent-analytics/cli logout`：清除本地保存的 CLI auth。
 
-`logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
+`logout` 不会在服务器端吊销 API key。当你想让旧 key 失效并签发新 key 时，请使用 `revoke-key`。
 
-If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will continue to use that env var even after `logout` until you unset it.
+如果你在 shell 环境里设置了 `AGENT_ANALYTICS_API_KEY`，那么即使执行了 `logout`，CLI 仍会继续使用这个环境变量，直到你主动取消它。
 
-## Related
+## 相关内容
 
-- [Getting Started](/getting-started/)
-- [CLI vs MCP vs API](/reference/cli-mcp-api/)
-- [Error Format](/reference/error-format/)
-- [API Reference](/api/)
+- [快速开始](/zh/getting-started/)
+- [CLI vs MCP vs API](/zh/reference/cli-mcp-api/)
+- [Error Format](/zh/reference/error-format/)
+- [API Reference](/zh/api/)

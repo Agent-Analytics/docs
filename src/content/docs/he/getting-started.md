@@ -1,50 +1,50 @@
 ---
-title: Getting Started
-description: Create a project, install Agent Analytics in your agent, and verify the first query.
+title: התחלה מהירה
+description: צרו פרויקט, התקינו את Agent Analytics בסוכן שלכם, וודאו שהשאילתה הראשונה עובדת.
 ---
 
-This is the shortest path from zero to a working Agent Analytics setup.
+זהו המסלול הקצר ביותר מאפס להגדרה עובדת של Agent Analytics.
 
-## 1. Get your API key
+## 1. קבלו את מפתח ה-API
 
-Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and generate an API key from the dashboard.
+הירשמו ב-[app.agentanalytics.sh](https://app.agentanalytics.sh) וצרו מפתח API מתוך הדשבורד.
 
-- Use the API key (`aak_*`) for reads, project management, and agent skill setup.
-- Use the project token (`aat_*`) in the tracking snippet that goes on your site.
+- השתמשו במפתח ה-API (`aak_*`) לקריאה של נתוני אנליטיקה, ניהול פרויקטים והגדרת skills לסוכן.
+- השתמשו בטוקן הפרויקט (`aat_*`) בסניפט המעקב שמוטמע באתר שלכם.
 
-## 2. Pick and complete an install path
+## 2. בחרו והשלימו מסלול התקנה
 
-Go to the [installation hub](/installation/) and complete the setup for the environment you actually use:
+עברו אל [מרכז ההתקנה](/he/installation/) והשלימו את ההגדרה לסביבה שבה אתם באמת משתמשים:
 
-- [Claude Code](/installation/claude-code/)
-- [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
-- [Cursor](/installation/cursor/)
-- [OpenClaw](/installation/openclaw/)
-- [OpenAI Codex](/installation/openai-codex/)
+- [Claude Code](/he/installation/claude-code/)
+- [Claude Desktop / Cowork](/he/installation/claude-desktop-cowork/)
+- [Cursor](/he/installation/cursor/)
+- [OpenClaw](/he/installation/openclaw/)
+- [OpenAI Codex](/he/installation/openai-codex/)
 
-If none of those are a fit, the [API reference](/api/) stays available for direct integration.
+אם אף אחת מהאפשרויות האלה לא מתאימה, [עיון ב-API](/he/api/) עדיין זמין לאינטגרציה ישירה.
 
-## 3. Create your first project
+## 3. צרו את הפרויקט הראשון שלכם
 
-After your agent is connected, ask it to create the first project for you:
+אחרי שהסוכן מחובר, בקשו ממנו ליצור עבורכם את הפרויקט הראשון:
 
 - `Create a project called my-site.com`
 - `Create a project called my-site.com and give me the tracking snippet`
 
-If your agent has code write access to your site, ask it:
+אם לסוכן יש גישת כתיבה לקוד של האתר, בקשו ממנו:
 
 - `Set up analytics for my-site.com`
 
-Your agent should create the project and either:
+הסוכן שלכם אמור ליצור את הפרויקט ואז:
 
-- return the tracker snippet for you to paste, or
-- install the tracker itself if it can edit the site
+- להחזיר לכם את סניפט הטרקר כדי שתדביקו אותו, או
+- להתקין את הטרקר בעצמו אם הוא יכול לערוך את האתר
 
-## 4. Add the tracker manually if needed
+## 4. הוסיפו את הטרקר ידנית אם צריך
 
-If your agent already added the tracker to your site, skip this step.
+אם הסוכן כבר הוסיף את הטרקר לאתר, אפשר לדלג על השלב הזה.
 
-If it only created the project and returned a snippet, add the script before `</body>`:
+אם הוא רק יצר את הפרויקט והחזיר סניפט, הוסיפו את הסקריפט לפני `</body>`:
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -52,27 +52,27 @@ If it only created the project and returned a snippet, add the script before `</
         data-token="aat_..."></script>
 ```
 
-Page views are tracked automatically. Add custom events later with `data-aa-event` attributes or `window.aa.track()`.
+צפיות דף נמדדות אוטומטית. אירועים מותאמים אישית אפשר להוסיף אחר כך עם מאפייני `data-aa-event` או עם `window.aa.track()`.
 
-If your site uses Astro, add `is:inline` to that tracker tag.
+אם האתר שלכם משתמש ב-Astro, הוסיפו `is:inline` לתגית הטרקר.
 
-For advanced tracker options like declarative events, cross-domain identity, consent, scroll depth, vitals, and error tracking, use the [Tracker.js guide](/reference/tracker-js/).
+לאפשרויות מתקדמות כמו אירועים דקלרטיביים, זהות חוצת-דומיינים, consent, עומק גלילה, vitals ומעקב שגיאות, השתמשו ב-[מדריך Tracker.js](/he/reference/tracker-js/).
 
-## 5. Verify the loop
+## 5. ודאו שהלולאה נסגרת
 
-Once the install is working and the tracker is live, ask your agent one of these:
+ברגע שההתקנה עובדת והטרקר חי, בקשו מהסוכן שלכם אחת מהשאילתות הבאות:
 
 - `List my projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
 - `Show bot traffic for my-site this week`
 
-If the setup is correct, the agent should answer without you hand-writing requests. 
+אם ההגדרה תקינה, הסוכן אמור לענות בלי שתצטרכו לכתוב בקשות HTTP ידנית.
 
-## Next
+## השלב הבא
 
-- Use [Installation](/installation/) for the fastest per-agent setup.
-- Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.
-- Use [Bot Traffic](/reference/bot-traffic/) to inspect filtered automated callers separately from normal analytics.
-- Use [Authentication](/reference/authentication/) when you need the read token vs write token rules.
-- Use [API Reference](/api/) when you need endpoint-level details.
+- השתמשו ב-[התקנה](/he/installation/) למסלול ההגדרה המהיר ביותר לכל סוכן.
+- השתמשו ב-[Tracker.js](/he/reference/tracker-js/) לאפשרויות מעקב בצד הדפדפן.
+- השתמשו ב-[Bot Traffic](/he/reference/bot-traffic/) כדי לבדוק תעבורה אוטומטית שמסוננת מהאנליטיקה הרגילה.
+- השתמשו ב-[Authentication](/he/reference/authentication/) כשאתם צריכים להבין את ההבדל בין טוקן קריאה לטוקן כתיבה.
+- השתמשו ב-[API Reference](/he/api/) כשאתם צריכים פירוט ברמת נקודת קצה.

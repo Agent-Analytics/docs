@@ -1,6 +1,6 @@
 ---
 title: OpenAI Codex
-description: Install the Agent Analytics skill for OpenAI Codex, set the API key once, and use direct queries or guided workflows from there.
+description: 为 OpenAI Codex 安装 Agent Analytics skill，一次设置 API 密钥，然后使用直接查询或引导式工作流。
 ---
 
 <div class="aa-agent-badge aa-agent-badge--inverse">
@@ -8,47 +8,47 @@ description: Install the Agent Analytics skill for OpenAI Codex, set the API key
   <span>OpenAI Codex</span>
 </div>
 
-For OpenAI Codex, the cleanest path today is the Agent Skills install. It keeps the workflow agent-native and does not require the MCP connector flow.
+对于 OpenAI Codex，目前最干净的路径是使用 Agent Skills 安装。这样整个工作流保持 agent-native，也不需要 MCP connector 流程。
 
-## Prerequisites
+## 前置条件
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- A valid Agent Analytics API key
-- `npx` available in the environment Codex uses
+- 一个 [app.agentanalytics.sh](https://app.agentanalytics.sh) 上的 Agent Analytics 账号
+- 一个有效的 Agent Analytics API 密钥
+- Codex 所使用的环境中可用 `npx`
 
-## Recommended: install the Agent Analytics skill
+## 推荐：安装 Agent Analytics skill
 
 ```bash
 npx skills add Agent-Analytics/agent-analytics-mcp
 ```
 
-Then expose your API key to the agent environment:
+然后把 API 密钥暴露给代理环境：
 
 ```bash
 export AGENT_ANALYTICS_API_KEY=aak_...
 ```
 
-The skill teaches Codex how to set up tracking, query analytics, inspect project health, and run experiments from the same conversation loop.
+这个 skill 会教会 Codex 如何配置跟踪、查询分析、检查项目健康状况以及运行实验，全部都在同一轮对话中完成。
 
-## Verify the install
+## 验证安装
 
-Ask Codex:
+向 Codex 询问：
 
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `Create an experiment for the signup CTA on my-site`
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+如果你还没有创建第一个真实项目，请先回到 [快速开始](/zh/getting-started/#3-创建你的第一个项目) 完成它。
 
-## Troubleshooting
+## 故障排查
 
-- If the skill installs but queries fail, check that `AGENT_ANALYTICS_API_KEY` is present in the environment the agent actually runs in.
-- If `npx` is unavailable, install the required Node.js runtime first or use the direct API route temporarily.
-- If you need endpoint-level debugging, use the [API reference](/api/) and test with `curl`.
+- 如果 skill 安装成功但查询失败，请确认 `AGENT_ANALYTICS_API_KEY` 存在于代理实际运行的环境中。
+- 如果 `npx` 不可用，请先安装所需的 Node.js 运行时，或者临时改走直接 API 路线。
+- 如果你需要端点级调试，请使用 [API reference](/zh/api/) 并用 `curl` 进行测试。
 
-## Related
+## 相关内容
 
-- [Getting Started](/getting-started/)
-- [Claude Code](/installation/claude-code/)
-- [Authentication](/reference/authentication/)
-- [API Reference](/api/)
+- [快速开始](/zh/getting-started/)
+- [Claude Code](/zh/installation/claude-code/)
+- [Authentication](/zh/reference/authentication/)
+- [API Reference](/zh/api/)

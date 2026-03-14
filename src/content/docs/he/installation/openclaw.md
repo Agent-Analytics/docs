@@ -1,57 +1,57 @@
 ---
 title: OpenClaw
-description: Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and use the official CLI from chat.
+description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub, חשפו את מפתח ה-API פעם אחת, והשתמשו ב-CLI הרשמי מתוך הצ'אט.
 ---
 
-For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native and works well with CLI-oriented workflows.
+ל-OpenClaw, המסלול הנקי ביותר הוא ה-skill המארח דרך ClawHub. הוא שומר על ההגדרה agent-native ועובד היטב עם workflow מוכוון CLI.
 
-The important detail: `npx` is only the launcher. The skill is using the official Agent Analytics CLI, and that CLI wraps the same documented HTTP API shown in the docs.
+הפרט החשוב: `npx` הוא רק ה-launcher. ה-skill משתמש ב-CLI הרשמי של Agent Analytics, וה-CLI הזה עוטף את אותו HTTP API מתועד שמופיע בתיעוד.
 
-## Prerequisites
+## דרישות מקדימות
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- A valid Agent Analytics API key stored as `AGENT_ANALYTICS_API_KEY`
-- Access to the OpenClaw environment where you want the skill installed
+- חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
+- מפתח API תקין של Agent Analytics שמאוחסן כ-`AGENT_ANALYTICS_API_KEY`
+- גישה לסביבת OpenClaw שבה אתם רוצים להתקין את ה-skill
 
-## Recommended: install from ClawHub
+## מומלץ: התקנה מתוך ClawHub
 
-Tell OpenClaw:
+אמרו ל-OpenClaw:
 
 > Install the Agent Analytics skill from ClawHub. My API key is available in `AGENT_ANALYTICS_API_KEY`. Use the official Agent Analytics CLI.
 
-The hosted listing is here:
+הרישום המארח נמצא כאן:
 
 - [Agent Analytics on ClawHub](https://clawhub.ai/dannyshmueli/agent-analytics)
 
-Once installed, OpenClaw can create projects, generate tracking snippets, query stats, inspect funnels, and manage experiments from the same conversation loop.
+אחרי ההתקנה, OpenClaw יכול ליצור פרויקטים, לייצר סניפטי מעקב, לשאול סטטיסטיקות, לבדוק funnels ולנהל ניסויים מתוך אותו לולאת שיחה.
 
-The public docs still matter because they show exactly what the CLI is wrapping:
+התיעוד הציבורי עדיין חשוב כי הוא מראה בדיוק מה ה-CLI עוטף:
 
-- [CLI vs MCP vs API](/reference/cli-mcp-api/)
-- [API Reference](/api/)
+- [CLI vs MCP vs API](/he/reference/cli-mcp-api/)
+- [API Reference](/he/api/)
 
-That is the right explanation if a security review asks what the `npx` command is doing.
+זהו ההסבר הנכון אם ביקורת אבטחה שואלת מה פקודת ה-`npx` באמת עושה.
 
-## Verify the install
+## בדיקת ההתקנה
 
-Ask OpenClaw:
+בקשו מ-OpenClaw:
 
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
 
-## Troubleshooting
+## פתרון תקלות
 
-- If ClawHub flags the skill because of `npx`, point reviewers to [CLI vs MCP vs API](/reference/cli-mcp-api/) and [API Reference](/api/). The CLI is the official wrapper around those documented endpoints.
-- If the skill installs but cannot query data, confirm `AGENT_ANALYTICS_API_KEY` is available in the OpenClaw environment instead of pasted into chat.
-- If OpenClaw can create projects but not read analytics, verify the key belongs to the same Agent Analytics account you expect.
-- If you need endpoint-level debugging, use the [API reference](/api/) with `curl` before returning to the skill flow.
+- אם ClawHub מסמן את ה-skill בגלל `npx`, הפנו את הסוקרים אל [CLI vs MCP vs API](/he/reference/cli-mcp-api/) ו-[API Reference](/he/api/). ה-CLI הוא ה-wrapper הרשמי סביב אותן נקודות קצה מתועדות.
+- אם ה-skill מותקן אבל לא מצליח לשאול נתונים, ודאו ש-`AGENT_ANALYTICS_API_KEY` זמין בסביבת OpenClaw ולא מודבק בצ'אט.
+- אם OpenClaw מצליח ליצור פרויקטים אבל לא לקרוא אנליטיקה, ודאו שהמפתח שייך לאותו חשבון Agent Analytics שבו אתם מצפים להשתמש.
+- אם צריך דיבוג ברמת endpoint, השתמשו ב-[API reference](/he/api/) עם `curl` לפני שחוזרים ל-flow של ה-skill.
 
-## Related
+## קשור
 
-- [Getting Started](/getting-started/)
-- [Claude Code](/installation/claude-code/)
-- [OpenAI Codex](/installation/openai-codex/)
-- [API Reference](/api/)
+- [התחלה מהירה](/he/getting-started/)
+- [Claude Code](/he/installation/claude-code/)
+- [OpenAI Codex](/he/installation/openai-codex/)
+- [API Reference](/he/api/)

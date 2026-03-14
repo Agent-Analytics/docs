@@ -1,6 +1,6 @@
 ---
 title: Cursor
-description: Install the Agent Analytics skill in Cursor and use CLI-style workflows first. Use MCP only when you specifically want connector-style tool calls.
+description: התקינו את Agent Analytics skill ב-Cursor והעדיפו workflow בסגנון CLI. השתמשו ב-MCP רק אם אתם באמת רוצים קריאות כלי בסגנון connector.
 ---
 
 <div class="aa-agent-badge aa-agent-badge--plain">
@@ -8,43 +8,43 @@ description: Install the Agent Analytics skill in Cursor and use CLI-style workf
   <span>Cursor</span>
 </div>
 
-For Cursor, start with the Agent Analytics skill plus CLI-style workflows. In practice this is usually faster, cheaper on tokens, and easier to steer than MCP for day-to-day use.
+ב-Cursor עדיף להתחיל עם Agent Analytics skill ו-workflow בסגנון CLI. בפועל זה בדרך כלל מהיר יותר, זול יותר בטוקנים וקל יותר לכיוון מאשר MCP לשימוש יומיומי.
 
-## Prerequisites
+## דרישות מקדימות
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- Cursor installed
-- `npx` available in the environment Cursor uses
-- A valid Agent Analytics API key available as `AGENT_ANALYTICS_API_KEY`
+- חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
+- Cursor מותקן
+- `npx` זמין בסביבה שבה Cursor משתמש
+- מפתח API תקין של Agent Analytics זמין כ-`AGENT_ANALYTICS_API_KEY`
 
-## Recommended: install the agent skill
+## מומלץ: התקנת ה-Agent Skill
 
 ```bash
 npx skills add Agent-Analytics/agent-analytics-mcp
 export AGENT_ANALYTICS_API_KEY=aak_...
 ```
 
-This gives Cursor the Agent Analytics workflow layer plus CLI-oriented execution in the same environment. That is usually the best tradeoff when you want lower latency and less token overhead than MCP tool calls.
+כך Cursor מקבל גם את שכבת ה-workflow של Agent Analytics וגם הרצה מוכוונת CLI באותה סביבה. לרוב זהו ה-tradeoff הטוב ביותר כשאתם רוצים פחות latency ופחות overhead של טוקנים מאשר קריאות כלי דרך MCP.
 
-## Verify the install
+## בדיקת ההתקנה
 
-Ask Cursor:
+בקשו מ-Cursor:
 
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
 
-## Alternative: add a custom MCP server
+## חלופה: הוספת שרת MCP מותאם אישית
 
-Use MCP in Cursor if you specifically want connector-style tool calls instead of skill + CLI execution.
+השתמשו ב-MCP ב-Cursor רק אם אתם רוצים במפורש קריאות כלי בסגנון connector במקום skill + CLI execution.
 
-1. Open the Command Palette
-2. Search for `MCP`
-3. Choose **Cursor Settings > Tools & MCP**
-4. Click **Add Custom MCP**
-5. Add this to your `mcp.json`:
+1. פתחו את Command Palette
+2. חפשו `MCP`
+3. בחרו **Cursor Settings > Tools & MCP**
+4. לחצו על **Add Custom MCP**
+5. הוסיפו את זה ל-`mcp.json` שלכם:
 
 ```json
 {
@@ -56,30 +56,30 @@ Use MCP in Cursor if you specifically want connector-style tool calls instead of
 }
 ```
 
-Save the file and reload Cursor if the tool list does not refresh automatically. MCP works, but it usually adds more latency and token overhead than the skill path.
+שמרו את הקובץ וטעינו מחדש את Cursor אם רשימת הכלים לא מתרעננת אוטומטית. MCP עובד, אבל בדרך כלל מוסיף יותר latency ו-overhead של טוקנים מאשר מסלול ה-skill.
 
-## Lower-level fallback: direct API
+## חלופה ברמה נמוכה יותר: API ישיר
 
-If you want to bypass both the skill and MCP, call the hosted API directly:
+אם אתם רוצים לעקוף גם את ה-skill וגם את MCP, אפשר לקרוא ישירות ל-API המארח:
 
 ```bash
 curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
   -H "X-API-Key: aak_..."
 ```
 
-That lower-level path is useful for debugging auth, but the skill + CLI flow is the recommended installation for day-to-day Cursor usage.
+המסלול הזה שימושי לדיבוג auth, אבל ה-flow המומלץ לשימוש יומיומי ב-Cursor הוא skill + CLI.
 
-## Troubleshooting
+## פתרון תקלות
 
-- If the skill installs but queries fail, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
-- Confirm the `mcp.json` entry is valid JSON if you choose the MCP path.
-- Reload Cursor after adding the custom MCP server if the tools panel still shows the old state.
-- If Cursor can see the MCP server but not your projects, verify the hosted sign-in completed with the correct account.
+- אם ה-skill מותקן אבל השאילתות נכשלות, ודאו ש-`AGENT_ANALYTICS_API_KEY` זמין בסביבה שבה Cursor באמת רץ.
+- אם בחרתם במסלול MCP, ודאו שהערך ב-`mcp.json` הוא JSON תקין.
+- טענו מחדש את Cursor אחרי הוספת שרת MCP מותאם אם פאנל הכלים עדיין מציג את המצב הישן.
+- אם Cursor רואה את שרת ה-MCP אבל לא את הפרויקטים שלכם, ודאו שההתחברות המארחת הושלמה עם החשבון הנכון.
 
-## Related
+## קשור
 
-- [Getting Started](/getting-started/)
-- [CLI vs MCP vs API](/reference/cli-mcp-api/)
-- [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
-- [OpenAI Codex](/installation/openai-codex/)
-- [API Reference](/api/)
+- [התחלה מהירה](/he/getting-started/)
+- [CLI vs MCP vs API](/he/reference/cli-mcp-api/)
+- [Claude Desktop / Cowork](/he/installation/claude-desktop-cowork/)
+- [OpenAI Codex](/he/installation/openai-codex/)
+- [API Reference](/he/api/)

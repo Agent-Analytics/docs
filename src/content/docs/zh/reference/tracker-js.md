@@ -1,15 +1,15 @@
 ---
 title: Tracker.js
-description: Add Agent Analytics to any site with one script tag, then turn on declarative events, consent, performance tracking, and other browser-side features.
+description: 用一个 script 标签把 Agent Analytics 加到任意网站，然后开启声明式事件、consent、性能跟踪以及其他浏览器端能力。
 ---
 
-`tracker.js` is the browser-side part of Agent Analytics. Use it when you want page views, custom events, and client-side experiments without shipping a heavy SDK.
+`tracker.js` 是 Agent Analytics 的浏览器端部分。适合用于页面浏览、自定义事件以及客户端实验，而无需引入一个很重的 SDK。
 
-The API reference now treats `GET /tracker.js` as the script endpoint only. The setup and feature guide lives here.
+API 参考现在把 `GET /tracker.js` 仅视为脚本端点。安装和功能指南放在这里。
 
-## Base snippet
+## 基础代码片段
 
-Add this before `</body>`:
+在 `</body>` 前加入：
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -17,36 +17,36 @@ Add this before `</body>`:
         data-token="aat_..."></script>
 ```
 
-Required attributes:
+必填属性：
 
-- `data-project`: your project name
-- `data-token`: the public project token (`aat_*`)
+- `data-project`：你的项目名称
+- `data-token`：公开项目令牌（`aat_*`）
 
-The tracker automatically collects page URL, pathname, referrer, browser, OS, device, language, timezone, UTM params, session count, and first-touch attribution. No cookies are required.
+跟踪器会自动收集页面 URL、pathname、referrer、浏览器、操作系统、设备、语言、时区、UTM 参数、session 次数以及 first-touch attribution。不需要 cookies。
 
-Automated traffic that reaches the tracker is filtered out of your normal analytics. Use [Bot Traffic](/reference/bot-traffic/) if you want to inspect those automated requests separately.
+到达跟踪器的自动化流量会从你的正常分析中被过滤掉。如果你想单独检查这些自动请求，请使用 [Bot Traffic](/zh/reference/bot-traffic/)。
 
-If your agent can edit code, ask it to add the snippet for you. If not, create the project in [Getting Started](/getting-started/#3-create-your-first-project) and paste the returned snippet manually.
+如果你的代理能修改代码，可以直接让它帮你添加代码片段。如果不能，请在 [快速开始](/zh/getting-started/#3-创建你的第一个项目) 中创建项目，再手动粘贴返回的代码片段。
 
-## Common options
+## 常见选项
 
-| Attribute | What it does |
+| Attribute | 作用 |
 | --- | --- |
-| `data-link-domains="example.com"` | Link anonymous identity across sibling domains or subdomains |
-| `data-do-not-track="true"` | Respect the browser Do Not Track signal |
-| `data-heartbeat="15"` | Measure active time on page while the tab is visible |
-| `data-track-outgoing="true"` | Track external link clicks as `outgoing_link` |
-| `data-track-clicks="true"` | Track `<a>` and `<button>` clicks as `$click` |
-| `data-track-errors="true"` | Capture uncaught JS errors and promise rejections as `$error` |
-| `data-track-performance="true"` | Add Navigation Timing metrics to `page_view` |
-| `data-track-vitals="true"` | Add Core Web Vitals to `page_view` |
-| `data-track-downloads="true"` | Track download link clicks as `$download` |
-| `data-track-forms="true"` | Track form submissions as `$form_submit` |
-| `data-track-404="true"` | Track 404 pages as `$404` |
-| `data-track-scroll-depth="true"` | Add max scroll depth to `page_view` |
-| `data-require-consent="true"` | Buffer events until consent is granted |
+| `data-link-domains="example.com"` | 在同级域名或子域之间关联匿名身份 |
+| `data-do-not-track="true"` | 遵循浏览器的 Do Not Track 信号 |
+| `data-heartbeat="15"` | 在标签页可见时测量页面活跃时长 |
+| `data-track-outgoing="true"` | 将外链点击记录为 `outgoing_link` |
+| `data-track-clicks="true"` | 将 `<a>` 和 `<button>` 点击记录为 `$click` |
+| `data-track-errors="true"` | 捕获未处理的 JS 错误和 promise rejection，并记录为 `$error` |
+| `data-track-performance="true"` | 为 `page_view` 添加 Navigation Timing 指标 |
+| `data-track-vitals="true"` | 为 `page_view` 添加 Core Web Vitals |
+| `data-track-downloads="true"` | 将下载链接点击记录为 `$download` |
+| `data-track-forms="true"` | 将表单提交记录为 `$form_submit` |
+| `data-track-404="true"` | 将 404 页面记录为 `$404` |
+| `data-track-scroll-depth="true"` | 为 `page_view` 添加最大滚动深度 |
+| `data-require-consent="true"` | 在获得 consent 前先缓冲事件 |
 
-Example:
+示例：
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -60,9 +60,9 @@ Example:
         data-heartbeat="15"></script>
 ```
 
-## Declarative events
+## 声明式事件
 
-For simple click tracking, you usually do not need custom JavaScript. Add `data-aa-event` directly in HTML:
+对于简单点击跟踪，通常不需要写自定义 JavaScript。你可以直接在 HTML 中加入 `data-aa-event`：
 
 ```html
 <button data-aa-event="signup" data-aa-event-plan="pro">
@@ -70,13 +70,13 @@ For simple click tracking, you usually do not need custom JavaScript. Add `data-
 </button>
 ```
 
-That fires a `signup` event with `{ plan: "pro" }`.
+这会发送一个 `signup` 事件，并带上 `{ plan: "pro" }`。
 
-This is usually the easiest path for agents too. They can add attributes to existing markup instead of wiring `onclick` handlers or editing application code.
+这通常也是代理最容易处理的方式。它们可以给现有标记加属性，而不用去接 `onclick` handler 或修改应用代码。
 
-## Impressions
+## 曝光跟踪
 
-Track whether a section was actually seen:
+如果你想知道某个区块是否真的被看到：
 
 ```html
 <section data-aa-impression="pricing_table"
@@ -85,11 +85,11 @@ Track whether a section was actually seen:
 </section>
 ```
 
-When the element becomes visible, the tracker sends an `$impression` event.
+当元素进入可见区域时，跟踪器会发送一个 `$impression` 事件。
 
 ## `window.aa` API
 
-Use the JavaScript API when the event depends on runtime state:
+当事件依赖运行时状态时，请使用 JavaScript API：
 
 ```js
 window.aa?.track('checkout_started', { plan: 'pro' });
@@ -97,18 +97,18 @@ window.aa?.identify('user_123');
 window.aa?.set({ plan: 'pro', team: 'acme' });
 ```
 
-Useful methods:
+常用方法：
 
-- `aa.track(event, properties)`: send a custom event
-- `aa.page(name)`: manually send a page view
-- `aa.identify(id)`: link anonymous behavior to a known user ID
-- `aa.set(properties)`: attach global properties to future events
-- `aa.experiment(name, variants)`: assign variants deterministically client-side
-- `aa.grantConsent()` / `aa.revokeConsent()`: manage consent mode
+- `aa.track(event, properties)`：发送自定义事件
+- `aa.page(name)`：手动发送 page view
+- `aa.identify(id)`：把匿名行为关联到已知用户 ID
+- `aa.set(properties)`：为后续事件附加全局属性
+- `aa.experiment(name, variants)`：在客户端确定性分配实验版本
+- `aa.grantConsent()` / `aa.revokeConsent()`：管理 consent 模式
 
-## Common recipes
+## 常见配方
 
-### Cross-domain identity
+### 跨域身份关联
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -117,7 +117,7 @@ Useful methods:
         data-link-domains="example.com,app.example.com,docs.example.com"></script>
 ```
 
-### Privacy and consent
+### 隐私与 consent
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -132,7 +132,7 @@ window.aa?.grantConsent();
 window.aa?.revokeConsent();
 ```
 
-### Experiments
+### 实验
 
 ```html
 <h1 data-aa-experiment="hero_text"
@@ -141,13 +141,13 @@ window.aa?.revokeConsent();
 </h1>
 ```
 
-### Local development
+### 本地开发
 
-On localhost, the tracker switches to dev mode and logs activity to the browser console instead of sending production data. That keeps local testing out of your real analytics.
+在 localhost 上，跟踪器会切换到开发模式，并把活动记录到浏览器控制台，而不是发送到生产环境。这样本地测试就不会污染真实分析数据。
 
-## Related
+## 相关内容
 
-- [Getting Started](/getting-started/)
-- [Bot Traffic](/reference/bot-traffic/)
-- [Authentication](/reference/authentication/)
-- [API Reference](/api/)
+- [快速开始](/zh/getting-started/)
+- [Bot Traffic](/zh/reference/bot-traffic/)
+- [Authentication](/zh/reference/authentication/)
+- [API Reference](/zh/api/)

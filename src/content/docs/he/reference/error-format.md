@@ -1,9 +1,9 @@
 ---
 title: Error Format
-description: All API errors return a machine-readable code plus a human-readable message.
+description: כל שגיאת API מחזירה קוד קריא-מכונה יחד עם הודעה קריאה לאדם.
 ---
 
-All errors return JSON with an `error` code and a `message`.
+כל השגיאות מחזירות JSON עם קוד `error` ועם `message`.
 
 ```json
 {
@@ -12,7 +12,7 @@ All errors return JSON with an `error` code and a `message`.
 }
 ```
 
-## Common error codes
+## קודי שגיאה נפוצים
 
 - `AUTH_REQUIRED`
 - `FORBIDDEN`
@@ -34,14 +34,14 @@ All errors return JSON with an `error` code and a `message`.
 - `STREAM_LIMIT`
 - `INVALID_FUNNEL_STEPS`
 
-## How to debug
+## איך לדבג
 
-1. check the `error` field first and branch on that in your code
-2. use the `message` field for logs and human-readable tool output
-3. confirm whether the failure came from auth, a missing project, or invalid query shape before retrying
+1. בדקו קודם את השדה `error` והתפצלו עליו בקוד שלכם
+2. השתמשו בשדה `message` עבור לוגים ועבור פלט קריא לבני אדם
+3. ודאו אם הכישלון הגיע מ-auth, מפרויקט חסר, או ממבנה שאילתה לא תקין לפני שאתם מנסים שוב
 
-## Related
+## קשור
 
-- [Authentication](/reference/authentication/)
-- [Rate Limits](/reference/rate-limits/)
-- [API Reference](/api/)
+- [Authentication](/he/reference/authentication/)
+- [Rate Limits](/he/reference/rate-limits/)
+- [API Reference](/he/api/)

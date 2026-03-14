@@ -1,26 +1,26 @@
 ---
 title: Rate Limits
-description: Hosted Agent Analytics uses account-level API limits and event-volume limits that vary by plan.
+description: ב-Agent Analytics המארח יש מגבלות API ברמת החשבון ומגבלות נפח אירועים שמשתנות לפי תוכנית.
 ---
 
-## Standard limits
+## מגבלות סטנדרטיות
 
 | Tier | Requests / minute | Event limit | Data retention |
 | --- | --- | --- | --- |
 | Free | 10 | 100,000 / month | 90 days |
 | Pro | 1,000 | Unlimited | 365 days |
 
-Free hosted accounts also get:
+חשבונות hosted free מקבלים גם:
 
-- up to 2 projects
-- 500 agent/API read actions per month
-- MCP access for `list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `bot_traffic_overview`, and `all_sites_bot_traffic`
+- עד 2 פרויקטים
+- 500 פעולות קריאה של סוכן/API בחודש
+- גישת MCP ל-`list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `bot_traffic_overview` ו-`all_sites_bot_traffic`
 
-Bot traffic overview stays available on both hosted tiers through API, CLI, and MCP.
+Bot traffic overview נשאר זמין בשתי התוכניות המארחות דרך API, CLI ו-MCP.
 
-Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO_REQUIRED` on query, funnels, retention, experiments, and the richer analytics endpoints.
+תוכניות בתשלום פותחות את כל המשטח של API, CLI ו-MCP. חשבונות free יקבלו `PRO_REQUIRED` על query, funnels, retention, experiments ונקודות הקצה העשירות יותר של האנליטיקה.
 
-## Streaming limits
+## מגבלות סטרימינג
 
 | Limit | Value |
 | --- | --- |
@@ -29,15 +29,15 @@ Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO
 | Inactivity timeout | 30 minutes |
 | Ring buffer | 5 minutes / 10,000 events |
 
-## What to do if you hit a limit
+## מה לעשות אם הגעתם למגבלה
 
-- back off and retry instead of hammering the same endpoint
-- reduce polling frequency for overview queries
-- batch ingestion where possible
-- move experiments and heavier analysis to a pro account if that is the bottleneck
+- בצעו backoff ונסו שוב במקום להכות שוב ושוב באותה נקודת קצה
+- צמצמו את תדירות ה-polling לשאילתות overview
+- בצעו batching לקליטת אירועים כשאפשר
+- העבירו ניסויים וניתוחים כבדים יותר לחשבון pro אם זה צוואר הבקבוק
 
-## Related
+## קשור
 
-- [Bot Traffic](/reference/bot-traffic/)
-- [Error Format](/reference/error-format/)
-- [API Reference](/api/)
+- [Bot Traffic](/he/reference/bot-traffic/)
+- [Error Format](/he/reference/error-format/)
+- [API Reference](/he/api/)

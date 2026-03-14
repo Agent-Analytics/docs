@@ -1,50 +1,50 @@
 ---
-title: Getting Started
-description: Create a project, install Agent Analytics in your agent, and verify the first query.
+title: 快速开始
+description: 创建项目，在代理中安装 Agent Analytics，并验证第一次查询。
 ---
 
-This is the shortest path from zero to a working Agent Analytics setup.
+这是从零到可用 Agent Analytics 配置的最短路径。
 
-## 1. Get your API key
+## 1. 获取你的 API 密钥
 
-Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and generate an API key from the dashboard.
+在 [app.agentanalytics.sh](https://app.agentanalytics.sh) 注册，然后在仪表盘中生成 API 密钥。
 
-- Use the API key (`aak_*`) for reads, project management, and agent skill setup.
-- Use the project token (`aat_*`) in the tracking snippet that goes on your site.
+- API 密钥（`aak_*`）用于读取分析数据、管理项目，以及配置 agent skill。
+- 项目令牌（`aat_*`）用于放进你网站上的跟踪代码片段。
 
-## 2. Pick and complete an install path
+## 2. 选择并完成一条安装路径
 
-Go to the [installation hub](/installation/) and complete the setup for the environment you actually use:
+前往 [安装中心](/zh/installation/)，完成你实际使用环境对应的配置：
 
-- [Claude Code](/installation/claude-code/)
-- [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
-- [Cursor](/installation/cursor/)
-- [OpenClaw](/installation/openclaw/)
-- [OpenAI Codex](/installation/openai-codex/)
+- [Claude Code](/zh/installation/claude-code/)
+- [Claude Desktop / Cowork](/zh/installation/claude-desktop-cowork/)
+- [Cursor](/zh/installation/cursor/)
+- [OpenClaw](/zh/installation/openclaw/)
+- [OpenAI Codex](/zh/installation/openai-codex/)
 
-If none of those are a fit, the [API reference](/api/) stays available for direct integration.
+如果这些都不适合你，也可以直接使用 [API 参考](/zh/api/) 进行集成。
 
-## 3. Create your first project
+## 3. 创建你的第一个项目
 
-After your agent is connected, ask it to create the first project for you:
+连接好代理之后，让它帮你创建第一个项目：
 
 - `Create a project called my-site.com`
 - `Create a project called my-site.com and give me the tracking snippet`
 
-If your agent has code write access to your site, ask it:
+如果你的代理有权写入网站代码，也可以直接让它：
 
 - `Set up analytics for my-site.com`
 
-Your agent should create the project and either:
+你的代理应该会创建项目，然后：
 
-- return the tracker snippet for you to paste, or
-- install the tracker itself if it can edit the site
+- 把跟踪代码片段返回给你手动粘贴，或者
+- 如果它能修改网站代码，就直接帮你安装跟踪器
 
-## 4. Add the tracker manually if needed
+## 4. 如果需要，手动添加跟踪器
 
-If your agent already added the tracker to your site, skip this step.
+如果代理已经把跟踪器加到网站里了，可以跳过这一步。
 
-If it only created the project and returned a snippet, add the script before `</body>`:
+如果它只是创建了项目并返回代码片段，请在 `</body>` 前加入下面这段脚本：
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -52,27 +52,27 @@ If it only created the project and returned a snippet, add the script before `</
         data-token="aat_..."></script>
 ```
 
-Page views are tracked automatically. Add custom events later with `data-aa-event` attributes or `window.aa.track()`.
+页面浏览会自动跟踪。后续你可以通过 `data-aa-event` 属性或 `window.aa.track()` 添加自定义事件。
 
-If your site uses Astro, add `is:inline` to that tracker tag.
+如果你的网站使用 Astro，请给这段 tracker 标签加上 `is:inline`。
 
-For advanced tracker options like declarative events, cross-domain identity, consent, scroll depth, vitals, and error tracking, use the [Tracker.js guide](/reference/tracker-js/).
+如果你需要声明式事件、跨域身份、consent、滚动深度、vitals 或错误跟踪等高级选项，请使用 [Tracker.js 指南](/zh/reference/tracker-js/)。
 
-## 5. Verify the loop
+## 5. 验证闭环
 
-Once the install is working and the tracker is live, ask your agent one of these:
+当安装已生效、跟踪器也开始工作后，向你的代理发起这些查询之一：
 
 - `List my projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
 - `Show bot traffic for my-site this week`
 
-If the setup is correct, the agent should answer without you hand-writing requests. 
+如果配置正确，代理应该能直接回答，而不需要你手写 HTTP 请求。
 
-## Next
+## 下一步
 
-- Use [Installation](/installation/) for the fastest per-agent setup.
-- Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.
-- Use [Bot Traffic](/reference/bot-traffic/) to inspect filtered automated callers separately from normal analytics.
-- Use [Authentication](/reference/authentication/) when you need the read token vs write token rules.
-- Use [API Reference](/api/) when you need endpoint-level details.
+- 使用 [安装](/zh/installation/) 获取针对不同代理的最快接入路径。
+- 使用 [Tracker.js](/zh/reference/tracker-js/) 查看浏览器端跟踪选项。
+- 使用 [Bot Traffic](/zh/reference/bot-traffic/) 检查从正常分析中被过滤掉的自动化流量。
+- 使用 [Authentication](/zh/reference/authentication/) 理解读令牌与写令牌的区别。
+- 使用 [API Reference](/zh/api/) 查看端点级细节。

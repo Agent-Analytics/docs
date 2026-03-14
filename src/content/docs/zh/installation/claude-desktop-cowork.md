@@ -1,6 +1,6 @@
 ---
 title: Claude Desktop / Cowork
-description: Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
+description: 在 Claude Desktop 或 Cowork 中连接托管 MCP 服务器，并直接在聊天里验证分析工具。
 ---
 
 <div class="aa-agent-badge aa-agent-badge--plain">
@@ -8,54 +8,54 @@ description: Connect the hosted MCP server in Claude Desktop or Cowork and verif
   <span>Claude Desktop / Cowork</span>
 </div>
 
-Claude Desktop and Cowork both fit the hosted MCP flow. Use the connector UI instead of manually managing API keys in prompts.
+Claude Desktop 和 Cowork 都适合托管 MCP 流程。请使用 connector 界面，而不是在提示词里手动管理 API 密钥。
 
-## Prerequisites
+## 前置条件
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- Claude Desktop or Cowork access
-- GitHub or Google sign-in matching your Agent Analytics account
+- 一个 [app.agentanalytics.sh](https://app.agentanalytics.sh) 上的 Agent Analytics 账号
+- 可以访问 Claude Desktop 或 Cowork
+- 使用与你 Agent Analytics 账户匹配的 GitHub 或 Google 登录
 
-## Recommended: add the hosted connector
+## 推荐：添加托管 connector
 
-1. Open **Settings**
-2. Open **Connectors**
-3. Choose **Add**
-4. Choose **Custom**
-5. Enter:
+1. 打开 **Settings**
+2. 打开 **Connectors**
+3. 选择 **Add**
+4. 选择 **Custom**
+5. 输入：
 
 ```text
 https://mcp.agentanalytics.sh/mcp
 ```
 
-You will be asked to sign in with GitHub or Google. Use the same identity that owns the projects in Agent Analytics.
+系统会要求你使用 GitHub 或 Google 登录。请使用拥有 Agent Analytics 项目的同一身份。
 
-## Verify the install
+## 验证安装
 
-Ask Claude:
+向 Claude 询问：
 
 - `List my projects`
 - `Show me a 7 day overview for my-site`
 - `Where do users drop off between signup and purchase?`
 
-This path is the best hosted experience for conversational analytics because the MCP server can return structured tool results and rich UI where supported.
+这是最适合对话式分析的托管路径，因为 MCP 服务器能够在支持的环境中返回结构化工具结果和更丰富的 UI。
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+如果你还没有创建第一个真实项目，请先回到 [快速开始](/zh/getting-started/#3-创建你的第一个项目) 完成它。
 
-## Manual notes
+## 手动说明
 
-- The hosted MCP server URL stays the same across Claude Desktop and Cowork.
-- You do not need to manually pass an `X-API-Key` once the connector sign-in succeeds.
+- Claude Desktop 和 Cowork 使用的托管 MCP 服务器 URL 是相同的。
+- connector 登录成功后，不需要再手动传递 `X-API-Key`。
 
-## Troubleshooting
+## 故障排查
 
-- If authentication succeeds but no projects appear, confirm the signed-in account matches your Agent Analytics dashboard account.
-- If a custom connector URL is rejected, re-enter the exact MCP endpoint: `https://mcp.agentanalytics.sh/mcp`
-- If you need lower-level debugging, switch to the [API reference](/api/) and test the same workflow with direct HTTP calls.
+- 如果认证成功但没有出现项目，请确认当前登录账号与你的 Agent Analytics 仪表盘账户一致。
+- 如果自定义 connector URL 被拒绝，请重新输入精确的 MCP 端点：`https://mcp.agentanalytics.sh/mcp`
+- 如果你需要更底层的调试，请转到 [API reference](/zh/api/) 并使用直接 HTTP 调用测试同样的流程。
 
-## Related
+## 相关内容
 
-- [Getting Started](/getting-started/)
-- [Claude Code](/installation/claude-code/)
-- [Cursor](/installation/cursor/)
-- [API Reference](/api/)
+- [快速开始](/zh/getting-started/)
+- [Claude Code](/zh/installation/claude-code/)
+- [Cursor](/zh/installation/cursor/)
+- [API Reference](/zh/api/)

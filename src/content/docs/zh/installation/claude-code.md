@@ -1,6 +1,6 @@
 ---
 title: Claude Code
-description: Install Agent Analytics in Claude Code with the hosted plugin first, then use the skill path before dropping to raw MCP setup.
+description: 优先通过托管插件在 Claude Code 中安装 Agent Analytics，然后再退回到 skill 或原始 MCP 方案。
 ---
 
 <div class="aa-agent-badge aa-agent-badge--plain">
@@ -8,64 +8,64 @@ description: Install Agent Analytics in Claude Code with the hosted plugin first
   <span>Claude Code</span>
 </div>
 
-Use the plugin path first. It gives Claude Code both the MCP server connection and the analytics-specific workflow layer in one install.
+优先走插件路径。它会一次性为 Claude Code 提供 MCP 服务器连接和分析工作流层。
 
-## Prerequisites
+## 前置条件
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- Claude Code installed locally
-- Access to the same GitHub or Google identity you use for Agent Analytics
+- 一个 [app.agentanalytics.sh](https://app.agentanalytics.sh) 上的 Agent Analytics 账号
+- 本地已安装 Claude Code
+- 可以访问与你 Agent Analytics 账号相同的 GitHub 或 Google 身份
 
-## Recommended: install the plugin
+## 推荐：安装插件
 
 ```bash
 /plugin marketplace add Agent-Analytics/agent-analytics-plugin
 /plugin install agent-analytics
 ```
 
-This is the shortest hosted path for Claude Code because it packages the MCP connection and the usage guidance together.
+这是 Claude Code 最短的托管接入路径，因为它把 MCP 连接和使用指导打包在了一起。
 
-## Verify the install
+## 验证安装
 
-Ask Claude Code:
+向 Claude Code 询问：
 
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
 
-If the plugin is working, Claude Code should be able to reach your account without asking you to hand-roll HTTP requests.
+如果插件工作正常，Claude Code 应该能直接访问你的账户，而不需要你手写 HTTP 请求。
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+如果你还没有创建第一个真实项目，请先回到 [快速开始](/zh/getting-started/#3-创建你的第一个项目) 完成它。
 
-## Fallback: install the Claude Code skill
+## 备选方案：安装 Claude Code skill
 
-If you do not want the full plugin, use the skill path before raw MCP:
+如果你不想使用完整插件，先走 skill 路径，再考虑原始 MCP：
 
 ```bash
 npx skills add Agent-Analytics/agent-analytics-mcp
 ```
 
-This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It still requires a valid Agent Analytics API key in the environment used by Claude Code.
+这个路径会让 Claude Code 学会如何配置跟踪、查询分析和运行实验。它仍然需要在 Claude Code 所在环境中提供有效的 Agent Analytics API 密钥。
 
-## Lower-level fallback: add only the MCP server
+## 更底层的备选：只接入 MCP 服务器
 
-If you want the MCP server without the plugin or skill layer:
+如果你只想使用 MCP 服务器，而不需要插件或 skill 层：
 
 ```bash
 claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
 ```
 
-Use `--transport http`. The hosted MCP server is not configured for legacy SSE transport.
+请使用 `--transport http`。托管 MCP 服务器并未配置为旧版 SSE transport。
 
-## Troubleshooting
+## 故障排查
 
-- Make sure Claude Code is using the same GitHub or Google account as your Agent Analytics dashboard account.
-- If the skill installs but Claude Code cannot query data, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
-- If the MCP command fails, verify you used `--transport http`.
+- 确认 Claude Code 使用的 GitHub 或 Google 账户与你的 Agent Analytics 仪表盘账户一致。
+- 如果 skill 安装成功但 Claude Code 无法查询数据，请确认环境中暴露了 `AGENT_ANALYTICS_API_KEY`。
+- 如果 MCP 命令失败，请检查你是否使用了 `--transport http`。
 
-## Related
+## 相关内容
 
-- [Getting Started](/getting-started/)
-- [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
-- [Authentication](/reference/authentication/)
-- [API Reference](/api/)
+- [快速开始](/zh/getting-started/)
+- [Claude Desktop / Cowork](/zh/installation/claude-desktop-cowork/)
+- [Authentication](/zh/reference/authentication/)
+- [API Reference](/zh/api/)

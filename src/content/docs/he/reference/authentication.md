@@ -1,37 +1,37 @@
 ---
 title: Authentication
-description: Understand the difference between API keys and project tokens before you wire an agent or a tracker.
+description: הבינו את ההבדל בין API keys לבין project tokens לפני שאתם מחברים סוכן או טרקר.
 ---
 
-Agent Analytics uses two different credentials. They serve different jobs and should not be swapped.
+Agent Analytics משתמש בשני credentials שונים. יש להם תפקידים שונים, ולא צריך להחליף ביניהם.
 
 ## API key (`aak_*`)
 
-Use the API key for:
+השתמשו ב-API key עבור:
 
-- reading analytics data
-- creating or listing projects
-- account-level endpoints
-- direct API access from scripts, tools, and agents
+- קריאת נתוני אנליטיקה
+- יצירה או רשימה של פרויקטים
+- נקודות קצה ברמת החשבון
+- גישה ישירה ל-API מתוך סקריפטים, כלים וסוכנים
 
-Pass it with the `X-API-Key` header or the `?key=` query parameter.
+העבירו אותו עם כותרת `X-API-Key` או עם query parameter בשם `?key=`.
 
 ```bash
 curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
   -H "X-API-Key: aak_..."
 ```
 
-Treat it as secret material.
+התייחסו אליו כחומר סודי.
 
 ## Project token (`aat_*`)
 
-Use the project token for:
+השתמשו ב-project token עבור:
 
 - `POST /track`
 - `POST /track/batch`
-- the browser tracker snippet embedded on your site
+- סניפט הטרקר בדפדפן שמוטמע באתר שלכם
 
-The token is public by design. It identifies the project for event ingestion and is expected to appear in HTML.
+הטוקן ציבורי בכוונה. הוא מזהה את הפרויקט עבור קליטת אירועים, ולכן צפוי להופיע ב-HTML.
 
 ```html
 <script defer src="https://api.agentanalytics.sh/tracker.js"
@@ -39,24 +39,24 @@ The token is public by design. It identifies the project for event ingestion and
         data-token="aat_..."></script>
 ```
 
-## Common mistake
+## טעות נפוצה
 
-Do not put the API key in the client-side tracker. The tracker uses the public project token only.
+אל תשימו את ה-API key בתוך הטרקר בצד הלקוח. הטרקר משתמש רק ב-project token הציבורי.
 
-## CLI auth helpers
+## עזרי auth של CLI
 
-If you use the official CLI, it provides two local auth convenience commands around the API key:
+אם אתם משתמשים ב-CLI הרשמי, הוא מספק שתי פקודות נוחות לעבודה מקומית סביב ה-API key:
 
-- `npx @agent-analytics/cli login --token aak_...` saves the API key locally for later CLI reads.
-- `npx @agent-analytics/cli logout` clears the saved local CLI auth.
+- `npx @agent-analytics/cli login --token aak_...` שומר מקומית את ה-API key לקריאות CLI עתידיות.
+- `npx @agent-analytics/cli logout` מוחק את auth המקומי השמור של ה-CLI.
 
-`logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
+`logout` לא מבטל את ה-API key בשרת. השתמשו ב-`revoke-key` כשאתם רוצים לפסול את המפתח הישן ולהנפיק חדש.
 
-If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will continue to use that env var even after `logout` until you unset it.
+אם הגדרתם `AGENT_ANALYTICS_API_KEY` בסביבת shell, ה-CLI ימשיך להשתמש במשתנה הזה גם אחרי `logout` עד שתבטלו אותו.
 
-## Related
+## קשור
 
-- [Getting Started](/getting-started/)
-- [CLI vs MCP vs API](/reference/cli-mcp-api/)
-- [Error Format](/reference/error-format/)
-- [API Reference](/api/)
+- [התחלה מהירה](/he/getting-started/)
+- [CLI vs MCP vs API](/he/reference/cli-mcp-api/)
+- [Error Format](/he/reference/error-format/)
+- [API Reference](/he/api/)

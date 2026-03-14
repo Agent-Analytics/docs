@@ -1,34 +1,34 @@
 ---
-title: Agent Analytics Docs
-description: Install Agent Analytics in Claude, Cursor, OpenClaw, Codex, and other AI tools.
+title: מסמכי Agent Analytics
+description: התקינו את Agent Analytics ב-Claude, Cursor, OpenClaw, Codex וכלי AI נוספים.
 template: splash
 hero:
-  tagline: Real install guides for agent-native analytics.
+  tagline: מדריכי התקנה אמיתיים לאנליטיקה בסגנון agent-native.
   image:
     html: |
       <div class="aa-hero-visual" aria-hidden="true">
         <div class="aa-hero-visual__panel aa-hero-visual__panel--agent">
           <div class="aa-hero-visual__panel-head">
             <span class="aa-hero-visual__status"></span>
-            <span>Agent session</span>
+            <span>סשן סוכן</span>
           </div>
-          <div class="aa-hero-visual__prompt">Set up analytics for my-site.com</div>
-          <div class="aa-hero-visual__step"><span></span>Project created</div>
-          <div class="aa-hero-visual__step"><span></span>Tracker added</div>
-          <div class="aa-hero-visual__step"><span></span>7 day summary ready</div>
+          <div class="aa-hero-visual__prompt">הגדירו אנליטיקה עבור my-site.com</div>
+          <div class="aa-hero-visual__step"><span></span>הפרויקט נוצר</div>
+          <div class="aa-hero-visual__step"><span></span>הטרקר נוסף</div>
+          <div class="aa-hero-visual__step"><span></span>סיכום 7 ימים מוכן</div>
         </div>
         <div class="aa-hero-visual__panel aa-hero-visual__panel--stats">
           <div class="aa-hero-visual__stat">
             <strong>523</strong>
-            <span>users</span>
+            <span>משתמשים</span>
           </div>
           <div class="aa-hero-visual__stat">
             <strong>8.4%</strong>
-            <span>signup</span>
+            <span>הרשמות</span>
           </div>
           <div class="aa-hero-visual__stat">
             <strong>2</strong>
-            <span>tests live</span>
+            <span>ניסויים חיים</span>
           </div>
         </div>
         <div class="aa-hero-visual__panel aa-hero-visual__panel--code">
@@ -44,61 +44,61 @@ hero:
         </div>
       </div>
   actions:
-    - text: Start here
-      link: /getting-started/
+    - text: מתחילים כאן
+      link: /he/getting-started/
       icon: right-arrow
-    - text: API reference
-      link: /api/
+    - text: עיון ב-API
+      link: /he/api/
       icon: external
       variant: minimal
 ---
 
 import { CardGrid, Icon } from '@astrojs/starlight/components';
 
-Agent Analytics is a web analytics platform with an agent-friendly HTTP API, an MCP server, and an agent skill layer.
-These docs now split the experience cleanly:
+Agent Analytics היא פלטפורמת אנליטיקה לאתרים עם HTTP API ידידותי לסוכנים, שרת MCP ושכבת skills לסוכנים.
+התיעוד הזה מחלק עכשיו את החוויה בצורה נקייה:
 
-- Use the guides when you want the fastest install path for a specific agent.
-- Use the API reference when you need endpoint-level request and response detail.
-- Use the LLM text exports when you want a compact machine-readable index of the docs.
+- השתמשו במדריכים כשאתם רוצים את מסלול ההתקנה המהיר ביותר עבור סוכן מסוים.
+- השתמשו בעיון ב-API כשאתם צריכים פירוט מדויק של בקשות ותגובות ברמת נקודת קצה.
+- השתמשו בייצואי הטקסט ל-LLM כשאתם צריכים אינדקס קומפקטי וקריא-מכונה של התיעוד.
 
-## Start with the path you actually need
+## התחילו במסלול שבאמת מתאים לכם
 
 <CardGrid stagger>
-  <a class="aa-home-link-card" data-tone="orange" href="/getting-started/">
+  <a class="aa-home-link-card" data-tone="orange" href="/he/getting-started/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="download" size="1.333em" />
-      <span>Get set up fast</span>
+      <span>הגדרה מהירה</span>
     </div>
     <div class="aa-home-link-card__body">
-      Start with the recommended setup path, create a project, add tracking, and verify your agent can read data back.
+      התחילו במסלול ההגדרה המומלץ, צרו פרויקט, הוסיפו מעקב, וודאו שהסוכן שלכם יודע לקרוא את הנתונים בחזרה.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="purple" href="/installation/">
+  <a class="aa-home-link-card" data-tone="purple" href="/he/installation/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="laptop" size="1.333em" />
-      <span>Choose your agent</span>
+      <span>בחרו את הסוכן שלכם</span>
     </div>
     <div class="aa-home-link-card__body">
-      Dedicated install pages cover Claude Code, Claude Desktop / Cowork, Cursor, OpenClaw, and OpenAI Codex.
+      דפי התקנה ייעודיים מכסים את Claude Code, Claude Desktop / Cowork, Cursor, OpenClaw ו-OpenAI Codex.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="green" href="/api/">
+  <a class="aa-home-link-card" data-tone="green" href="/he/api/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="seti:json" size="1.333em" />
       <span>API</span>
     </div>
     <div class="aa-home-link-card__body">
-      Interactive reference, endpoint details, and the canonical OpenAPI spec.
+      עיון אינטראקטיבי, פירוט של נקודות קצה ומפרט OpenAPI הקנוני.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="red" href="/llms.txt">
+  <a class="aa-home-link-card" data-tone="red" href="/he/llms.txt">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="open-book" size="1.333em" />
-      <span>LLMs.txt for Agents</span>
+      <span>LLMs.txt לסוכנים</span>
     </div>
     <div class="aa-home-link-card__body">
-      Use llms.txt for the compact index or llms-full.txt for the full docs bundle.
+      השתמשו ב-llms.txt לאינדקס קומפקטי או ב-llms-full.txt לחבילת התיעוד המלאה.
     </div>
   </a>
 </CardGrid>

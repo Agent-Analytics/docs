@@ -1,6 +1,6 @@
 ---
 title: Claude Desktop / Cowork
-description: Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
+description: חברו את שרת ה-MCP המארח ב-Claude Desktop או Cowork ובדקו את כלי האנליטיקה ישירות בצ'אט.
 ---
 
 <div class="aa-agent-badge aa-agent-badge--plain">
@@ -8,54 +8,54 @@ description: Connect the hosted MCP server in Claude Desktop or Cowork and verif
   <span>Claude Desktop / Cowork</span>
 </div>
 
-Claude Desktop and Cowork both fit the hosted MCP flow. Use the connector UI instead of manually managing API keys in prompts.
+Claude Desktop ו-Cowork שניהם מתאימים למסלול ה-MCP המארח. השתמשו בממשק ה-connector במקום לנהל ידנית מפתחות API בתוך פרומפטים.
 
-## Prerequisites
+## דרישות מקדימות
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- Claude Desktop or Cowork access
-- GitHub or Google sign-in matching your Agent Analytics account
+- חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
+- גישה ל-Claude Desktop או Cowork
+- התחברות עם GitHub או Google שתואמת לחשבון שלכם ב-Agent Analytics
 
-## Recommended: add the hosted connector
+## מומלץ: הוספת ה-connector המארח
 
-1. Open **Settings**
-2. Open **Connectors**
-3. Choose **Add**
-4. Choose **Custom**
-5. Enter:
+1. פתחו את **Settings**
+2. פתחו את **Connectors**
+3. בחרו **Add**
+4. בחרו **Custom**
+5. הזינו:
 
 ```text
 https://mcp.agentanalytics.sh/mcp
 ```
 
-You will be asked to sign in with GitHub or Google. Use the same identity that owns the projects in Agent Analytics.
+תתבקשו להתחבר עם GitHub או Google. השתמשו באותה זהות שמחזיקה את הפרויקטים ב-Agent Analytics.
 
-## Verify the install
+## בדיקת ההתקנה
 
-Ask Claude:
+שאלו את Claude:
 
 - `List my projects`
 - `Show me a 7 day overview for my-site`
 - `Where do users drop off between signup and purchase?`
 
-This path is the best hosted experience for conversational analytics because the MCP server can return structured tool results and rich UI where supported.
+זהו המסלול המארח הטוב ביותר לאנליטיקה שיחתית, כי שרת ה-MCP יכול להחזיר תוצאות כלי מובנות וממשק עשיר כשזה נתמך.
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
 
-## Manual notes
+## הערות ידניות
 
-- The hosted MCP server URL stays the same across Claude Desktop and Cowork.
-- You do not need to manually pass an `X-API-Key` once the connector sign-in succeeds.
+- כתובת ה-URL של שרת ה-MCP המארח נשארת זהה גם ב-Claude Desktop וגם ב-Cowork.
+- לא צריך להעביר ידנית `X-API-Key` אחרי שההתחברות דרך ה-connector הצליחה.
 
-## Troubleshooting
+## פתרון תקלות
 
-- If authentication succeeds but no projects appear, confirm the signed-in account matches your Agent Analytics dashboard account.
-- If a custom connector URL is rejected, re-enter the exact MCP endpoint: `https://mcp.agentanalytics.sh/mcp`
-- If you need lower-level debugging, switch to the [API reference](/api/) and test the same workflow with direct HTTP calls.
+- אם ההתחברות הצליחה אבל לא מופיעים פרויקטים, ודאו שהחשבון המחובר תואם לחשבון הדשבורד שלכם ב-Agent Analytics.
+- אם כתובת connector מותאמת נדחית, הזינו שוב את כתובת ה-MCP המדויקת: `https://mcp.agentanalytics.sh/mcp`
+- אם אתם צריכים דיבוג ברמה נמוכה יותר, עברו ל-[API reference](/he/api/) ובדקו את אותו ה-flow עם קריאות HTTP ישירות.
 
-## Related
+## קשור
 
-- [Getting Started](/getting-started/)
-- [Claude Code](/installation/claude-code/)
-- [Cursor](/installation/cursor/)
-- [API Reference](/api/)
+- [התחלה מהירה](/he/getting-started/)
+- [Claude Code](/he/installation/claude-code/)
+- [Cursor](/he/installation/cursor/)
+- [API Reference](/he/api/)

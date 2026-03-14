@@ -1,9 +1,9 @@
 ---
 title: Error Format
-description: All API errors return a machine-readable code plus a human-readable message.
+description: 所有 API 错误都会返回一个可机读的错误码，以及一条可读的消息。
 ---
 
-All errors return JSON with an `error` code and a `message`.
+所有错误都返回带有 `error` 代码和 `message` 的 JSON。
 
 ```json
 {
@@ -12,7 +12,7 @@ All errors return JSON with an `error` code and a `message`.
 }
 ```
 
-## Common error codes
+## 常见错误码
 
 - `AUTH_REQUIRED`
 - `FORBIDDEN`
@@ -34,14 +34,14 @@ All errors return JSON with an `error` code and a `message`.
 - `STREAM_LIMIT`
 - `INVALID_FUNNEL_STEPS`
 
-## How to debug
+## 如何调试
 
-1. check the `error` field first and branch on that in your code
-2. use the `message` field for logs and human-readable tool output
-3. confirm whether the failure came from auth, a missing project, or invalid query shape before retrying
+1. 先看 `error` 字段，并在你的代码里基于它做分支处理
+2. 使用 `message` 字段输出日志或给人类可读的提示
+3. 在重试前，先确认问题来自 auth、缺失项目，还是查询结构无效
 
-## Related
+## 相关内容
 
-- [Authentication](/reference/authentication/)
-- [Rate Limits](/reference/rate-limits/)
-- [API Reference](/api/)
+- [Authentication](/zh/reference/authentication/)
+- [Rate Limits](/zh/reference/rate-limits/)
+- [API Reference](/zh/api/)
