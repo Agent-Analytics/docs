@@ -1,0 +1,93 @@
+---
+import Footer from '../../../components/Footer.astro';
+import '../../../styles/site.css';
+
+const links = [
+  { href: '/zh/', label: '文档', active: false },
+  { href: '/zh/getting-started/', label: '快速开始', active: false },
+  { href: '/zh/installation/', label: '安装', active: false },
+  { href: 'https://app.agentanalytics.sh', label: '仪表盘', active: false },
+  { href: 'https://blog.agentanalytics.sh/zh/', label: '博客', active: false },
+  { href: 'https://github.com/Agent-Analytics', label: 'GitHub', active: false },
+];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Analytics 交互式 API 参考</title>
+    <meta
+      name="description"
+      content="基于标准 OpenAPI 规范生成的 Agent Analytics 交互式 API 参考。"
+    />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="canonical" href="https://docs.agentanalytics.sh/zh/api/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="help" type="text/plain" href="/zh/llms.txt" title="面向 LLM 的文档索引" />
+    <link rel="help" type="text/plain" href="/zh/llms-full.txt" title="面向 LLM 的完整文档与 API 导出" />
+  </head>
+  <body class="aa-page-theme">
+    <div class="aa-site-shell aa-api-page">
+      <header class="aa-topbar">
+        <div class="aa-topbar-inner">
+          <a class="aa-brand" href="/zh/">
+            <img src="/logo-v2.png" alt="" />
+            <span>Agent Analytics</span>
+          </a>
+          <nav class="aa-nav-links" aria-label="Primary">
+            {links.map((link) => (
+              <a href={link.href} data-active={link.active ? 'true' : 'false'}>
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      <main class="aa-intro-shell">
+        <section class="aa-api-hero">
+          <div class="aa-api-eyebrow">OpenAPI 单一事实来源</div>
+          <h1>Agent Analytics 全部端点的交互式 API 参考。</h1>
+          <p>
+            安装指南仍然保留在文档壳中。API 合约保存在 <code>/openapi.zh.yaml</code>，并通过
+            Scalar 在此渲染，这样你既能快速浏览，又不会把安装文档藏起来。
+          </p>
+          <div class="aa-api-actions">
+            <a class="primary" href="/zh/installation/">查看安装指南</a>
+            <a href="/openapi.zh.yaml">下载 OpenAPI</a>
+            <a href="/zh/llms-full.txt">LLM 全量文本</a>
+          </div>
+        </section>
+
+        <section class="aa-api-frame">
+          <script id="api-reference" data-url="/openapi.zh.yaml"></script>
+        </section>
+      </main>
+      <Footer />
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script
+      is:inline
+      defer
+      src="https://api.agentanalytics.sh/tracker.js"
+      data-project="agentanalytics-landing"
+      data-token="aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b"
+      data-link-domains="agentanalytics.sh"
+      data-track-outgoing="true"
+      data-heartbeat="15"
+      data-track-errors="true"
+      data-track-performance="true"
+      data-track-clicks="true"
+      data-track-vitals="true"
+      data-track-scroll-depth="true"></script>
+  </body>
+</html>

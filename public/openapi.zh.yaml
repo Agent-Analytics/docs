@@ -1,0 +1,3473 @@
+openapi: 3.1.0
+info:
+  title: Agent Analytics API
+  version: 1.0.0
+  description: |
+    Web analytics platform with an HTTP API that AI agents can query.
+
+    **Docs:** [Home](https://docs.agentanalytics.sh) · [Getting Started](https://docs.agentanalytics.sh/getting-started/) · [Installation](https://docs.agentanalytics.sh/installation/) · [API Reference](https://docs.agentanalytics.sh/api/) · [OpenAPI Spec](https://docs.agentanalytics.sh/openapi.yaml)
+
+    **Quick start:**
+
+    1. Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and get an API key.
+    2. Create a project with `POST /projects`.
+    3. Add the returned tracker snippet to your site.
+    4. Query analytics with `GET /stats`.
+
+    **Authentication:**
+
+    - `aak_*` API keys are secret and used for reads plus project management.
+    - `aat_*` project tokens are public and used for ingestion only.
+
+    Installation guides for Claude Code, Claude Desktop / Cowork, Cursor, and OpenAI Codex now live in the docs site instead of this OpenAPI intro block.
+
+  contact:
+    email: support@agentanalytics.sh
+    url: https://agentanalytics.sh
+  license:
+    name: MIT
+    url: https://github.com/Agent-Analytics/agent-analytics/blob/main/LICENSE
+
+servers:
+  - url: https://api.agentanalytics.sh
+    description: Production (hosted)
+
+tags:
+  - name: Ingestion
+    description: Event tracking endpoints called by the browser `tracker.js` script. These use a public project token (`aat_*`) — not your API key. You don't call these directly; the tracker handles it.
+  - name: Analytics
+    description: Query analytics data. Requires an API key (`aak_*`) via `X-API-Key` header or `?key=` param.
+  - name: Projects
+    description: Manage projects programmatically. Requires an API key.
+  - name: Account
+    description: Account information and key management. Requires an API key.
+  - name: Experiments
+    description: |
+      A/B testing experiments. Create experiments, assign variants client-side via tracker.js, and query results with Bayesian significance. Pro tier only.
+
+      ## Declarative Experiments (recommended)
+
+      The simplest way to run experiments — no custom JavaScript needed. Mark elements with HTML attributes and tracker.js handles variant assignment automatically.
+
+      ### Anti-Flicker Snippet
+
+      Add this in `<head>` **before** the tracker.js script tag to prevent flash of control content:
+
+      ```html
+      <style>.aa-loading [data-aa-experiment]{visibility:hidden!important}</style>
+      <script>document.documentElement.classList.add('aa-loading');
+      setTimeout(function(){document.documentElement.classList.remove('aa-loading')},3000)</script>
+      ```
+
+      - Uses `visibility: hidden` to preserve layout (not `display: none`)
+      - Only hides `[data-aa-experiment]` elements, not the entire page
+      - 3-second timeout fallback shows control content if config fetch fails
+      - tracker.js removes the `aa-loading` class after applying variants
+
+      ### Declarative Attributes
+
+      ```html
+      <h1 data-aa-experiment="hero_text"
+          data-aa-variant-b="Try it free today!">
+        Start your free trial
+      </h1>
+      ```
+
+      - Original element content = control variant
+      - `data-aa-variant-{key}` attributes provide replacement text for non-control variants
+      - Multiple elements can share the same experiment name (same variant assigned to all)
+      - Variant keys are lowercased for attribute lookup
+      - Requires a server-side experiment config (created via `POST /experiments`)
+
+      ### Programmatic API
+
+      For complex cases that can't be expressed as text swaps:
+
+      ```js
+      var variant = window.aa?.experiment('signup_cta', ['control', 'new_cta']);
+      if (variant === 'new_cta') {
+        document.querySelector('.cta').style.backgroundColor = 'green';
+      }
+      ```
+
+      ### URL Param Variant Forcing
+
+      Force a specific variant via URL parameter — useful for ad landing pages, QA testing, or sharing a specific variant with teammates.
+
+      ```
+      https://yoursite.com/pricing/?aa_variant_signup_cta=new_cta
+      ```
+
+      Format: `?aa_variant_<experiment_name>=<variant_key>`
+
+      - The forced variant must exist in the experiment config — invalid values fall through to normal hash assignment
+      - Works with both declarative and programmatic experiments
+      - Exposure events include `forced: true` so you can filter them in analytics
+      - No URL param = existing hash-based assignment (backward compatible)
+  - name: Funnels
+    description: |
+      Ad-hoc funnel analysis — track where users drop off across a sequence of events.
+      No saved funnels — agents query in one shot via `POST /funnel`.
+  - name: Streaming
+    description: |
+      Real-time event streaming. Available on all tiers.
+
+      Two endpoints: `/stream` for continuous SSE event delivery, and `/live` for a point-in-time snapshot of active visitors and recent events. Both read from an in-memory ring buffer — no D1 query.
+  - name: Tracking
+    description: |
+      Browser tracker delivery endpoint.
+
+      Full tracker setup, script attributes, declarative events, consent, and performance options now live in the docs guide:
+      https://docs.agentanalytics.sh/reference/tracker-js/
+
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: |
+        Secret API key (`aak_*`) for reading data and managing projects. Can also be passed as `?key=` query parameter.
+    ProjectToken:
+      type: apiKey
+      in: query
+      name: token
+      description: |
+        Public project token (`aat_*`) for event ingestion. Passed in the request body (not a query parameter).
+        This is not a secret — it's embedded in your site's HTML.
+
+  schemas:
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          description: Machine-readable error code
+          example: AUTH_REQUIRED
+        message:
+          type: string
+          description: Human-readable error message
+          example: API key required
+
+    TrackRequest:
+      type: object
+      required: [token, event]
+      properties:
+        token:
+          type: string
+          description: Project token (`aat_*`)
+          example: aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b
+        event:
+          type: string
+          description: Event name (max 256 chars)
+          example: page_view
+        properties:
+          type: ['object', 'null']
+          description: Arbitrary key-value properties (max 8KB JSON). The tracker auto-populates `path`, `url`, `hostname`, `title`, `referrer`, `screen`, `browser`, `browser_version`, `os`, `device`, `language`, `timezone` (IANA), `utm_*` params, `session_count`, `days_since_first_visit`, and `first_utm_*` (first-touch attribution).
+          example:
+            path: /pricing
+            referrer: https://google.com
+            browser: Chrome
+            os: macOS
+        user_id:
+          type: ['string', 'null']
+          description: Anonymous user identifier (max 256 chars). The tracker auto-generates one via localStorage.
+          example: usr_abc123
+        session_id:
+          type: ['string', 'null']
+          description: Session identifier (max 256 chars). The tracker auto-generates one via sessionStorage with 30-min inactivity timeout.
+          example: ses_xyz789
+        timestamp:
+          type: ['number', 'null']
+          description: Unix timestamp in milliseconds. Defaults to `Date.now()`. Must be within 30 days ago to 5 minutes in the future.
+          example: 1706745600000
+
+    TrackBatchRequest:
+      type: object
+      required: [events]
+      properties:
+        events:
+          type: array
+          description: Array of events (max 100 per batch)
+          maxItems: 100
+          items:
+            type: object
+            required: [token, event]
+            properties:
+              token:
+                type: string
+                description: Project token (`aat_*`). All events must use the same token.
+                example: aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b
+              event:
+                type: string
+                example: page_view
+              properties:
+                type: ['object', 'null']
+              user_id:
+                type: ['string', 'null']
+              session_id:
+                type: ['string', 'null']
+              timestamp:
+                type: ['number', 'null']
+
+    StatsResponse:
+      type: object
+      properties:
+        project:
+          type: string
+          example: my-site
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              example: "2025-01-01"
+            to:
+              type: string
+              example: "2025-01-07"
+            groupBy:
+              type: string
+              enum: [hour, day, week, month]
+              example: day
+        totals:
+          type: object
+          properties:
+            unique_users:
+              type: integer
+              example: 142
+            total_events:
+              type: integer
+              example: 1247
+        timeSeries:
+          type: array
+          items:
+            type: object
+            properties:
+              bucket:
+                type: string
+                example: "2025-01-01"
+              unique_users:
+                type: integer
+              total_events:
+                type: integer
+        events:
+          type: array
+          description: Top event names by count (max 20)
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+                example: page_view
+              count:
+                type: integer
+              unique_users:
+                type: integer
+        sessions:
+          type: object
+          properties:
+            total_sessions:
+              type: integer
+            bounce_rate:
+              type: number
+              example: 0.45
+              description: |
+                Bounce rate computed from event names at query time.
+                A session is a bounce when it has only non-interactive events:
+                `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+            avg_duration:
+              type: integer
+              description: Average session duration in milliseconds
+            pages_per_session:
+              type: number
+            sessions_per_user:
+              type: number
+
+    EventRow:
+      type: object
+      properties:
+        id:
+          type: string
+        project_id:
+          type: string
+        event:
+          type: string
+        properties:
+          type: ['object', 'null']
+        user_id:
+          type: ['string', 'null']
+        session_id:
+          type: ['string', 'null']
+        timestamp:
+          type: number
+        date:
+          type: string
+        country:
+          type: ['string', 'null']
+          description: ISO 3166-1 alpha-2 country code derived from the request IP at ingestion time
+          example: US
+
+    QueryRequest:
+      type: object
+      required: [project]
+      properties:
+        project:
+          type: string
+          description: Project name
+          example: my-site
+        metrics:
+          type: array
+          items:
+            type: string
+            enum: [event_count, unique_users, session_count, bounce_rate, avg_duration]
+          default: [event_count]
+          description: Metrics to compute
+        group_by:
+          type: array
+          items:
+            type: string
+            enum: [event, date, user_id, session_id, country]
+          default: []
+          description: Fields to group results by
+        filters:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: "Field to filter on. Built-in: `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`. Property fields: `properties.path`, `properties.browser`, etc."
+                example: event
+              op:
+                type: string
+                enum: [eq, neq, gt, lt, gte, lte, contains]
+                example: eq
+              value:
+                description: Value to compare against
+                example: page_view
+        date_from:
+          type: string
+          description: Start date (ISO 8601 or `Nd` shorthand). Defaults to 7 days ago.
+          example: "2025-01-01"
+        date_to:
+          type: string
+          description: End date (ISO 8601). Defaults to today.
+          example: "2025-01-07"
+        order_by:
+          type: string
+          enum: [event_count, unique_users, session_count, date, event]
+          description: Field to sort by
+        order:
+          type: string
+          enum: [asc, desc]
+          default: desc
+        limit:
+          type: integer
+          default: 100
+          maximum: 1000
+          minimum: 1
+
+    QueryResponse:
+      type: object
+      properties:
+        project:
+          type: string
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+            to:
+              type: string
+        metrics:
+          type: array
+          items:
+            type: string
+        group_by:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        count:
+          type: integer
+
+    SessionRow:
+      type: object
+      properties:
+        session_id:
+          type: string
+        user_id:
+          type: ['string', 'null']
+        project_id:
+          type: string
+        start_time:
+          type: number
+        end_time:
+          type: number
+        duration:
+          type: integer
+          description: Duration in milliseconds
+        entry_page:
+          type: ['string', 'null']
+        exit_page:
+          type: ['string', 'null']
+        event_count:
+          type: integer
+        is_bounce:
+          type: integer
+          enum: [0, 1]
+          description: |
+            Computed from event names at query time.
+            `1` means the session has only non-interactive events:
+            `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+        date:
+          type: string
+
+    BreakdownResponse:
+      type: object
+      properties:
+        project:
+          type: string
+        property:
+          type: string
+          example: path
+        event:
+          type: ['string', 'null']
+        values:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: /pricing
+              count:
+                type: integer
+                example: 342
+              unique_users:
+                type: integer
+                example: 201
+        total_events:
+          type: integer
+        total_with_property:
+          type: integer
+
+    InsightsResponse:
+      type: object
+      properties:
+        project:
+          type: string
+        current_period:
+          type: object
+          properties:
+            from:
+              type: string
+            to:
+              type: string
+        previous_period:
+          type: object
+          properties:
+            from:
+              type: string
+            to:
+              type: string
+        metrics:
+          type: object
+          properties:
+            total_events:
+              $ref: '#/components/schemas/DeltaMetric'
+            unique_users:
+              $ref: '#/components/schemas/DeltaMetric'
+            total_sessions:
+              $ref: '#/components/schemas/DeltaMetric'
+            bounce_rate:
+              $ref: '#/components/schemas/DeltaMetric'
+            avg_duration:
+              $ref: '#/components/schemas/DeltaMetric'
+        trend:
+          type: string
+          enum: [growing, stable, declining]
+
+    DeltaMetric:
+      type: object
+      properties:
+        current:
+          type: number
+        previous:
+          type: number
+        change:
+          type: number
+        change_pct:
+          type: ['integer', 'null']
+          description: Percentage change. Null when previous period was 0 but current is > 0.
+
+    PagesResponse:
+      type: object
+      properties:
+        project:
+          type: string
+        entry_pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/PageRow'
+        exit_pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/PageRow'
+
+    PageRow:
+      type: object
+      properties:
+        page:
+          type: string
+          example: /pricing
+        sessions:
+          type: integer
+        bounces:
+          type: integer
+        bounce_rate:
+          type: number
+          example: 0.45
+          description: |
+            Bounce rate computed from event names at query time.
+            A session is a bounce when it has only non-interactive events:
+            `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+        avg_duration:
+          type: number
+          description: Average session duration in milliseconds
+        avg_events:
+          type: number
+
+    SessionDistributionResponse:
+      type: object
+      properties:
+        project:
+          type: string
+        distribution:
+          type: array
+          items:
+            type: object
+            properties:
+              bucket:
+                type: string
+                enum: ["0s", "1-10s", "10-30s", "30-60s", "1-3m", "3-10m", "10m+"]
+              sessions:
+                type: integer
+              bounces:
+                type: integer
+                description: Number of bounce sessions in this duration bucket (computed from event names at query time).
+              avg_events:
+                type: number
+              pct:
+                type: number
+                description: Percentage of total sessions
+        median_bucket:
+          type: ['string', 'null']
+        engaged_pct:
+          type: number
+          description: Percentage of sessions >= 30 seconds
+
+    HeatmapResponse:
+      type: object
+      properties:
+        project:
+          type: string
+        heatmap:
+          type: array
+          items:
+            type: object
+            properties:
+              day:
+                type: integer
+                description: Day of week (0=Sunday, 6=Saturday)
+              day_name:
+                type: string
+                example: Monday
+              hour:
+                type: integer
+                description: Hour of day (0-23)
+              events:
+                type: integer
+              users:
+                type: integer
+        peak:
+          type: ['object', 'null']
+          properties:
+            day:
+              type: integer
+            day_name:
+              type: string
+            hour:
+              type: integer
+            events:
+              type: integer
+            users:
+              type: integer
+        busiest_day:
+          type: ['string', 'null']
+          example: Monday
+        busiest_hour:
+          type: ['integer', 'null']
+          example: 14
+
+    FunnelRequest:
+      type: object
+      required: [project, steps]
+      properties:
+        project:
+          type: string
+          description: Project name
+          example: my-site
+        steps:
+          type: array
+          description: "Funnel steps (2-8). Each step has an event name and optional property filters."
+          minItems: 2
+          maxItems: 8
+          items:
+            type: object
+            required: [event]
+            properties:
+              event:
+                type: string
+                description: Event name for this step
+                example: page_view
+              filters:
+                type: array
+                description: Optional property filters for this step
+                items:
+                  type: object
+                  required: [property, op, value]
+                  properties:
+                    property:
+                      type: string
+                      description: Property key (alphanumeric + underscores, max 128 chars)
+                      example: path
+                    op:
+                      type: string
+                      enum: [eq, neq, contains]
+                      description: Filter operator
+                      example: eq
+                    value:
+                      type: string
+                      description: Filter value
+                      example: /pricing
+        conversion_window_hours:
+          type: number
+          description: "Max hours from step 1 entry to final step (1-8760, default 168 = 7 days)"
+          default: 168
+          minimum: 1
+          maximum: 8760
+        since:
+          type: string
+          description: "Lookback period (ISO date or shorthand like '30d'). Default: 30d"
+          default: 30d
+          example: 30d
+        count_by:
+          type: string
+          enum: [user_id, session_id]
+          default: user_id
+          description: Count by unique users or sessions
+        breakdown:
+          type: string
+          description: "Optional property key to segment funnel by (e.g. 'variant', 'country'). Extracted from step 1 events only."
+          example: country
+        breakdown_limit:
+          type: number
+          description: "Max breakdown groups, ordered by step 1 users descending (1-50, default 10)"
+          default: 10
+          minimum: 1
+          maximum: 50
+
+    FunnelResponse:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              step:
+                type: integer
+                example: 1
+              event:
+                type: string
+                example: page_view
+              users:
+                type: integer
+                description: Number of users (or sessions) that reached this step
+                example: 500
+              conversion_rate:
+                type: number
+                description: "Fraction of users from previous step that reached this step (step 1 is always 1.0)"
+                example: 0.6
+              drop_off_rate:
+                type: number
+                description: "Fraction of users lost from previous step (step 1 is always 0)"
+                example: 0.4
+              avg_time_to_next_ms:
+                type: ['number', 'null']
+                description: Average time in ms from this step to the next step (null for last step)
+                example: 3600000
+        overall_conversion_rate:
+          type: number
+          description: Fraction of step 1 users that completed the final step
+          example: 0.12
+        breakdowns:
+          type: array
+          description: "Per-group funnel results (only present when `breakdown` param is set). Ordered by step 1 users descending."
+          items:
+            type: object
+            properties:
+              value:
+                type: ['string', 'null']
+                description: "Breakdown property value (null for events missing the property)"
+                example: US
+              steps:
+                type: array
+                description: Same shape as top-level steps array
+                items:
+                  type: object
+                  properties:
+                    step:
+                      type: integer
+                    event:
+                      type: string
+                    users:
+                      type: integer
+                    conversion_rate:
+                      type: number
+                    drop_off_rate:
+                      type: number
+                    avg_time_to_next_ms:
+                      type: ['number', 'null']
+              overall_conversion_rate:
+                type: number
+                description: End-to-end conversion for this group
+                example: 0.15
+
+    RetentionResponse:
+      type: object
+      properties:
+        period:
+          type: string
+          enum: [day, week, month]
+          example: week
+        cohorts:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                description: Start date of this cohort period
+                example: "2026-01-27"
+              users:
+                type: integer
+                description: Number of users who first appeared in this period
+                example: 142
+              retained:
+                type: array
+                items:
+                  type: integer
+                description: "Users active in each subsequent period (index 0 = full cohort)"
+                example: [142, 64, 55, 46]
+              rates:
+                type: array
+                items:
+                  type: number
+                description: "Retention rate per period (retained[i] / users, rounded to 3 decimals)"
+                example: [1.0, 0.451, 0.387, 0.324]
+        average_rates:
+          type: array
+          items:
+            type: number
+          description: Weighted average retention rate per period offset (weighted by cohort size)
+          example: [1.0, 0.441, 0.373, 0.324]
+        users_analyzed:
+          type: integer
+          description: Total users across all cohorts (capped at 10K per query)
+          example: 560
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: my-site
+        project_token:
+          type: string
+          example: aat_...
+        allowed_origins:
+          type: string
+          example: "*"
+        total_events:
+          type: integer
+        total_reads:
+          type: integer
+
+    LiveSnapshotResponse:
+      type: object
+      properties:
+        project:
+          type: string
+          example: my-site
+        window_seconds:
+          type: integer
+          example: 60
+        timestamp:
+          type: number
+          example: 1708000060000
+        active_visitors:
+          type: integer
+          description: Unique user_ids in the time window
+          example: 12
+        active_sessions:
+          type: integer
+          description: Unique session_ids in the time window
+          example: 8
+        events_per_minute:
+          type: integer
+          example: 47
+        top_pages:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                example: /
+              visitors:
+                type: integer
+                example: 5
+        top_events:
+          type: array
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+                example: page_view
+              count:
+                type: integer
+                example: 32
+        recent_events:
+          type: array
+          description: Last 10 events, newest first
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+              properties:
+                type: ['object', 'null']
+              user_id:
+                type: ['string', 'null']
+              timestamp:
+                type: number
+
+    AllSitesPeriod:
+      type: object
+      properties:
+        label:
+          type: string
+          enum: ['1d', '7d', '14d', '30d', '90d']
+          example: 7d
+        from:
+          type: string
+          format: date
+          example: '2026-03-03'
+        to:
+          type: string
+          format: date
+          example: '2026-03-09'
+        previous_from:
+          type: string
+          format: date
+          example: '2026-02-24'
+        previous_to:
+          type: string
+          format: date
+          example: '2026-03-02'
+
+    AllSitesMetricDelta:
+      type: object
+      properties:
+        current:
+          type: integer
+          example: 120
+        previous:
+          type: integer
+          example: 90
+        change:
+          type: integer
+          example: 30
+        change_pct:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 33
+
+    AllSitesSummary:
+      type: object
+      properties:
+        total_projects:
+          type: integer
+          example: 3
+        active_projects:
+          type: integer
+          example: 2
+        total_events:
+          $ref: '#/components/schemas/AllSitesMetricDelta'
+
+    AllSitesTimeSeriesPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2026-03-09'
+        events:
+          type: integer
+          example: 40
+
+    AllSitesProjectSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: proj_123
+        name:
+          type: string
+          example: my-site
+        events:
+          type: integer
+          example: 80
+        share_pct:
+          type: number
+          example: 66.7
+        last_active_date:
+          oneOf:
+            - type: string
+              format: date
+            - type: 'null'
+          example: '2026-03-09'
+
+    AllSitesOverviewResponse:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [account]
+          example: account
+        period:
+          $ref: '#/components/schemas/AllSitesPeriod'
+        summary:
+          $ref: '#/components/schemas/AllSitesSummary'
+        time_series:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllSitesTimeSeriesPoint'
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllSitesProjectSummary'
+        remaining_projects:
+          type: integer
+          example: 1
+
+    BotTrafficMetricDelta:
+      type: object
+      properties:
+        current:
+          type: integer
+          example: 5
+        previous:
+          type: integer
+          example: 1
+        change:
+          type: integer
+          example: 4
+        change_pct:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 400
+
+    BotTrafficTimeSeriesPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2026-03-13'
+        requests:
+          type: integer
+          example: 5
+        dropped_events:
+          type: integer
+          example: 7
+
+    BotTrafficCategorySummary:
+      type: object
+      properties:
+        category:
+          type: string
+          example: ai_agent
+        requests:
+          type: integer
+          example: 3
+        dropped_events:
+          type: integer
+          example: 5
+        share_pct:
+          type: number
+          example: 60
+
+    BotTrafficActorSummary:
+      type: object
+      properties:
+        actor:
+          type: string
+          example: ChatGPT-User
+        category:
+          type: string
+          example: ai_agent
+        requests:
+          type: integer
+          example: 3
+        dropped_events:
+          type: integer
+          example: 5
+        last_seen_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 1773459600000
+
+    BotTrafficProjectSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: proj_123
+        name:
+          type: string
+          example: my-site
+        requests:
+          type: integer
+          example: 3
+        dropped_events:
+          type: integer
+          example: 4
+        share_pct:
+          type: number
+          example: 60
+        last_seen_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 1773459600000
+
+    BotTrafficProjectSummaryMetrics:
+      type: object
+      properties:
+        automated_requests:
+          $ref: '#/components/schemas/BotTrafficMetricDelta'
+        dropped_events:
+          $ref: '#/components/schemas/BotTrafficMetricDelta'
+        last_seen_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 1773459600000
+
+    BotTrafficAccountSummary:
+      type: object
+      properties:
+        automated_requests:
+          $ref: '#/components/schemas/BotTrafficMetricDelta'
+        dropped_events:
+          $ref: '#/components/schemas/BotTrafficMetricDelta'
+        active_projects:
+          type: integer
+          example: 1
+        total_projects:
+          type: integer
+          example: 4
+        last_seen_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+          example: 1773459600000
+
+    BotTrafficOverviewResponse:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [project]
+          example: project
+        project:
+          type: string
+          example: my-site
+        period:
+          $ref: '#/components/schemas/AllSitesPeriod'
+        summary:
+          $ref: '#/components/schemas/BotTrafficProjectSummaryMetrics'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficCategorySummary'
+        actors:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficActorSummary'
+        time_series:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficTimeSeriesPoint'
+
+    AllSitesBotTrafficOverviewResponse:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [account]
+          example: account
+        period:
+          $ref: '#/components/schemas/AllSitesPeriod'
+        summary:
+          $ref: '#/components/schemas/BotTrafficAccountSummary'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficCategorySummary'
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficProjectSummary'
+        remaining_projects:
+          type: integer
+          example: 3
+        time_series:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotTrafficTimeSeriesPoint'
+
+    AccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        github_login:
+          type: ['string', 'null']
+        tier:
+          type: string
+          enum: [free, pro]
+        created_at:
+          type: string
+        projects_count:
+          type: integer
+        tier_limits:
+          type: object
+          properties:
+            max_events_per_month:
+              type: integer
+            max_projects:
+              type: integer
+            max_reads_per_month:
+              type: integer
+            retention_days:
+              type: integer
+            rate_limit_rpm:
+              type: integer
+        monthly_spend_cap_dollars:
+          type: ['number', 'null']
+      example:
+        id: acc_free123
+        email: free@example.com
+        github_login: freeuser
+        tier: free
+        created_at: "2026-02-01T12:00:00.000Z"
+        projects_count: 2
+        tier_limits:
+          max_events_per_month: 100000
+          max_projects: 2
+          max_reads_per_month: 500
+          retention_days: 90
+          rate_limit_rpm: 10
+        monthly_spend_cap_dollars: null
+
+    Experiment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: exp_a1b2c3d4e5f6g7h8
+        project_id:
+          type: string
+        account_id:
+          type: string
+        name:
+          type: string
+          example: signup_cta
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: control
+              weight:
+                type: integer
+                example: 50
+        goal_event:
+          type: string
+          example: signup
+        status:
+          type: string
+          enum: [active, paused, completed]
+          example: active
+        winner:
+          type: ['string', 'null']
+          description: Variant key, set when status is completed
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        completed_at:
+          type: ['string', 'null']
+
+    ExperimentResults:
+      type: object
+      properties:
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: control
+              exposures:
+                type: integer
+                example: 520
+              unique_users:
+                type: integer
+                example: 480
+              conversions:
+                type: integer
+                example: 48
+              conversion_rate:
+                type: number
+                example: 0.1
+        probability_best:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            control: 0.06
+            new_cta: 0.94
+        lift:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            control: -0.32
+            new_cta: 0.47
+        sufficient_data:
+          type: boolean
+          example: true
+        recommendation:
+          type: string
+          example: "'new_cta' is the winner with 94% probability (47% lift over baseline)"
+
+  parameters:
+    ProjectParam:
+      name: project
+      in: query
+      required: true
+      description: Project name
+      schema:
+        type: string
+      example: my-site
+    SinceParam:
+      name: since
+      in: query
+      required: false
+      description: "Start date. Accepts ISO 8601 (`2025-01-01`) or shorthand (`7d`, `30d`). Defaults to 7 days ago."
+      schema:
+        type: string
+      example: 7d
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      description: Max results to return (1-1000, default 100)
+      schema:
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 1000
+
+paths:
+  /track:
+    post:
+      operationId: trackEvent
+      summary: Track a single event
+      description: |
+        Record an event. Called automatically by the `tracker.js` script running in your visitors' browsers — you don't need to call this directly.
+
+        Add the tracker to your site and it handles everything:
+        ```html
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."></script>
+        ```
+
+        The response is `202 Accepted` — events are queued and written asynchronously.
+
+        Automated traffic that reaches this endpoint is filtered out of normal analytics and reported separately via `/bot-traffic` and `/account/bot-traffic`.
+      tags: [Ingestion]
+      security: []
+      x-codeSamples:
+        - lang: html
+          label: Tracker Snippet
+          source: |
+            <script defer src="https://api.agentanalytics.sh/tracker.js"
+                    data-project="my-site"
+                    data-token="aat_..."></script>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackRequest'
+      responses:
+        '202':
+          description: Event queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  queued:
+                    type: boolean
+                    example: true
+        '400':
+          description: Validation error (missing fields, invalid event name, properties too large)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      reason:
+                        type: string
+                        enum: [rate_limit, lifetime_event_limit, monthly_spend_cap]
+
+  /track/batch:
+    post:
+      operationId: trackBatch
+      summary: Track multiple events
+      description: |
+        Record up to 100 events in a single request. All events must use the same project token.
+
+        Like `/track`, this is called by the browser tracker — not by agents or CLI.
+
+        Automated traffic that reaches this endpoint is filtered out of normal analytics and reported separately via `/bot-traffic` and `/account/bot-traffic`.
+      tags: [Ingestion]
+      security: []
+      x-codeSamples:
+        - lang: html
+          label: Tracker Snippet
+          source: |
+            <!-- The tracker batches events automatically -->
+            <script defer src="https://api.agentanalytics.sh/tracker.js"
+                    data-project="my-site"
+                    data-token="aat_..."></script>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackBatchRequest'
+      responses:
+        '202':
+          description: Events queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  queued:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 5
+        '400':
+          description: Validation error (empty array, exceeds 100 events, invalid event)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /identify:
+    post:
+      operationId: identify
+      summary: Link anonymous user to authenticated identity
+      description: |
+        Maps `previous_id` (typically an anonymous tracker ID like `anon_xxx`) to `user_id` (the authenticated identity).
+        All historical events and sessions with `previous_id` are backfilled to use `user_id`.
+
+        Called automatically by the tracker's `aa.identify("user_123")` method.
+        Can also be called server-side after authentication to stitch identities.
+
+        - **Idempotent**: sending the same mapping twice is a no-op
+        - **Re-identify**: updating the mapping triggers a new backfill
+        - **Project-scoped**: only affects events/sessions in the specified project
+      tags: [Ingestion]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, previous_id, user_id]
+              properties:
+                token:
+                  type: string
+                  description: Project token (`aat_*`)
+                  example: aat_abc123
+                previous_id:
+                  type: string
+                  maxLength: 256
+                  description: The anonymous or previous user ID to replace
+                  example: anon_k7x9m2abc
+                user_id:
+                  type: string
+                  maxLength: 256
+                  description: The authenticated user ID to assign
+                  example: user_12345
+      responses:
+        '202':
+          description: Identity mapping queued for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  queued:
+                    type: boolean
+                    example: true
+        '400':
+          description: Validation error (missing fields, same IDs, exceeds length)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /stats:
+    get:
+      operationId: getStats
+      summary: Aggregated stats overview
+      description: |
+        Returns an overview of a project's analytics: time series, top events, session metrics, and totals.
+
+        Bounce metrics are computed from event names at query time.
+        A session is a bounce when it has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
+        **CLI:** `npx @agent-analytics/cli stats my-site --since 7d`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - $ref: '#/components/parameters/SinceParam'
+        - name: groupBy
+          in: query
+          required: false
+          description: Time series granularity
+          schema:
+            type: string
+            enum: [hour, day, week, month]
+            default: day
+      responses:
+        '200':
+          description: Stats overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+        '400':
+          description: Missing project parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /events:
+    get:
+      operationId: getEvents
+      summary: Raw event log
+      description: |
+        Returns individual events, newest first. Filter by event name and/or session ID.
+
+        **CLI:** `npx @agent-analytics/cli events my-site --event page_view --since 7d --limit 50`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - name: event
+          in: query
+          required: false
+          description: Filter by event name
+          schema:
+            type: string
+          example: page_view
+        - name: session_id
+          in: query
+          required: false
+          description: Filter by session ID
+          schema:
+            type: string
+        - $ref: '#/components/parameters/SinceParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Event list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EventRow'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /query:
+    post:
+      operationId: query
+      summary: Flexible analytics query
+      description: |
+        Run custom analytics queries with metrics, grouping, filtering, and ordering.
+        This is the most powerful endpoint for building custom reports.
+
+        **Metrics:** `event_count`, `unique_users`, `session_count`, `bounce_rate`, `avg_duration`
+
+        **Group by:** `event`, `date`, `user_id`, `session_id`, `country`
+
+        **Filter operators:** `eq`, `neq`, `gt`, `lt`, `gte`, `lte`, `contains`
+
+        **Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`)
+
+        **CLI:** `npx @agent-analytics/cli query --project my-site --metrics event_count --group-by event --filter '[{"field":"country","op":"eq","value":"US"}]'`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+            examples:
+              pageViewsByDay:
+                summary: Page views by day
+                value:
+                  project: my-site
+                  metrics: [event_count, unique_users]
+                  group_by: [date]
+                  filters:
+                    - field: event
+                      op: eq
+                      value: page_view
+                  date_from: "2025-01-01"
+              topPages:
+                summary: Top pages by event count
+                value:
+                  project: my-site
+                  metrics: [event_count]
+                  group_by: [event]
+                  filters:
+                    - field: properties.path
+                      op: eq
+                      value: /pricing
+                  limit: 10
+              signupsFromGermany:
+                summary: Signups from Germany this week
+                value:
+                  project: my-site
+                  metrics: [event_count, unique_users]
+                  filters:
+                    - field: event
+                      op: eq
+                      value: signup
+                    - field: country
+                      op: eq
+                      value: DE
+                  date_from: "7d"
+              eventsPerCountry:
+                summary: Events grouped by country
+                value:
+                  project: my-site
+                  metrics: [event_count, unique_users]
+                  group_by: [country]
+                  order_by: event_count
+                  limit: 20
+              containsFilter:
+                summary: Events with "blog" in the path
+                value:
+                  project: my-site
+                  metrics: [event_count]
+                  filters:
+                    - field: properties.path
+                      op: contains
+                      value: blog
+                  group_by: [event]
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          description: Invalid query (bad metric, group_by, filter, or missing project)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /properties:
+    get:
+      operationId: getProperties
+      summary: Discover event names and property keys
+      description: |
+        Returns all event names with counts, and a list of known property keys from recent events.
+        Useful for building dynamic filters and understanding what data is available.
+
+        **CLI:** `npx @agent-analytics/cli properties my-site`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - $ref: '#/components/parameters/SinceParam'
+      responses:
+        '200':
+          description: Event names and property keys
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event:
+                          type: string
+                          example: page_view
+                        count:
+                          type: integer
+                        unique_users:
+                          type: integer
+                        first_seen:
+                          type: string
+                        last_seen:
+                          type: string
+                  property_keys:
+                    type: array
+                    items:
+                      type: string
+                    example: [browser, device, hostname, language, os, path, referrer, screen, title, url]
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /properties/received:
+    get:
+      operationId: getPropertiesReceived
+      summary: Property keys by event name
+      description: |
+        Returns which property keys appear on which event names, sampled from recent events.
+        More detailed than `/properties` — shows the event-to-property mapping.
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - $ref: '#/components/parameters/SinceParam'
+        - name: sample
+          in: query
+          required: false
+          description: Number of recent events to sample (100-10000, default 5000)
+          schema:
+            type: integer
+            default: 5000
+            minimum: 100
+            maximum: 10000
+      responses:
+        '200':
+          description: Property-to-event mapping
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    type: string
+                  sample_size:
+                    type: integer
+                    example: 5000
+                  since:
+                    type: string
+                  properties:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                          example: path
+                        event:
+                          type: string
+                          example: page_view
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions:
+    get:
+      operationId: getSessions
+      summary: List sessions
+      description: |
+        Returns individual session records with duration, entry/exit pages, event count, and bounce status.
+        Filter by user ID and/or bounce status.
+
+        `is_bounce` is computed from event names at query time.
+        `1` means the session has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - $ref: '#/components/parameters/SinceParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: user_id
+          in: query
+          required: false
+          description: Filter by user ID
+          schema:
+            type: string
+        - name: is_bounce
+          in: query
+          required: false
+          description: Filter by bounce status (0 or 1)
+          schema:
+            type: integer
+            enum: [0, 1]
+      responses:
+        '200':
+          description: Session list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    type: string
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SessionRow'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /breakdown:
+    get:
+      operationId: getBreakdown
+      summary: Top property values
+      description: |
+        Breaks down events by a specific property, showing the top values by count.
+        Useful for top pages, referrers, browsers, countries, UTM sources, etc.
+
+        Use `property=country` to see visitor geography (ISO 3166-1 alpha-2 codes). Country is stored as a dedicated column for fast queries.
+
+        **CLI:** `npx @agent-analytics/cli breakdown my-site --property path --event page_view`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - name: property
+          in: query
+          required: true
+          description: "Property key to break down by (alphanumeric + underscores, max 128 chars). Use `country` for visitor geography."
+          schema:
+            type: string
+          example: path
+        - name: event
+          in: query
+          required: false
+          description: Filter to a specific event name
+          schema:
+            type: string
+          example: page_view
+        - $ref: '#/components/parameters/SinceParam'
+        - name: limit
+          in: query
+          required: false
+          description: Max values to return (1-1000, default 20)
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 1000
+      responses:
+        '200':
+          description: Property breakdown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BreakdownResponse'
+        '400':
+          description: Missing property parameter or invalid property key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /insights:
+    get:
+      operationId: getInsights
+      summary: Period-over-period comparison
+      description: |
+        Compares the current period against the previous period of the same length.
+        Returns change metrics and an overall trend indicator (`growing`, `stable`, `declining`).
+
+        `bounce_rate` is computed from event names at query time.
+        A session is a bounce when it has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
+        **CLI:** `npx @agent-analytics/cli insights my-site --period 7d`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - name: period
+          in: query
+          required: false
+          description: Comparison period
+          schema:
+            type: string
+            enum: [1d, 7d, 14d, 30d, 90d]
+            default: 7d
+      responses:
+        '200':
+          description: Insights with trend
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsightsResponse'
+        '400':
+          description: Invalid period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pages:
+    get:
+      operationId: getPages
+      summary: Entry/exit page stats
+      description: |
+        Returns top entry pages, exit pages, or both — with session count, bounce rate, and average duration per page.
+
+        `bounce_rate` is computed from event names at query time.
+        A session is a bounce when it has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
+        **CLI:** `npx @agent-analytics/cli pages my-site --type entry`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - name: type
+          in: query
+          required: false
+          description: Page type to query
+          schema:
+            type: string
+            enum: [entry, exit, both]
+            default: entry
+        - $ref: '#/components/parameters/SinceParam'
+        - name: limit
+          in: query
+          required: false
+          description: Max pages to return (1-1000, default 20)
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 1000
+      responses:
+        '200':
+          description: Page stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagesResponse'
+        '400':
+          description: Invalid page type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/distribution:
+    get:
+      operationId: getSessionDistribution
+      summary: Session duration histogram
+      description: |
+        Returns a histogram of session durations in predefined buckets, with the median bucket and engaged session percentage (sessions >= 30 seconds).
+
+        `bounces` in each bucket are computed from event names at query time.
+        A session is a bounce when it has only non-interactive events:
+        `page_view`, `$impression`, `$scroll_depth`, `$error`, `$time_on_page`, `$performance`, `$web_vitals`.
+
+        **CLI:** `npx @agent-analytics/cli sessions distribution my-site`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - $ref: '#/components/parameters/SinceParam'
+      responses:
+        '200':
+          description: Session duration distribution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDistributionResponse'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /heatmap:
+    get:
+      operationId: getHeatmap
+      summary: Day-of-week x hour traffic grid
+      description: |
+        Returns a grid of events by day-of-week and hour-of-day (UTC), with peak detection.
+        Useful for understanding when your users are most active.
+
+        **CLI:** `npx @agent-analytics/cli heatmap my-site`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - $ref: '#/components/parameters/SinceParam'
+      responses:
+        '200':
+          description: Heatmap grid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeatmapResponse'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /funnel:
+    post:
+      operationId: getFunnel
+      summary: Funnel analysis
+      description: |
+        Ad-hoc funnel analysis: track where users drop off across a sequence of 2-8 events.
+
+        Each step can have optional property filters (e.g. only count `page_view` events where `path=/pricing`).
+        The conversion window limits how long users have from entering step 1 to completing the final step.
+
+        Step 1 is capped at 10,000 users to prevent unbounded scans.
+
+        **CLI:** `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase" --window 168 --breakdown country`
+      tags: [Funnels]
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FunnelRequest'
+            examples:
+              basicFunnel:
+                summary: Basic 3-step funnel
+                value:
+                  project: my-site
+                  steps:
+                    - event: page_view
+                    - event: signup
+                    - event: purchase
+              filteredFunnel:
+                summary: Funnel with per-step filters
+                value:
+                  project: my-site
+                  steps:
+                    - event: page_view
+                      filters:
+                        - property: path
+                          op: eq
+                          value: /pricing
+                    - event: signup
+                    - event: purchase
+                  conversion_window_hours: 72
+                  since: 30d
+              breakdownFunnel:
+                summary: Funnel segmented by country
+                value:
+                  project: my-site
+                  steps:
+                    - event: page_view
+                    - event: signup
+                    - event: purchase
+                  breakdown: country
+                  breakdown_limit: 5
+      responses:
+        '200':
+          description: Funnel analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunnelResponse'
+        '400':
+          description: Validation error (invalid steps, filters, window, or count_by)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /retention:
+    get:
+      operationId: getRetention
+      summary: Cohort retention analysis
+      description: |
+        Track what percentage of users return over time using cohort analysis.
+        "Of users who first appeared in week X, what % came back in subsequent weeks?"
+
+        By default uses session-based retention — a user is "retained" if they have any return visit
+        (session) in a subsequent period. When `event` is specified, switches to event-based retention
+        and only counts that specific event for first-seen and return.
+
+        Capped at 10,000 users per query. Older cohorts appear first (top-down).
+
+        **CLI:** `npx @agent-analytics/cli retention my-site --period week --cohorts 8`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: week
+          description: Cohort grouping period
+        - name: cohorts
+          in: query
+          schema:
+            type: integer
+            default: 8
+            minimum: 1
+            maximum: 30
+          description: "Number of cohort periods (max: day=30, week=12, month=12)"
+        - name: event
+          in: query
+          schema:
+            type: string
+          description: First-seen event filter (e.g. `signup`). Switches to event-based retention.
+        - name: returning_event
+          in: query
+          schema:
+            type: string
+          description: What counts as "returned" (defaults to same as `event`)
+        - $ref: '#/components/parameters/SinceParam'
+      responses:
+        '200':
+          description: Cohort retention data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetentionResponse'
+              examples:
+                weeklyRetention:
+                  summary: 4-week retention
+                  value:
+                    period: week
+                    cohorts:
+                      - date: "2026-01-27"
+                        users: 142
+                        retained: [142, 64, 55, 46]
+                        rates: [1.0, 0.451, 0.387, 0.324]
+                      - date: "2026-02-03"
+                        users: 128
+                        retained: [128, 54, 46]
+                        rates: [1.0, 0.422, 0.359]
+                      - date: "2026-02-10"
+                        users: 156
+                        retained: [156, 70]
+                        rates: [1.0, 0.449]
+                      - date: "2026-02-17"
+                        users: 134
+                        retained: [134]
+                        rates: [1.0]
+                    average_rates: [1.0, 0.441, 0.373, 0.324]
+                    users_analyzed: 560
+        '400':
+          description: Invalid period or cohorts value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /stream:
+    get:
+      operationId: streamEvents
+      summary: Live event stream (SSE)
+      description: |
+        Server-Sent Events stream of real-time events as they arrive.
+
+        Events are delivered as `event: track` SSE messages. Optionally filter by event name and/or property values.
+
+        The stream sends a `:heartbeat` comment every 30 seconds as a keepalive. Auto-disconnects after 30 minutes of no matching events.
+
+        **curl example:**
+        ```bash
+        curl -N "https://api.agentanalytics.sh/stream?project=my-site&events=page_view,signup" \
+          -H "X-API-Key: aak_..."
+        ```
+      tags: [Streaming]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: project
+          in: query
+          required: false
+          description: Project name. Defaults to first project.
+          schema:
+            type: string
+          example: my-site
+        - name: events
+          in: query
+          required: false
+          description: Comma-separated event name filter. Omit for all events.
+          schema:
+            type: string
+          example: page_view,signup
+        - name: filter
+          in: query
+          required: false
+          description: "Property filter as `key:value` pairs separated by `;`. Multiple filters use AND logic."
+          schema:
+            type: string
+          example: "path:/pricing;browser:Chrome"
+      responses:
+        '200':
+          description: SSE event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  SSE stream with events:
+                  - `event: connected` — sent once on connection with active filters
+                  - `event: track` — each matching event with `id` for reconnection
+                  - `:heartbeat` — keepalive comment every 30s
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many concurrent streams (max 10 per account)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /live:
+    get:
+      operationId: getLiveSnapshot
+      summary: Live snapshot (real-time)
+      description: |
+        Returns a point-in-time snapshot of active visitors, sessions, events per minute, top pages, top events, and recent events.
+
+        Reads from an in-memory ring buffer — no D1 query. Data is available only while events are being streamed (the ring buffer evicts events older than 5 minutes).
+
+        **curl example:**
+        ```bash
+        curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
+          -H "X-API-Key: aak_..."
+        ```
+      tags: [Streaming]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: project
+          in: query
+          required: false
+          description: Optional project name. Omit for an account-wide real-time snapshot across all projects.
+          schema:
+            type: string
+          example: my-site
+        - name: window
+          in: query
+          required: false
+          description: Time window in seconds (10-300, default 60)
+          schema:
+            type: integer
+            default: 60
+            minimum: 10
+            maximum: 300
+      responses:
+        '200':
+          description: Live snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveSnapshotResponse'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects:
+    get:
+      operationId: listProjects
+      summary: List all projects
+      description: |
+        Returns all projects under your account with event/read counts and tier info.
+
+        **CLI:** `npx @agent-analytics/cli projects`
+      tags: [Projects]
+      security:
+        - ApiKey: []
+      responses:
+        '200':
+          description: Project list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  has_api_key:
+                    type: boolean
+                  tier:
+                    type: string
+                    enum: [free, pro]
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      operationId: createProject
+      summary: Create a new project
+      description: |
+        Creates a new project and provisions a D1 database if needed.
+        Returns the project token and a ready-to-use tracking snippet.
+
+        Project names must be alphanumeric with hyphens, underscores, or dots (max 64 chars).
+        If a project with the same name already exists, returns the existing project (idempotent).
+
+        **CLI:** `npx @agent-analytics/cli init my-new-site`
+      tags: [Projects]
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  description: "Project name (alphanumeric, hyphens, underscores, dots; max 64 chars)"
+                  pattern: "^[a-zA-Z0-9._-]{1,64}$"
+                  example: my-new-site
+                allowed_origins:
+                  type: string
+                  description: "Allowed origins for CORS. Use `*` for any origin."
+                  default: "*"
+                  example: "https://example.com"
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  project_token:
+                    type: string
+                    example: aat_...
+                  allowed_origins:
+                    type: string
+                  snippet:
+                    type: string
+                    description: Ready-to-use HTML tracking snippet
+                  api_example:
+                    type: string
+                    description: Example curl command for querying stats
+        '200':
+          description: Project already exists (returned existing project)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  project_token:
+                    type: string
+                  existing:
+                    type: boolean
+                    example: true
+        '400':
+          description: Missing name or invalid project name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Duplicate origin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      summary: Get project details
+      description: Returns a single project with its configuration and today's usage stats.
+      tags: [Projects]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  project_token:
+                    type: string
+                  allowed_origins:
+                    type: string
+                  usage_today:
+                    type: object
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not your project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      operationId: updateProject
+      summary: Update a project
+      description: |
+        Update a project's name and/or allowed origins.
+
+        **Note:** Project name cannot be changed after events have been recorded.
+      tags: [Projects]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: New project name
+                allowed_origins:
+                  type: string
+                  description: New allowed origins
+      responses:
+        '200':
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  project_token:
+                    type: string
+                  allowed_origins:
+                    type: string
+        '400':
+          description: Invalid name or no fields to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Name locked (events recorded) or duplicate name/origin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      operationId: deleteProject
+      summary: Delete a project
+      description: |
+        Soft-deletes a project. Revokes the project token (no new events can be written).
+        Event data is preserved in the database but no longer accessible via API.
+      tags: [Projects]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  deleted:
+                    type: string
+                    description: Project ID
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not your project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /account:
+    get:
+      operationId: getAccount
+      summary: Get account info
+      description: |
+        Returns your account details, tier, limits, and project count.
+
+        **CLI:** `npx @agent-analytics/cli whoami`
+      tags: [Account]
+      security:
+        - ApiKey: []
+      responses:
+        '200':
+          description: Account info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+              examples:
+                freeTier:
+                  summary: Free tier account
+                  value:
+                    id: acc_free123
+                    email: free@example.com
+                    github_login: freeuser
+                    tier: free
+                    created_at: "2026-02-01T12:00:00.000Z"
+                    projects_count: 2
+                    tier_limits:
+                      max_events_per_month: 100000
+                      max_projects: 2
+                      max_reads_per_month: 500
+                      retention_days: 90
+                      rate_limit_rpm: 10
+                    monthly_spend_cap_dollars: null
+                proTier:
+                  summary: Pro tier account
+                  value:
+                    id: acc_pro123
+                    email: pro@example.com
+                    github_login: prouser
+                    tier: pro
+                    created_at: "2026-02-01T12:00:00.000Z"
+                    projects_count: 42
+                    tier_limits:
+                      max_events_per_month: -1
+                      max_projects: -1
+                      max_reads_per_month: -1
+                      retention_days: 365
+                      rate_limit_rpm: 1000
+                    monthly_spend_cap_dollars: 50
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /bot-traffic:
+    get:
+      operationId: getBotTrafficOverview
+      summary: Filtered automated traffic for one project
+      description: |
+        Returns a project-scoped summary of automated traffic that reached Agent Analytics and was filtered out of normal analytics.
+
+        This endpoint reports daily aggregates only: automated request count, dropped event count, category breakdown, top actors, and a zero-filled time series for the selected period.
+
+        This is **not** full site bot visibility like CDN logs. It only includes automated requests that actually reached `POST /track` or `POST /track/batch`.
+
+        **CLI:** `npx @agent-analytics/cli bot-traffic my-site --period 7d --limit 5`
+
+        **MCP:** `bot_traffic_overview`
+      tags: [Analytics]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+        - name: period
+          in: query
+          required: false
+          description: Comparison period
+          schema:
+            type: string
+            enum: ['1d', '7d', '14d', '30d', '90d']
+            default: '7d'
+        - name: limit
+          in: query
+          required: false
+          description: Max actors to include in the top-actor list (1-50, default 10)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Project bot traffic overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotTrafficOverviewResponse'
+              examples:
+                empty:
+                  summary: Empty state
+                  value:
+                    scope: project
+                    project: my-site
+                    period:
+                      label: 7d
+                      from: '2026-03-07'
+                      to: '2026-03-13'
+                      previous_from: '2026-02-28'
+                      previous_to: '2026-03-06'
+                    summary:
+                      automated_requests:
+                        current: 0
+                        previous: 0
+                        change: 0
+                        change_pct: 0
+                      dropped_events:
+                        current: 0
+                        previous: 0
+                        change: 0
+                        change_pct: 0
+                      last_seen_at: null
+                    categories: []
+                    actors: []
+                    time_series:
+                      - date: '2026-03-13'
+                        requests: 0
+                        dropped_events: 0
+                active:
+                  summary: Active bot traffic
+                  value:
+                    scope: project
+                    project: my-site
+                    period:
+                      label: 7d
+                      from: '2026-03-07'
+                      to: '2026-03-13'
+                      previous_from: '2026-02-28'
+                      previous_to: '2026-03-06'
+                    summary:
+                      automated_requests:
+                        current: 5
+                        previous: 1
+                        change: 4
+                        change_pct: 400
+                      dropped_events:
+                        current: 7
+                        previous: 1
+                        change: 6
+                        change_pct: 600
+                      last_seen_at: 1773459600000
+                    categories:
+                      - category: ai_agent
+                        requests: 3
+                        dropped_events: 5
+                        share_pct: 60
+                      - category: search_crawler
+                        requests: 2
+                        dropped_events: 2
+                        share_pct: 40
+                    actors:
+                      - actor: ChatGPT-User
+                        category: ai_agent
+                        requests: 3
+                        dropped_events: 5
+                        last_seen_at: 1773459600000
+                      - actor: Googlebot
+                        category: search_crawler
+                        requests: 2
+                        dropped_events: 2
+                        last_seen_at: 1773456000000
+                    time_series:
+                      - date: '2026-03-13'
+                        requests: 5
+                        dropped_events: 7
+        '400':
+          description: Invalid period or missing project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /account/all-sites:
+    get:
+      operationId: getAllSitesOverview
+      summary: Historical all-sites overview
+      description: |
+        Returns a lightweight historical summary across all active projects in your account.
+
+        This endpoint is optimized for a single account-level dashboard view: total event trend, active project count, daily event time series, and a top-project list.
+
+        Use `/live` for real-time account-wide activity. Use project-scoped endpoints like `/stats` and `/insights` when you want deeper analysis for one project.
+
+        **CLI:** `npx @agent-analytics/cli all-sites --period 7d`
+      tags: [Account]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: period
+          in: query
+          required: false
+          description: Comparison period
+          schema:
+            type: string
+            enum: ['1d', '7d', '14d', '30d', '90d']
+            default: '7d'
+        - name: limit
+          in: query
+          required: false
+          description: Max projects to include in the top-project list (1-50, default 10)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Account-wide historical overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllSitesOverviewResponse'
+        '400':
+          description: Invalid period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /account/bot-traffic:
+    get:
+      operationId: getAllSitesBotTrafficOverview
+      summary: Filtered automated traffic across all active projects
+      description: |
+        Returns an account-scoped summary of automated traffic that reached Agent Analytics and was filtered out of normal analytics.
+
+        This endpoint is optimized for a lightweight all-sites view: total filtered requests, dropped events, active-project count, top-project list, category breakdown, and a zero-filled daily time series.
+
+        Deleted projects are excluded from the totals and rankings.
+
+        **CLI:** `npx @agent-analytics/cli bot-traffic --all --period 7d --limit 10`
+
+        **MCP:** `all_sites_bot_traffic`
+      tags: [Account]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: period
+          in: query
+          required: false
+          description: Comparison period
+          schema:
+            type: string
+            enum: ['1d', '7d', '14d', '30d', '90d']
+            default: '7d'
+        - name: limit
+          in: query
+          required: false
+          description: Max projects to include in the top-project list (1-50, default 10)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Account-wide bot traffic overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllSitesBotTrafficOverviewResponse'
+              examples:
+                accountOverview:
+                  summary: Account bot traffic overview
+                  value:
+                    scope: account
+                    period:
+                      label: 7d
+                      from: '2026-03-07'
+                      to: '2026-03-13'
+                      previous_from: '2026-02-28'
+                      previous_to: '2026-03-06'
+                    summary:
+                      automated_requests:
+                        current: 5
+                        previous: 1
+                        change: 4
+                        change_pct: 400
+                      dropped_events:
+                        current: 6
+                        previous: 1
+                        change: 5
+                        change_pct: 500
+                      active_projects: 2
+                      total_projects: 4
+                      last_seen_at: 1773459600000
+                    categories:
+                      - category: ai_agent
+                        requests: 3
+                        dropped_events: 4
+                        share_pct: 60
+                      - category: search_crawler
+                        requests: 2
+                        dropped_events: 2
+                        share_pct: 40
+                    projects:
+                      - id: proj_123
+                        name: my-site
+                        requests: 3
+                        dropped_events: 4
+                        share_pct: 60
+                        last_seen_at: 1773459600000
+                      - id: proj_456
+                        name: second-site
+                        requests: 2
+                        dropped_events: 2
+                        share_pct: 40
+                        last_seen_at: 1773456000000
+                    remaining_projects: 0
+                    time_series:
+                      - date: '2026-03-13'
+                        requests: 5
+                        dropped_events: 6
+        '400':
+          description: Invalid period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /account/revoke-key:
+    post:
+      operationId: revokeKey
+      summary: Revoke and regenerate API key
+      description: |
+        Revokes the current API key and generates a new one. The old key stops working immediately.
+        The new key is returned in the response — this is the only time it's shown.
+      tags: [Account]
+      security:
+        - ApiKey: []
+      responses:
+        '200':
+          description: New API key
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  api_key:
+                    type: string
+                    description: The new API key. Save this — it won't be shown again.
+                    example: aak_...
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /experiments/config:
+    get:
+      operationId: getExperimentConfig
+      summary: Get experiment config for tracker.js
+      description: |
+        Returns active experiments for a project, used by `tracker.js` to assign variants client-side.
+        This is a **public** endpoint — authenticated by project token (same as `/track`), not API key.
+
+        You don't call this directly — the tracker fetches it automatically on page load.
+      tags: [Experiments]
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Project token (`aat_*`)
+          schema:
+            type: string
+          example: aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b
+      responses:
+        '200':
+          description: Active experiments for this project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                          example: signup_cta
+                        variants:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                              weight:
+                                type: integer
+        '400':
+          description: Missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /experiments:
+    post:
+      operationId: createExperiment
+      summary: Create an A/B experiment
+      description: |
+        Creates a new experiment for the specified project. **Pro tier only.**
+
+        Variants are assigned client-side by `tracker.js` using a deterministic hash — same user always gets the same variant. Exposure events (`$experiment_exposure`) are tracked automatically.
+
+        **CLI:** `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup`
+      tags: [Experiments]
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [project, name, variants, goal_event]
+              properties:
+                project:
+                  type: string
+                  description: Project name
+                  example: my-site
+                name:
+                  type: string
+                  description: "Experiment name (alphanumeric, hyphens, underscores; max 64 chars)"
+                  pattern: "^[a-zA-Z0-9_-]{1,64}$"
+                  example: signup_cta
+                variants:
+                  type: array
+                  description: 2-4 variant keys
+                  minItems: 2
+                  maxItems: 4
+                  items:
+                    type: string
+                  example: [control, new_cta]
+                goal_event:
+                  type: string
+                  description: Event name to measure conversion (max 256 chars)
+                  example: signup
+                weights:
+                  type: array
+                  description: "Optional traffic weights per variant (must sum to 100). Defaults to equal split."
+                  items:
+                    type: integer
+                  example: [50, 50]
+      responses:
+        '201':
+          description: Experiment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+        '400':
+          description: Validation error (missing fields, invalid variants, duplicate name)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Pro tier required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Experiment name already exists in this project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      operationId: listExperiments
+      summary: List experiments
+      description: |
+        Returns all experiments for a project (active, paused, and completed).
+
+        **CLI:** `npx @agent-analytics/cli experiments list my-site`
+      tags: [Experiments]
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectParam'
+      responses:
+        '200':
+          description: Experiment list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Experiment'
+        '400':
+          description: Missing project parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /experiments/{id}:
+    get:
+      operationId: getExperiment
+      summary: Get experiment with live results
+      description: |
+        Returns experiment config plus live Bayesian A/B test results.
+
+        Results include `probability_best` (probability each variant is the winner), `lift` (relative improvement over baseline), `sufficient_data` (whether enough exposures exist), and a human-readable `recommendation`.
+
+        The system needs ~100 exposures per variant before results are statistically significant.
+
+        **CLI:** `npx @agent-analytics/cli experiments get exp_abc123`
+      tags: [Experiments]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Experiment ID (`exp_*`)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment with results
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Experiment'
+                  - type: object
+                    properties:
+                      results:
+                        $ref: '#/components/schemas/ExperimentResults'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not your experiment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Experiment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      operationId: updateExperiment
+      summary: Update experiment status
+      description: |
+        Update an experiment's status. Valid transitions:
+        - `active` → `paused` or `completed`
+        - `paused` → `active` or `completed`
+        - `completed` is terminal (no further changes)
+
+        When completing, optionally set `winner` to a variant key.
+
+        **CLI:**
+        - `npx @agent-analytics/cli experiments pause exp_abc123`
+        - `npx @agent-analytics/cli experiments resume exp_abc123`
+        - `npx @agent-analytics/cli experiments complete exp_abc123 --winner new_cta`
+      tags: [Experiments]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Experiment ID (`exp_*`)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [active, paused, completed]
+                  description: New status
+                winner:
+                  type: string
+                  description: Variant key to declare as winner (only when completing)
+      responses:
+        '200':
+          description: Updated experiment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+        '400':
+          description: Invalid status transition or missing status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not your experiment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Experiment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      operationId: deleteExperiment
+      summary: Delete an experiment
+      description: |
+        Permanently deletes an experiment. Event data (exposures, conversions) is preserved in the events table — only the experiment config is removed.
+
+        **CLI:** `npx @agent-analytics/cli experiments delete exp_abc123`
+      tags: [Experiments]
+      security:
+        - ApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Experiment ID (`exp_*`)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  deleted:
+                    type: string
+                    description: Experiment ID
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not your experiment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Experiment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tracker.js:
+    get:
+      operationId: getTracker
+      summary: JavaScript tracker script
+      description: |
+        Returns the lightweight JavaScript tracker used for browser-side analytics.
+
+        Embed it in your HTML:
+
+        ```html
+        <script defer src="https://api.agentanalytics.sh/tracker.js"
+                data-project="my-site" data-token="aat_..."></script>
+        ```
+
+        Required attributes:
+
+        - `data-project`: project name
+        - `data-token`: project token (`aat_*`)
+
+        The tracker auto-collects page URL, pathname, referrer, browser, OS, device, language, timezone, UTM parameters, session count, and first-touch attribution. SPA routing is detected automatically. No cookies are required.
+
+        Full tracker documentation now lives in the docs site:
+        https://docs.agentanalytics.sh/reference/tracker-js/
+      tags: [Tracking]
+      security: []
+      responses:
+        '200':
+          description: JavaScript file
+          content:
+            application/javascript:
+              schema:
+                type: string
+        '404':
+          description: Not found

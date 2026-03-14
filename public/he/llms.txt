@@ -1,0 +1,127 @@
+# Agent Analytics
+
+> Installation guides plus API reference for the analytics platform AI agents can query.
+
+API base URL: https://api.agentanalytics.sh
+
+## Docs
+
+- [Docs Home](https://docs.agentanalytics.sh): Guide-first docs homepage
+- [API Reference](https://docs.agentanalytics.sh/api/): Interactive Scalar API reference
+- [OpenAPI Spec](https://docs.agentanalytics.sh/openapi.yaml): Machine-readable OpenAPI 3.1 spec
+- [Full Docs + API Reference](https://docs.agentanalytics.sh/llms-full.txt): LLM-friendly complete export
+
+### Guides
+- [Getting Started](https://docs.agentanalytics.sh/getting-started/): Create a project, install Agent Analytics in your agent, and verify the first query.
+
+### Installation
+- [Installation Overview](https://docs.agentanalytics.sh/installation/): Choose the right install path for Claude, Cursor, OpenClaw, Codex, and related AI tools.
+- [Claude Code](https://docs.agentanalytics.sh/installation/claude-code/): Install Agent Analytics in Claude Code with the hosted plugin first, then use the skill path before dropping to raw MCP setup.
+- [Claude Desktop / Cowork](https://docs.agentanalytics.sh/installation/claude-desktop-cowork/): Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
+- [Cursor](https://docs.agentanalytics.sh/installation/cursor/): Install the Agent Analytics skill in Cursor and use CLI-style workflows first. Use MCP only when you specifically want connector-style tool calls.
+- [OpenClaw](https://docs.agentanalytics.sh/installation/openclaw/): Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and use the official CLI from chat.
+- [OpenAI Codex](https://docs.agentanalytics.sh/installation/openai-codex/): Install the Agent Analytics skill for OpenAI Codex, set the API key once, and use direct queries or guided workflows from there.
+
+### Reference
+- [Tracker.js](https://docs.agentanalytics.sh/reference/tracker-js/): Add Agent Analytics to any site with one script tag, then turn on declarative events, consent, performance tracking, and other browser-side features.
+- [Bot Traffic](https://docs.agentanalytics.sh/reference/bot-traffic/): See which automated callers hit your tracker, how many events were filtered, and which actors generated that traffic.
+- [Authentication](https://docs.agentanalytics.sh/reference/authentication/): Understand the difference between API keys and project tokens before you wire an agent or a tracker.
+- [CLI vs MCP vs API](https://docs.agentanalytics.sh/reference/cli-mcp-api/): Agent Analytics can be used through MCP, the CLI, or raw HTTP. Choose the interface that fits the environment your agent already has.
+- [Rate Limits](https://docs.agentanalytics.sh/reference/rate-limits/): Hosted Agent Analytics uses account-level API limits and event-volume limits that vary by plan.
+- [Error Format](https://docs.agentanalytics.sh/reference/error-format/): All API errors return a machine-readable code plus a human-readable message.
+
+## MCP Server
+
+URL: https://mcp.agentanalytics.sh/mcp (Streamable HTTP transport)
+
+Add to Claude Code:
+```
+claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
+```
+
+Tools: `list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `bot_traffic_overview`, `all_sites_bot_traffic`, `analytics_insights`, `analytics_breakdown`, `analytics_pages`, `analytics_sessions`, `analytics_heatmap`, `analytics_funnel`, `analytics_retention`, `properties`, `properties_received`, `sessions`, `list_experiments`, `create_experiment`, `get_experiment`, `update_experiment`, `delete_experiment`, `live_now`, `query`
+
+Hosted free accounts can use MCP for `list_projects`, `create_project`, `all_sites_overview`, `analytics_overview`, `bot_traffic_overview`, and `all_sites_bot_traffic`. The rest of the MCP tool surface requires a paid account.
+
+## Agent Skill
+
+Install as an agent skill (works with Claude Code, Codex, and other Agent Skills-compatible tools):
+```
+npx skills add Agent-Analytics/agent-analytics-mcp
+```
+
+## Quick Start
+
+1. Sign up at https://app.agentanalytics.sh and get your API key
+2. Pick an install path from https://docs.agentanalytics.sh/installation/
+3. Create a project: `POST /projects` with `X-API-Key` header
+4. Add the tracking snippet (returned in project creation response)
+   - If using Astro, add `is:inline` to the tracker `<script>` tag.
+5. Query stats: `GET /stats?project=my-site` with `X-API-Key` header
+
+## Authentication
+
+- **API Key** (`aak_*`): Secret key for reading data and project management. Pass via `X-API-Key` header or `?key=` query param.
+- **Project Token** (`aat_*`): Public token for event ingestion. Passed in request body.
+
+## Endpoints
+
+### Ingestion
+- `POST /track` — Track a single event
+- `POST /track/batch` — Track multiple events
+- `POST /identify` — Link anonymous user to authenticated identity
+
+### Analytics
+- `GET /stats` — Aggregated stats overview
+- `GET /events` — Raw event log
+- `POST /query` — Flexible analytics query
+- `GET /properties` — Discover event names and property keys
+- `GET /properties/received` — Property keys by event name
+- `GET /sessions` — List sessions
+- `GET /breakdown` — Top property values
+- `GET /insights` — Period-over-period comparison
+- `GET /pages` — Entry/exit page stats
+- `GET /sessions/distribution` — Session duration histogram
+- `GET /heatmap` — Day-of-week x hour traffic grid
+- `GET /retention` — Cohort retention analysis
+- `GET /bot-traffic` — Filtered automated traffic for one project
+
+### Projects
+- `GET /projects` — List all projects
+- `POST /projects` — Create a new project
+- `GET /projects/{id}` — Get project details
+- `PATCH /projects/{id}` — Update a project
+- `DELETE /projects/{id}` — Delete a project
+
+### Account
+- `GET /account` — Get account info
+- `GET /account/all-sites` — Historical all-sites overview
+- `GET /account/bot-traffic` — Filtered automated traffic across all active projects
+- `POST /account/revoke-key` — Revoke and regenerate API key
+
+### Experiments
+- `GET /experiments/config` — Get experiment config for tracker.js
+- `POST /experiments` — Create an A/B experiment
+- `GET /experiments` — List experiments
+- `GET /experiments/{id}` — Get experiment with live results
+- `PATCH /experiments/{id}` — Update experiment status
+- `DELETE /experiments/{id}` — Delete an experiment
+
+### Funnels
+- `POST /funnel` — Funnel analysis
+
+### Streaming
+- `GET /stream` — Live event stream (SSE)
+- `GET /live` — Live snapshot (real-time)
+
+### Tracking
+- `GET /tracker.js` — JavaScript tracker script
+
+## Rate Limits
+
+| Tier | Requests/min | Event Limit | Data Retention |
+|------|-------------|-------------|----------------|
+| Free | 10 | 100,000 / month | 90 days |
+| Pro  | 1,000 | Unlimited | 365 days |
+
+Hosted free also includes 2 projects and 500 agent/API read actions per month. Paid starts at $1 per 10,000 events and unlocks the full API, CLI, and MCP surface.

@@ -7,6 +7,10 @@ const spec = readFileSync('openapi.yaml', 'utf-8')
 const doc = parse(spec)
 const docsRoot = path.join(process.cwd(), 'src/content/docs')
 const publicRoot = path.join(process.cwd(), 'public')
+const localeDirs = [
+  { locale: 'he', suffix: '.he' },
+  { locale: 'zh', suffix: '.zh' },
+]
 
 const docOrder = [
   '',
@@ -296,4 +300,11 @@ mkdirSync(publicRoot, { recursive: true })
 copyFileSync('openapi.yaml', path.join(publicRoot, 'openapi.yaml'))
 copyFileSync('llms.txt', path.join(publicRoot, 'llms.txt'))
 copyFileSync('llms-full.txt', path.join(publicRoot, 'llms-full.txt'))
+
+for (const { locale, suffix } of localeDirs) {
+  mkdirSync(path.join(publicRoot, locale), { recursive: true })
+  copyFileSync('openapi.yaml', path.join(publicRoot, `openapi${suffix}.yaml`))
+  copyFileSync('llms.txt', path.join(publicRoot, locale, 'llms.txt'))
+  copyFileSync('llms-full.txt', path.join(publicRoot, locale, 'llms-full.txt'))
+}
 console.log('Synced docs artifacts to public/')

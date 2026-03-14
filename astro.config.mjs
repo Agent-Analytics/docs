@@ -10,6 +10,12 @@ export default defineConfig({
       title: 'Agent Analytics',
       description: 'Installation guides and API reference for Agent Analytics.',
       tagline: 'Install Agent Analytics in Claude, Cursor, OpenClaw, Codex, and other AI tools.',
+      locales: {
+        root: { label: 'English', lang: 'en' },
+        he: { label: 'עברית', lang: 'he', dir: 'rtl' },
+        zh: { label: '简体中文', lang: 'zh-CN' },
+      },
+      defaultLocale: 'root',
       logo: {
         src: './src/assets/logo-v2.png',
         alt: '',
@@ -30,12 +36,20 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Introduction',
+          translations: {
+            he: 'מבוא',
+            'zh-CN': '简介',
+          },
           items: [
             { slug: 'getting-started' },
           ],
         },
         {
           label: 'Installation',
+          translations: {
+            he: 'התקנה',
+            'zh-CN': '安装',
+          },
           items: [
             { slug: 'installation' },
             { slug: 'installation/claude-code' },
@@ -47,6 +61,10 @@ export default defineConfig({
         },
         {
           label: 'Reference',
+          translations: {
+            he: 'עיון',
+            'zh-CN': '参考',
+          },
           items: [
             { slug: 'reference/tracker-js' },
             { slug: 'reference/bot-traffic' },
@@ -56,6 +74,10 @@ export default defineConfig({
             { slug: 'reference/error-format' },
             {
               label: 'API Reference',
+              translations: {
+                he: 'עיון ב-API',
+                'zh-CN': 'API 参考',
+              },
               link: '/api/',
             },
           ],
@@ -90,6 +112,27 @@ export default defineConfig({
             'data-track-vitals': true,
             'data-track-scroll-depth': true,
           },
+        },
+        {
+          tag: 'script',
+          children: `(function () {
+            if (window.location.pathname !== '/') return;
+            if (document.cookie.split(';').map((part) => part.trim()).some((part) => part.startsWith('aa_locale='))) return;
+            var languages = navigator.languages || [navigator.language];
+            var preferred = 'en';
+            for (var index = 0; index < languages.length; index += 1) {
+              var value = String(languages[index] || '').toLowerCase();
+              if (value.startsWith('he') || value.startsWith('iw')) { preferred = 'he'; break; }
+              if (value.startsWith('zh')) { preferred = 'zh'; break; }
+            }
+            if (preferred === 'en') return;
+            var secure = window.location.protocol === 'https:' ? '; Secure' : '';
+            var domain = window.location.hostname === 'docs.agentanalytics.sh' || window.location.hostname.endsWith('.agentanalytics.sh')
+              ? '; Domain=.agentanalytics.sh'
+              : '';
+            document.cookie = 'aa_locale=' + preferred + '; Path=/; Max-Age=31536000; SameSite=Lax' + domain + secure;
+            window.location.replace(preferred === 'he' ? '/he/' : '/zh/');
+          })();`,
         },
       ],
     }),

@@ -1,5 +1,7 @@
 ---
 import SharedFooter from './generated/SharedFooter.astro';
+const pathname = Astro.url.pathname;
+const locale = pathname.startsWith('/he/') ? 'he' : pathname.startsWith('/zh/') ? 'zh' : 'en';
 ---
 
-<SharedFooter />
+<SharedFooter locale={locale} />

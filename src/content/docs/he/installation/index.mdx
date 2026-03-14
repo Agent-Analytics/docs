@@ -1,0 +1,28 @@
+---
+title: Installation Overview
+description: Choose the right install path for Claude, Cursor, OpenClaw, Codex, and related AI tools.
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Choose the environment your agent already runs in. Each page leads with the recommended path for that environment, then covers alternatives where they matter.
+
+## Recommended install paths
+
+<CardGrid stagger>
+  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/claude-code-logo.png' alt='' /></span> Claude Code" href="/installation/claude-code/">
+    Plugin-first setup for Claude Code, with MCP and manual alternatives when the plugin is not available.
+  </LinkCard>
+  <LinkCard title="OpenClaw 🦞" href="/installation/openclaw/">
+    Install the ClawHub skill, point OpenClaw at your API key once, and use scheduled analytics workflows from chat.
+  </LinkCard>
+  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/claude-code-logo.png' alt='' /></span> Claude Desktop / Cowork" href="/installation/claude-desktop-cowork/">
+    Connect the hosted MCP server from the desktop connector flow and verify rich analytics tools in chat.
+  </LinkCard>
+  <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/cursor-final.png' alt='' /></span> Cursor" href="/installation/cursor/">
+    Start with the Agent Analytics skill plus CLI workflows in Cursor. Use MCP only when you specifically want connector-style tool calls.
+  </LinkCard>
+  <LinkCard title="<span class='aa-install-logo aa-install-logo--inverse'><img src='/logos/openai-white.png' alt='' /></span> OpenAI Codex" href="/installation/openai-codex/">
+    Install the Agent Analytics skill, provide the API key once, and let Codex query data directly.
+  </LinkCard>
+</CardGrid>

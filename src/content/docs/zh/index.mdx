@@ -1,0 +1,104 @@
+---
+title: Agent Analytics Docs
+description: Install Agent Analytics in Claude, Cursor, OpenClaw, Codex, and other AI tools.
+template: splash
+hero:
+  tagline: Real install guides for agent-native analytics.
+  image:
+    html: |
+      <div class="aa-hero-visual" aria-hidden="true">
+        <div class="aa-hero-visual__panel aa-hero-visual__panel--agent">
+          <div class="aa-hero-visual__panel-head">
+            <span class="aa-hero-visual__status"></span>
+            <span>Agent session</span>
+          </div>
+          <div class="aa-hero-visual__prompt">Set up analytics for my-site.com</div>
+          <div class="aa-hero-visual__step"><span></span>Project created</div>
+          <div class="aa-hero-visual__step"><span></span>Tracker added</div>
+          <div class="aa-hero-visual__step"><span></span>7 day summary ready</div>
+        </div>
+        <div class="aa-hero-visual__panel aa-hero-visual__panel--stats">
+          <div class="aa-hero-visual__stat">
+            <strong>523</strong>
+            <span>users</span>
+          </div>
+          <div class="aa-hero-visual__stat">
+            <strong>8.4%</strong>
+            <span>signup</span>
+          </div>
+          <div class="aa-hero-visual__stat">
+            <strong>2</strong>
+            <span>tests live</span>
+          </div>
+        </div>
+        <div class="aa-hero-visual__panel aa-hero-visual__panel--code">
+          <div class="aa-hero-visual__eyebrow">tracker.js</div>
+          <code>&lt;script data-track-vitals="true" data-track-errors="true"&gt;</code>
+          <div class="aa-hero-visual__bars">
+            <span style="--aa-bar: 72%"></span>
+            <span style="--aa-bar: 44%"></span>
+            <span style="--aa-bar: 88%"></span>
+            <span style="--aa-bar: 61%"></span>
+            <span style="--aa-bar: 76%"></span>
+          </div>
+        </div>
+      </div>
+  actions:
+    - text: Start here
+      link: /getting-started/
+      icon: right-arrow
+    - text: API reference
+      link: /api/
+      icon: external
+      variant: minimal
+---
+
+import { CardGrid, Icon } from '@astrojs/starlight/components';
+
+Agent Analytics is a web analytics platform with an agent-friendly HTTP API, an MCP server, and an agent skill layer.
+These docs now split the experience cleanly:
+
+- Use the guides when you want the fastest install path for a specific agent.
+- Use the API reference when you need endpoint-level request and response detail.
+- Use the LLM text exports when you want a compact machine-readable index of the docs.
+
+## Start with the path you actually need
+
+<CardGrid stagger>
+  <a class="aa-home-link-card" data-tone="orange" href="/getting-started/">
+    <div class="aa-home-link-card__title">
+      <Icon class="aa-home-link-card__icon" name="download" size="1.333em" />
+      <span>Get set up fast</span>
+    </div>
+    <div class="aa-home-link-card__body">
+      Start with the recommended setup path, create a project, add tracking, and verify your agent can read data back.
+    </div>
+  </a>
+  <a class="aa-home-link-card" data-tone="purple" href="/installation/">
+    <div class="aa-home-link-card__title">
+      <Icon class="aa-home-link-card__icon" name="laptop" size="1.333em" />
+      <span>Choose your agent</span>
+    </div>
+    <div class="aa-home-link-card__body">
+      Dedicated install pages cover Claude Code, Claude Desktop / Cowork, Cursor, OpenClaw, and OpenAI Codex.
+    </div>
+  </a>
+  <a class="aa-home-link-card" data-tone="green" href="/api/">
+    <div class="aa-home-link-card__title">
+      <Icon class="aa-home-link-card__icon" name="seti:json" size="1.333em" />
+      <span>API</span>
+    </div>
+    <div class="aa-home-link-card__body">
+      Interactive reference, endpoint details, and the canonical OpenAPI spec.
+    </div>
+  </a>
+  <a class="aa-home-link-card" data-tone="red" href="/llms.txt">
+    <div class="aa-home-link-card__title">
+      <Icon class="aa-home-link-card__icon" name="open-book" size="1.333em" />
+      <span>LLMs.txt for Agents</span>
+    </div>
+    <div class="aa-home-link-card__body">
+      Use llms.txt for the compact index or llms-full.txt for the full docs bundle.
+    </div>
+  </a>
+</CardGrid>

@@ -1,0 +1,93 @@
+---
+import Footer from '../../../components/Footer.astro';
+import '../../../styles/site.css';
+
+const links = [
+  { href: '/he/', label: 'תיעוד', active: false },
+  { href: '/he/getting-started/', label: 'התחלה מהירה', active: false },
+  { href: '/he/installation/', label: 'התקנה', active: false },
+  { href: 'https://app.agentanalytics.sh', label: 'לוח בקרה', active: false },
+  { href: 'https://blog.agentanalytics.sh/he/', label: 'בלוג', active: false },
+  { href: 'https://github.com/Agent-Analytics', label: 'GitHub', active: false },
+];
+---
+
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>עיון אינטראקטיבי ב-API של Agent Analytics</title>
+    <meta
+      name="description"
+      content="עיון אינטראקטיבי ב-API של Agent Analytics, על בסיס מפרט OpenAPI הקנוני."
+    />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="canonical" href="https://docs.agentanalytics.sh/he/api/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="help" type="text/plain" href="/he/llms.txt" title="אינדקס תיעוד ידידותי ל-LLM" />
+    <link rel="help" type="text/plain" href="/he/llms-full.txt" title="ייצוא מלא של התיעוד וה-API ל-LLM" />
+  </head>
+  <body class="aa-page-theme">
+    <div class="aa-site-shell aa-api-page">
+      <header class="aa-topbar">
+        <div class="aa-topbar-inner">
+          <a class="aa-brand" href="/he/">
+            <img src="/logo-v2.png" alt="" />
+            <span>Agent Analytics</span>
+          </a>
+          <nav class="aa-nav-links" aria-label="Primary">
+            {links.map((link) => (
+              <a href={link.href} data-active={link.active ? 'true' : 'false'}>
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      <main class="aa-intro-shell">
+        <section class="aa-api-hero">
+          <div class="aa-api-eyebrow">מקור האמת של OpenAPI</div>
+          <h1>עיון אינטראקטיבי בכל נקודות הקצה של Agent Analytics.</h1>
+          <p>
+            המדריכים נשארים במעטפת התיעוד. חוזה ה-API נשאר ב-<code>/openapi.he.yaml</code> ומוצג כאן
+            דרך Scalar, כדי לשמור על עיון מהיר בלי להסתיר את דפי ההתקנה.
+          </p>
+          <div class="aa-api-actions">
+            <a class="primary" href="/he/installation/">עיינו במדריכי ההתקנה</a>
+            <a href="/openapi.he.yaml">הורדת OpenAPI</a>
+            <a href="/he/llms-full.txt">טקסט מלא ל-LLM</a>
+          </div>
+        </section>
+
+        <section class="aa-api-frame">
+          <script id="api-reference" data-url="/openapi.he.yaml"></script>
+        </section>
+      </main>
+      <Footer />
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script
+      is:inline
+      defer
+      src="https://api.agentanalytics.sh/tracker.js"
+      data-project="agentanalytics-landing"
+      data-token="aat_51da22cdcab084ae1cdb50fd4841c642f0dafdb1d9adfa6b"
+      data-link-domains="agentanalytics.sh"
+      data-track-outgoing="true"
+      data-heartbeat="15"
+      data-track-errors="true"
+      data-track-performance="true"
+      data-track-clicks="true"
+      data-track-vitals="true"
+      data-track-scroll-depth="true"></script>
+  </body>
+</html>
