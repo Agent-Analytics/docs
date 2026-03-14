@@ -24,11 +24,11 @@ async function exists(filePath) {
 }
 
 async function resolveSharedUiAsset(sourceName) {
+  const localPath = path.join(localSharedUiDist, sourceName);
+  if (await exists(localPath)) return localPath;
   try {
     return require.resolve(`@agent-analytics/shared-ui/${sourceName}`);
   } catch {
-    const localPath = path.join(localSharedUiDist, sourceName);
-    if (await exists(localPath)) return localPath;
     throw new Error(`Missing installed shared UI asset ${sourceName}`);
   }
 }
