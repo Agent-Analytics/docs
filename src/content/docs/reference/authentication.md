@@ -43,8 +43,20 @@ The token is public by design. It identifies the project for event ingestion and
 
 Do not put the API key in the client-side tracker. The tracker uses the public project token only.
 
+## CLI auth helpers
+
+If you use the official CLI, it provides two local auth convenience commands around the API key:
+
+- `npx @agent-analytics/cli login --token aak_...` saves the API key locally for later CLI reads.
+- `npx @agent-analytics/cli logout` clears the saved local CLI auth.
+
+`logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
+
+If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will continue to use that env var even after `logout` until you unset it.
+
 ## Related
 
 - [Getting Started](/getting-started/)
+- [CLI vs MCP vs API](/reference/cli-mcp-api/)
 - [Error Format](/reference/error-format/)
 - [API Reference](/api/)

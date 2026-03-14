@@ -40,6 +40,7 @@ CLI is usually the best fit when:
 - you want predictable command output
 - you prefer command composition over tool integration
 - you want lower overhead than MCP in editor-style agents like Cursor
+- you want simple local auth helpers like `login` and `logout` around the same API
 
 ### API
 
@@ -53,7 +54,7 @@ API is usually the best fit when:
 
 ## CLI to API mapping
 
-Every major CLI workflow maps directly to an HTTP endpoint:
+Most CLI workflows map directly to an HTTP endpoint. The main exception is local auth convenience commands such as `logout`, which only modify local CLI state:
 
 | CLI Command | API Endpoint |
 | --- | --- |
@@ -69,6 +70,9 @@ Every major CLI workflow maps directly to an HTTP endpoint:
 | `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
 | `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
 | `npx @agent-analytics/cli projects` | `GET /projects` |
+| `npx @agent-analytics/cli logout` | None. Local-only command that clears saved CLI auth and does not call the API. |
+
+`logout` clears the API key saved by the CLI on disk. It does not revoke the key on the server. If you exported `AGENT_ANALYTICS_API_KEY` in your shell, the CLI will still authenticate with that environment variable until you unset it.
 
 ## Quick rule of thumb
 
