@@ -106,6 +106,34 @@ window.aa?.set({ plan: 'pro', team: 'acme' });
 - `aa.experiment(name, variants)`：在客户端确定性分配实验版本
 - `aa.grantConsent()` / `aa.revokeConsent()`：管理 consent 模式
 
+## SPA 路由与虚拟页面
+
+当浏览器 URL 通过 `history.pushState()`、`history.replaceState()`、`popstate` 或 `hashchange` 发生变化时，Agent Analytics 会自动记录 `page_view`。这覆盖了大多数客户端路由器，包括基于 hash 的 SPA。
+
+如果 UI 发生变化，但 path、query string 和 hash 都没有变化，跟踪器不会去猜测是不是出现了一个新页面。这种情况下，需要你手动发送 `page_view`。
+
+推荐实现顺序：
+
+1. 真实 URL 变化
+2. Hash 路由
+3. 手动虚拟 `page_view`
+
+当当前浏览器 URL 已经和你要标记的页面一致时，可以使用 `aa.page(name)`。它会发送一个带有 `page` 属性的 `page_view`，但 `path` 和 `url` 仍然来自当前浏览器地址。
+
+对于真正没有 URL 变化的虚拟页面，请手动发送 `page_view`，并自行覆盖路由字段：
+
+```js
+window.aa?.track('page_view', {
+  page: 'Checkout Step 2',
+  path: '/checkout/step-2',
+  url: `${location.origin}/checkout/step-2`
+});
+```
+
+不要把手动页面跟踪和 Agent Analytics 已经能自动跟踪的路由跳转叠加在同一次变化上，否则会重复计数。
+
+如果你想用提示词驱动的方式来决定该用路由跟踪还是虚拟页面跟踪，请查看 [SPA 与虚拟页面跟踪](/zh/guides/spa-and-virtual-page-tracking/)。
+
 ## 常见配方
 
 ### 跨域身份关联
@@ -150,6 +178,7 @@ window.aa?.revokeConsent();
 ## 相关内容
 
 - [快速开始](/zh/getting-started/)
+- [SPA 与虚拟页面跟踪](/zh/guides/spa-and-virtual-page-tracking/)
 - [AI 代理实验跟踪](/zh/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/zh/reference/bot-traffic/)
 - [Authentication](/zh/reference/authentication/)

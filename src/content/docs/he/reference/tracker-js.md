@@ -106,6 +106,34 @@ window.aa?.set({ plan: 'pro', team: 'acme' });
 - `aa.experiment(name, variants)`: שיוך וריאנטים בצד הלקוח בצורה דטרמיניסטית
 - `aa.grantConsent()` / `aa.revokeConsent()`: ניהול מצב consent
 
+## ניתוב SPA ועמודים וירטואליים
+
+Agent Analytics מודד `page_view` אוטומטית כשה-URL בדפדפן משתנה דרך `history.pushState()`, `history.replaceState()`, אירועי `popstate` או `hashchange`. זה מכסה את רוב ה-client-side routers, כולל SPAs מבוססי hash.
+
+אם ה-UI משתנה בלי שינוי ב-path, ב-query string או ב-hash, הטרקר לא מנסה לנחש שמסך חדש הופיע. במקרה כזה צריך לשלוח `page_view` ידני.
+
+סדר ההעדפה ליישום:
+
+1. שינויי URL אמיתיים
+2. ניתוב hash
+3. `page_view` וירטואלי ידני
+
+השתמשו ב-`aa.page(name)` כשה-URL הנוכחי בדפדפן כבר תואם למסך שאתם רוצים לתייג. הוא שולח `page_view` עם מאפיין `page`, אבל `path` ו-`url` עדיין מגיעים מהמיקום הנוכחי של הדפדפן.
+
+לעמודים וירטואליים אמיתיים בלי שינוי URL, שלחו `page_view` ידני ועקפו בעצמכם את שדות הניתוב:
+
+```js
+window.aa?.track('page_view', {
+  page: 'Checkout Step 2',
+  path: '/checkout/step-2',
+  url: `${location.origin}/checkout/step-2`
+});
+```
+
+אל תשלבו מעקב דפים ידני עם מעברי router ש-Agent Analytics כבר מודד אוטומטית, אחרת תספרו את אותו שינוי מסך פעמיים.
+
+אם אתם רוצים workflow מבוסס-פרומפטים לבחירה בין מעקב router למעקב עמודים וירטואליים, השתמשו ב-[מעקב SPA ועמודים וירטואליים](/he/guides/spa-and-virtual-page-tracking/).
+
 ## מתכונים נפוצים
 
 ### זהות חוצת-דומיינים
@@ -150,6 +178,7 @@ window.aa?.revokeConsent();
 ## קשור
 
 - [התחלה מהירה](/he/getting-started/)
+- [מעקב SPA ועמודים וירטואליים](/he/guides/spa-and-virtual-page-tracking/)
 - [מעקב ניסויים לסוכני AI](/he/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/he/reference/bot-traffic/)
 - [Authentication](/he/reference/authentication/)

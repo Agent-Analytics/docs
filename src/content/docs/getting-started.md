@@ -57,6 +57,7 @@ Page views are tracked automatically. Add custom events later with `data-aa-even
 If your site uses Astro, add `is:inline` to that tracker tag.
 
 For advanced tracker options like declarative events, cross-domain identity, consent, scroll depth, vitals, and error tracking, use the [Tracker.js guide](/reference/tracker-js/).
+If your app is a SPA, use [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/) to understand what Agent Analytics auto-tracks and when to send a manual virtual `page_view`.
 If you want your agent to launch your first browser-side A/B test after setup, continue with [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/).
 
 ## 5. Verify the loop
@@ -73,6 +74,7 @@ If the setup is correct, the agent should answer without you hand-writing reques
 ## Next
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
+- Use [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/) when your app changes screens client-side and you need accurate page tracking without double-counting.
 - Use [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/) when you want your agent to launch and read browser-side experiments for you.
 - Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.
 - Use [Bot Traffic](/reference/bot-traffic/) to inspect filtered automated callers separately from normal analytics.

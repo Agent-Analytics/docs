@@ -106,6 +106,34 @@ Useful methods:
 - `aa.experiment(name, variants)`: assign variants deterministically client-side
 - `aa.grantConsent()` / `aa.revokeConsent()`: manage consent mode
 
+## SPA routing and virtual pages
+
+Agent Analytics automatically tracks `page_view` when the browser URL changes through `history.pushState()`, `history.replaceState()`, `popstate`, or `hashchange`. That covers most client-side routers, including hash-based SPAs.
+
+If your UI changes without changing the path, query string, or hash, the tracker does not try to guess that a new screen appeared. In that case, send a manual `page_view`.
+
+Preferred implementation order:
+
+1. Real URL changes
+2. Hash routing
+3. Manual virtual `page_view`
+
+Use `aa.page(name)` when the current browser URL already matches the screen you want to label. It sends a `page_view` with a `page` property, but `path` and `url` still come from the current browser location.
+
+For true virtual pages with no URL change, send a manual `page_view` and override the route fields yourself:
+
+```js
+window.aa?.track('page_view', {
+  page: 'Checkout Step 2',
+  path: '/checkout/step-2',
+  url: `${location.origin}/checkout/step-2`
+});
+```
+
+Do not combine manual page tracking with router-driven transitions that Agent Analytics already auto-tracks, or you will double-count the same screen change.
+
+If you want a prompt-first workflow for deciding between router tracking and manual virtual pages, use [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/).
+
 ## Common recipes
 
 ### Cross-domain identity
@@ -150,6 +178,7 @@ On localhost, the tracker switches to dev mode and logs activity to the browser 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/)
 - [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/reference/bot-traffic/)
 - [Authentication](/reference/authentication/)
