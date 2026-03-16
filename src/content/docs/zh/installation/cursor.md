@@ -34,7 +34,7 @@ export AGENT_ANALYTICS_API_KEY=aak_...
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
 
-如果你还没有创建第一个真实项目，请先回到 [快速开始](/zh/getting-started/#3-创建你的第一个项目) 完成它。
+如果你还没有创建第一个真实项目，请继续阅读 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)。
 
 ## 替代方案：添加自定义 MCP 服务器
 
@@ -79,6 +79,7 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 ## 相关内容
 
 - [快速开始](/zh/getting-started/)
+- [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)
 - [CLI vs MCP vs API](/zh/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/zh/installation/claude-desktop-cowork/)
 - [OpenAI Codex](/zh/installation/openai-codex/)

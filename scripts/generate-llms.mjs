@@ -16,6 +16,7 @@ const docOrder = [
   '',
   'guides',
   'getting-started',
+  'guides/first-project-in-5-minutes',
   'guides/ai-agent-experiment-tracking',
   'installation',
   'installation/claude-code',
@@ -34,7 +35,7 @@ const docOrder = [
 const docGroups = [
   {
     title: 'Guides',
-    slugs: ['guides', 'getting-started', 'guides/ai-agent-experiment-tracking'],
+    slugs: ['guides', 'getting-started', 'guides/first-project-in-5-minutes', 'guides/ai-agent-experiment-tracking'],
   },
   {
     title: 'Installation',

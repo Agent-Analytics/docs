@@ -26,7 +26,7 @@ description: הוסיפו את Agent Analytics לכל אתר עם תגית scrip
 
 תעבורה אוטומטית שמגיעה לטרקר מסוננת מהאנליטיקה הרגילה שלכם. השתמשו ב-[Bot Traffic](/he/reference/bot-traffic/) אם אתם רוצים לבדוק את הבקשות האוטומטיות בנפרד.
 
-אם הסוכן שלכם יכול לערוך קוד, בקשו ממנו להוסיף עבורכם את הסניפט. אם לא, צרו את הפרויקט ב-[התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) והדביקו ידנית את הסניפט שהוחזר.
+אם הסוכן שלכם יכול לערוך קוד, בקשו ממנו להוסיף עבורכם את הסניפט. אם לא, השתמשו ב-[הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/) כדי ליצור את הפרויקט, לקבל את הסניפט ולאמת את ה-page view הראשון.
 
 ## אפשרויות נפוצות
 
@@ -178,6 +178,7 @@ window.aa?.revokeConsent();
 ## קשור
 
 - [התחלה מהירה](/he/getting-started/)
+- [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
 - [מעקב SPA ועמודים וירטואליים](/he/guides/spa-and-virtual-page-tracking/)
 - [מעקב ניסויים לסוכני AI](/he/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/he/reference/bot-traffic/)

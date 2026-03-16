@@ -26,7 +26,7 @@ The tracker automatically collects page URL, pathname, referrer, browser, OS, de
 
 Automated traffic that reaches the tracker is filtered out of your normal analytics. Use [Bot Traffic](/reference/bot-traffic/) if you want to inspect those automated requests separately.
 
-If your agent can edit code, ask it to add the snippet for you. If not, create the project in [Getting Started](/getting-started/#3-create-your-first-project) and paste the returned snippet manually.
+If your agent can edit code, ask it to add the snippet for you. If not, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) to create the project, get the snippet, and verify the first page view.
 
 ## Common options
 
@@ -178,6 +178,7 @@ On localhost, the tracker switches to dev mode and logs activity to the browser 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/)
 - [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/reference/bot-traffic/)

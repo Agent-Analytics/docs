@@ -35,7 +35,7 @@ Ask Claude Code:
 
 If the plugin is working, Claude Code should be able to reach your account without asking you to hand-roll HTTP requests.
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+If you have not created your first real project yet, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 ## Fallback: install the Claude Code skill
 
@@ -66,6 +66,7 @@ Use `--transport http`. The hosted MCP server is not configured for legacy SSE t
 ## Related
 
 - [Getting Started](/getting-started/)
+- [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)

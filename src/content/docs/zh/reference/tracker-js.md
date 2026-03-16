@@ -26,7 +26,7 @@ API 参考现在把 `GET /tracker.js` 仅视为脚本端点。安装和功能指
 
 到达跟踪器的自动化流量会从你的正常分析中被过滤掉。如果你想单独检查这些自动请求，请使用 [Bot Traffic](/zh/reference/bot-traffic/)。
 
-如果你的代理能修改代码，可以直接让它帮你添加代码片段。如果不能，请在 [快速开始](/zh/getting-started/#3-创建你的第一个项目) 中创建项目，再手动粘贴返回的代码片段。
+如果你的代理能修改代码，可以直接让它帮你添加代码片段。如果不能，请使用 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/) 来创建项目、拿到代码片段并验证第一个 page view。
 
 ## 常见选项
 
@@ -178,6 +178,7 @@ window.aa?.revokeConsent();
 ## 相关内容
 
 - [快速开始](/zh/getting-started/)
+- [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)
 - [SPA 与虚拟页面跟踪](/zh/guides/spa-and-virtual-page-tracking/)
 - [AI 代理实验跟踪](/zh/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/zh/reference/bot-traffic/)

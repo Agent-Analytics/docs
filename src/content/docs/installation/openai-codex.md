@@ -38,7 +38,7 @@ Ask Codex:
 - `How is my-site doing this week?`
 - `Create an experiment for the signup CTA on my-site`
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+If you have not created your first real project yet, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 ## Troubleshooting
 
@@ -49,6 +49,7 @@ If you have not created your first real project yet, go back to [Getting Started
 ## Related
 
 - [Getting Started](/getting-started/)
+- [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)

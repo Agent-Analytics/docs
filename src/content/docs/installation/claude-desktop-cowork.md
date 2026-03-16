@@ -40,7 +40,7 @@ Ask Claude:
 
 This path is the best hosted experience for conversational analytics because the MCP server can return structured tool results and rich UI where supported.
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+If you have not created your first real project yet, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 ## Manual notes
 
@@ -56,6 +56,7 @@ If you have not created your first real project yet, go back to [Getting Started
 ## Related
 
 - [Getting Started](/getting-started/)
+- [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [Cursor](/installation/cursor/)
 - [API Reference](/api/)

@@ -5,6 +5,8 @@ description: Create a project, install Agent Analytics in your agent, and verify
 
 This is the shortest path from zero to a working Agent Analytics setup.
 
+If your agent is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
+
 ## 1. Get your API key
 
 Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and generate an API key from the dashboard.
@@ -74,6 +76,7 @@ If the setup is correct, the agent should answer without you hand-writing reques
 ## Next
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
+- Use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) when you want the full activation walkthrough from installed agent to first live project.
 - Use [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/) when your app changes screens client-side and you need accurate page tracking without double-counting.
 - Use [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/) when you want your agent to launch and read browser-side experiments for you.
 - Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.

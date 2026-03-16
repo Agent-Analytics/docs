@@ -34,7 +34,7 @@ export AGENT_ANALYTICS_API_KEY=aak_...
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
 
-אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, המשיכו אל [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/).
 
 ## חלופה: הוספת שרת MCP מותאם אישית
 
@@ -79,6 +79,7 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 ## קשור
 
 - [התחלה מהירה](/he/getting-started/)
+- [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
 - [CLI vs MCP vs API](/he/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/he/installation/claude-desktop-cowork/)
 - [OpenAI Codex](/he/installation/openai-codex/)

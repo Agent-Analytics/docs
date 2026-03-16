@@ -38,7 +38,7 @@ export AGENT_ANALYTICS_API_KEY=aak_...
 - `How is my-site doing this week?`
 - `Create an experiment for the signup CTA on my-site`
 
-אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, המשיכו אל [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/).
 
 ## פתרון תקלות
 
@@ -49,6 +49,7 @@ export AGENT_ANALYTICS_API_KEY=aak_...
 ## קשור
 
 - [התחלה מהירה](/he/getting-started/)
+- [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
 - [Claude Code](/he/installation/claude-code/)
 - [Authentication](/he/reference/authentication/)
 - [API Reference](/he/api/)

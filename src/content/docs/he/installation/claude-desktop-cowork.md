@@ -40,7 +40,7 @@ https://mcp.agentanalytics.sh/mcp
 
 זהו המסלול המארח הטוב ביותר לאנליטיקה שיחתית, כי שרת ה-MCP יכול להחזיר תוצאות כלי מובנות וממשק עשיר כשזה נתמך.
 
-אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, המשיכו אל [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/).
 
 ## הערות ידניות
 
@@ -56,6 +56,7 @@ https://mcp.agentanalytics.sh/mcp
 ## קשור
 
 - [התחלה מהירה](/he/getting-started/)
+- [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
 - [Claude Code](/he/installation/claude-code/)
 - [Cursor](/he/installation/cursor/)
 - [API Reference](/he/api/)

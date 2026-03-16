@@ -40,7 +40,7 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 
-אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, המשיכו אל [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/).
 
 ## פתרון תקלות
 
@@ -52,6 +52,7 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 ## קשור
 
 - [התחלה מהירה](/he/getting-started/)
+- [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
 - [Claude Code](/he/installation/claude-code/)
 - [OpenAI Codex](/he/installation/openai-codex/)
 - [API Reference](/he/api/)

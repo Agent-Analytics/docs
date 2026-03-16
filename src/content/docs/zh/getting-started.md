@@ -5,6 +5,8 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 
 这是从零到可用 Agent Analytics 配置的最短路径。
 
+如果你的代理已经安装好了，而且你想要一条最明确的创建项目、放入代码片段并验证第一个 page view 的完整引导，请使用 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)。
+
 ## 1. 获取你的 API 密钥
 
 在 [app.agentanalytics.sh](https://app.agentanalytics.sh) 注册，然后在仪表盘中生成 API 密钥。
@@ -74,6 +76,7 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 ## 下一步
 
 - 使用 [安装](/zh/installation/) 获取针对不同代理的最快接入路径。
+- 当你想要从代理已安装一直走到第一个真实项目上线的完整激活引导时，使用 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)。
 - 当你的应用在客户端切换页面，并且你希望在不重复计数的前提下保持准确页面跟踪时，使用 [SPA 与虚拟页面跟踪](/zh/guides/spa-and-virtual-page-tracking/)。
 - 当你想让代理替你启动并读取浏览器侧实验时，使用 [AI 代理实验跟踪](/zh/guides/ai-agent-experiment-tracking/)。
 - 使用 [Tracker.js](/zh/reference/tracker-js/) 查看浏览器端跟踪选项。

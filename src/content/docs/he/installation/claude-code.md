@@ -35,7 +35,7 @@ description: התקינו את Agent Analytics ב-Claude Code דרך התוסף 
 
 אם התוסף עובד, Claude Code אמור להגיע לחשבון שלכם בלי לבקש מכם לכתוב בקשות HTTP ידנית.
 
-אם עוד לא יצרתם את הפרויקט האמיתי הראשון, חזרו אל [התחלה מהירה](/he/getting-started/#3-צרו-את-הפרויקט-הראשון-שלכם) ועשו את זה עכשיו.
+אם עוד לא יצרתם את הפרויקט האמיתי הראשון, המשיכו אל [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/).
 
 ## מסלול חלופי: התקנת ה-skill של Claude Code
 
@@ -66,6 +66,7 @@ claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mc
 ## קשור
 
 - [התחלה מהירה](/he/getting-started/)
+- [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
 - [Claude Desktop / Cowork](/he/installation/claude-desktop-cowork/)
 - [Authentication](/he/reference/authentication/)
 - [API Reference](/he/api/)

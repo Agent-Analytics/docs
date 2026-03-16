@@ -40,7 +40,7 @@ Ask OpenClaw:
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+If you have not created your first real project yet, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 ## Troubleshooting
 
@@ -52,6 +52,7 @@ If you have not created your first real project yet, go back to [Getting Started
 ## Related
 
 - [Getting Started](/getting-started/)
+- [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [OpenAI Codex](/installation/openai-codex/)
 - [API Reference](/api/)

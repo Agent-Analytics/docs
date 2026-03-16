@@ -40,7 +40,7 @@ https://mcp.agentanalytics.sh/mcp
 
 这是最适合对话式分析的托管路径，因为 MCP 服务器能够在支持的环境中返回结构化工具结果和更丰富的 UI。
 
-如果你还没有创建第一个真实项目，请先回到 [快速开始](/zh/getting-started/#3-创建你的第一个项目) 完成它。
+如果你还没有创建第一个真实项目，请继续阅读 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)。
 
 ## 手动说明
 
@@ -56,6 +56,7 @@ https://mcp.agentanalytics.sh/mcp
 ## 相关内容
 
 - [快速开始](/zh/getting-started/)
+- [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)
 - [Claude Code](/zh/installation/claude-code/)
 - [Cursor](/zh/installation/cursor/)
 - [API Reference](/zh/api/)

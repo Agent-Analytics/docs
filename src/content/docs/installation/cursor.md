@@ -34,7 +34,7 @@ Ask Cursor:
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
 
-If you have not created your first real project yet, go back to [Getting Started](/getting-started/#3-create-your-first-project) and do that next.
+If you have not created your first real project yet, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 ## Alternative: add a custom MCP server
 
@@ -79,6 +79,7 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
 - [OpenAI Codex](/installation/openai-codex/)

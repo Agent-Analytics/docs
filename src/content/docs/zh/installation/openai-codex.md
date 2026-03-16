@@ -38,7 +38,7 @@ export AGENT_ANALYTICS_API_KEY=aak_...
 - `How is my-site doing this week?`
 - `Create an experiment for the signup CTA on my-site`
 
-如果你还没有创建第一个真实项目，请先回到 [快速开始](/zh/getting-started/#3-创建你的第一个项目) 完成它。
+如果你还没有创建第一个真实项目，请继续阅读 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)。
 
 ## 故障排查
 
@@ -49,6 +49,7 @@ export AGENT_ANALYTICS_API_KEY=aak_...
 ## 相关内容
 
 - [快速开始](/zh/getting-started/)
+- [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)
 - [Claude Code](/zh/installation/claude-code/)
 - [Authentication](/zh/reference/authentication/)
 - [API Reference](/zh/api/)
