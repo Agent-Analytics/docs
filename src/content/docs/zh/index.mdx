@@ -1,9 +1,9 @@
 ---
 title: Agent Analytics 文档
-description: 在 Claude、Cursor、OpenClaw、Codex 以及其他 AI 工具中安装 Agent Analytics。
+description: 以指南优先的方式使用 Agent Analytics 文档，覆盖配置、实验、安装路径和 API 参考。
 template: splash
 hero:
-  tagline: 面向 agent-native 分析的真实安装指南。
+  tagline: 面向 agent-native 分析的真实指南。
   image:
     html: |
       <div class="aa-hero-visual" aria-hidden="true">
@@ -44,12 +44,12 @@ hero:
         </div>
       </div>
   actions:
-    - text: 从这里开始
+    - text: 快速开始
       link: /zh/getting-started/
       icon: right-arrow
-    - text: API 参考
-      link: /zh/api/
-      icon: external
+    - text: 浏览指南
+      link: /zh/guides/
+      icon: right-arrow
       variant: minimal
 ---
 
@@ -58,7 +58,8 @@ import { CardGrid, Icon } from '@astrojs/starlight/components';
 Agent Analytics 是一个网站分析平台，提供面向代理的 HTTP API、MCP 服务器，以及一层 agent skill 工作流。
 这套文档现在把体验拆分得更清晰：
 
-- 当你想为某个特定代理选择最快安装路径时，用这些指南。
+- 当你想用最短路径从零走到一个可用项目时，用[快速开始](/zh/getting-started/)。
+- 当你想用提示词驱动真实任务流程或配置流程时，用这些指南。
 - 当你需要逐个端点查看请求和响应细节时，用 API 参考。
 - 当你需要一份紧凑、可机读的文档索引时，用 LLM 文本导出。
 
@@ -68,13 +69,22 @@ Agent Analytics 是一个网站分析平台，提供面向代理的 HTTP API、M
   <a class="aa-home-link-card" data-tone="orange" href="/zh/getting-started/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="download" size="1.333em" />
-      <span>快速完成接入</span>
+      <span>快速开始</span>
     </div>
     <div class="aa-home-link-card__body">
-      从推荐的配置路径开始，创建项目、加入跟踪，并确认你的代理已经能把数据读回来。
+      走最短路径完成项目创建、tracker 接入，以及第一次成功的分析查询。
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="purple" href="/zh/installation/">
+  <a class="aa-home-link-card" data-tone="purple" href="/zh/guides/">
+    <div class="aa-home-link-card__title">
+      <Icon class="aa-home-link-card__icon" name="open-book" size="1.333em" />
+      <span>浏览指南</span>
+    </div>
+    <div class="aa-home-link-card__body">
+      使用以提示词为主的指南来完成配置、实验跟踪和其他代理驱动工作流。
+    </div>
+  </a>
+  <a class="aa-home-link-card" data-tone="green" href="/zh/installation/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="laptop" size="1.333em" />
       <span>选择你的代理</span>
@@ -83,7 +93,7 @@ Agent Analytics 是一个网站分析平台，提供面向代理的 HTTP API、M
       独立安装页覆盖 Claude Code、Claude Desktop / Cowork、Cursor、OpenClaw 和 OpenAI Codex。
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="green" href="/zh/api/">
+  <a class="aa-home-link-card" data-tone="red" href="/zh/api/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="seti:json" size="1.333em" />
       <span>API</span>
@@ -92,7 +102,7 @@ Agent Analytics 是一个网站分析平台，提供面向代理的 HTTP API、M
       交互式参考、端点细节，以及标准 OpenAPI 规范。
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="red" href="/zh/llms.txt">
+  <a class="aa-home-link-card" data-tone="orange" href="/zh/llms.txt">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="open-book" size="1.333em" />
       <span>面向代理的 LLMs.txt</span>

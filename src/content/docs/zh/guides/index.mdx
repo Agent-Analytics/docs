@@ -1,0 +1,21 @@
+---
+title: 指南
+description: 面向任务的指南，帮助你通过 AI 代理配置 Agent Analytics 并运行实验。
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+当你想直接告诉 AI 代理该做什么，而不是手动拼接底层步骤时，就用这些指南。
+
+## 从合适的指南开始
+
+<CardGrid stagger>
+  <LinkCard title="快速开始" href="/zh/getting-started/">
+    连接代理、创建第一个项目、加入跟踪器，并确认第一条分析闭环已经跑通。
+  </LinkCard>
+  <LinkCard title="AI 代理实验跟踪" href="/zh/guides/ai-agent-experiment-tracking/">
+    通过让代理处理实验工作流，来规划、上线、QA 并读取浏览器侧 A/B 测试结果。
+  </LinkCard>
+</CardGrid>
+
+如果你需要按环境进行安装，请使用[安装中心](/zh/installation/)。如果你需要浏览器侧或端点级的低层细节，请继续查看 [Tracker.js](/zh/reference/tracker-js/) 或 [API 参考](/zh/api/)。

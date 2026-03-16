@@ -141,6 +141,8 @@ window.aa?.revokeConsent();
 </h1>
 ```
 
+If you want the full prompt-first workflow for creating, wiring, QAing, and reading an experiment through your agent, use [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/).
+
 ### Local development
 
 On localhost, the tracker switches to dev mode and logs activity to the browser console instead of sending production data. That keeps local testing out of your real analytics.
@@ -148,6 +150,7 @@ On localhost, the tracker switches to dev mode and logs activity to the browser 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/reference/bot-traffic/)
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)

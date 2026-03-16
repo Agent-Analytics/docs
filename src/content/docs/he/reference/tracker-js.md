@@ -141,6 +141,8 @@ window.aa?.revokeConsent();
 </h1>
 ```
 
+אם אתם רוצים את ה-workflow המלא, מבוסס-הפרומפטים, ליצירה, חיווט, QA וקריאת תוצאות של ניסוי דרך הסוכן שלכם, השתמשו ב-[מעקב ניסויים לסוכני AI](/he/guides/ai-agent-experiment-tracking/).
+
 ### פיתוח מקומי
 
 ב-localhost הטרקר עובר למצב פיתוח ורושם פעילות לקונסול של הדפדפן במקום לשלוח נתוני production. כך בדיקות מקומיות לא מזהמות את האנליטיקה האמיתית שלכם.
@@ -148,6 +150,7 @@ window.aa?.revokeConsent();
 ## קשור
 
 - [התחלה מהירה](/he/getting-started/)
+- [מעקב ניסויים לסוכני AI](/he/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/he/reference/bot-traffic/)
 - [Authentication](/he/reference/authentication/)
 - [API Reference](/he/api/)

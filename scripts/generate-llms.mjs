@@ -14,7 +14,9 @@ const localeDirs = [
 
 const docOrder = [
   '',
+  'guides',
   'getting-started',
+  'guides/ai-agent-experiment-tracking',
   'installation',
   'installation/claude-code',
   'installation/claude-desktop-cowork',
@@ -32,7 +34,7 @@ const docOrder = [
 const docGroups = [
   {
     title: 'Guides',
-    slugs: ['getting-started'],
+    slugs: ['guides', 'getting-started', 'guides/ai-agent-experiment-tracking'],
   },
   {
     title: 'Installation',
@@ -192,7 +194,7 @@ function buildDocsIndexSection(pages) {
 
 function buildDocsFullSection(pages) {
   let out = '# Agent Analytics Docs\n\n'
-  out += '> Installation guides, reference pages, and the full API reference for Agent Analytics.\n\n'
+  out += '> Guides, installation pages, reference pages, and the full API reference for Agent Analytics.\n\n'
 
   for (const page of pages) {
     if (!page.slug) continue

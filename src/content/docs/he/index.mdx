@@ -1,9 +1,9 @@
 ---
 title: מסמכי Agent Analytics
-description: התקינו את Agent Analytics ב-Claude, Cursor, OpenClaw, Codex וכלי AI נוספים.
+description: תיעוד בגישת guide-first עבור Agent Analytics להגדרה, ניסויים, מסלולי התקנה ועיון ב-API.
 template: splash
 hero:
-  tagline: מדריכי התקנה אמיתיים לאנליטיקה בסגנון agent-native.
+  tagline: מדריכים אמיתיים לאנליטיקה בסגנון agent-native.
   image:
     html: |
       <div class="aa-hero-visual" aria-hidden="true">
@@ -44,12 +44,12 @@ hero:
         </div>
       </div>
   actions:
-    - text: מתחילים כאן
+    - text: התחלה מהירה
       link: /he/getting-started/
       icon: right-arrow
-    - text: עיון ב-API
-      link: /he/api/
-      icon: external
+    - text: לעיון במדריכים
+      link: /he/guides/
+      icon: right-arrow
       variant: minimal
 ---
 
@@ -58,7 +58,8 @@ import { CardGrid, Icon } from '@astrojs/starlight/components';
 Agent Analytics היא פלטפורמת אנליטיקה לאתרים עם HTTP API ידידותי לסוכנים, שרת MCP ושכבת skills לסוכנים.
 התיעוד הזה מחלק עכשיו את החוויה בצורה נקייה:
 
-- השתמשו במדריכים כשאתם רוצים את מסלול ההתקנה המהיר ביותר עבור סוכן מסוים.
+- השתמשו ב-[התחלה מהירה](/he/getting-started/) כשאתם רוצים את המסלול הקצר ביותר מאפס לפרויקט חי.
+- השתמשו במדריכים כשאתם רוצים מסלול prompt-first להגדרה או ל-workflow ממוקד-משימה.
 - השתמשו בעיון ב-API כשאתם צריכים פירוט מדויק של בקשות ותגובות ברמת נקודת קצה.
 - השתמשו בייצואי הטקסט ל-LLM כשאתם צריכים אינדקס קומפקטי וקריא-מכונה של התיעוד.
 
@@ -68,13 +69,22 @@ Agent Analytics היא פלטפורמת אנליטיקה לאתרים עם HTTP 
   <a class="aa-home-link-card" data-tone="orange" href="/he/getting-started/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="download" size="1.333em" />
-      <span>הגדרה מהירה</span>
+      <span>התחלה מהירה</span>
     </div>
     <div class="aa-home-link-card__body">
-      התחילו במסלול ההגדרה המומלץ, צרו פרויקט, הוסיפו מעקב, וודאו שהסוכן שלכם יודע לקרוא את הנתונים בחזרה.
+      לכו במסלול הקצר ביותר לפרויקט חי, התקנת טרקר ושאילתת אנליטיקה ראשונה שעובדת.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="purple" href="/he/installation/">
+  <a class="aa-home-link-card" data-tone="purple" href="/he/guides/">
+    <div class="aa-home-link-card__title">
+      <Icon class="aa-home-link-card__icon" name="open-book" size="1.333em" />
+      <span>עיון במדריכים</span>
+    </div>
+    <div class="aa-home-link-card__body">
+      השתמשו במדריכים מבוססי-פרומפט להגדרה, למעקב ניסויים ול-workflows נוספים שמובלים על ידי סוכן.
+    </div>
+  </a>
+  <a class="aa-home-link-card" data-tone="green" href="/he/installation/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="laptop" size="1.333em" />
       <span>בחרו את הסוכן שלכם</span>
@@ -83,7 +93,7 @@ Agent Analytics היא פלטפורמת אנליטיקה לאתרים עם HTTP 
       דפי התקנה ייעודיים מכסים את Claude Code, Claude Desktop / Cowork, Cursor, OpenClaw ו-OpenAI Codex.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="green" href="/he/api/">
+  <a class="aa-home-link-card" data-tone="red" href="/he/api/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="seti:json" size="1.333em" />
       <span>API</span>
@@ -92,7 +102,7 @@ Agent Analytics היא פלטפורמת אנליטיקה לאתרים עם HTTP 
       עיון אינטראקטיבי, פירוט של נקודות קצה ומפרט OpenAPI הקנוני.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="red" href="/he/llms.txt">
+  <a class="aa-home-link-card" data-tone="orange" href="/he/llms.txt">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="open-book" size="1.333em" />
       <span>LLMs.txt לסוכנים</span>

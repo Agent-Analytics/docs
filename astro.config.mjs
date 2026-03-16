@@ -8,8 +8,8 @@ export default defineConfig({
     sitemap(),
     starlight({
       title: 'Agent Analytics',
-      description: 'Installation guides and API reference for Agent Analytics.',
-      tagline: 'Install Agent Analytics in Claude, Cursor, OpenClaw, Codex, and other AI tools.',
+      description: 'Guides, installation paths, and API reference for Agent Analytics.',
+      tagline: 'Guide-first docs for agent-native analytics in Claude, Cursor, OpenClaw, Codex, and other AI tools.',
       locales: {
         root: { label: 'English', lang: 'en' },
         he: { label: 'עברית', lang: 'he', dir: 'rtl' },
@@ -35,13 +35,15 @@ export default defineConfig({
       credits: false,
       sidebar: [
         {
-          label: 'Introduction',
+          label: 'Guides',
           translations: {
-            he: 'מבוא',
-            'zh-CN': '简介',
+            he: 'מדריכים',
+            'zh-CN': '指南',
           },
           items: [
+            { slug: 'guides' },
             { slug: 'getting-started' },
+            { slug: 'guides/ai-agent-experiment-tracking' },
           ],
         },
         {

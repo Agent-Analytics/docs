@@ -141,6 +141,8 @@ window.aa?.revokeConsent();
 </h1>
 ```
 
+如果你想查看完整的提示词优先工作流，包括如何通过代理创建、接入、QA 和读取实验结果，请使用 [AI 代理实验跟踪](/zh/guides/ai-agent-experiment-tracking/)。
+
 ### 本地开发
 
 在 localhost 上，跟踪器会切换到开发模式，并把活动记录到浏览器控制台，而不是发送到生产环境。这样本地测试就不会污染真实分析数据。
@@ -148,6 +150,7 @@ window.aa?.revokeConsent();
 ## 相关内容
 
 - [快速开始](/zh/getting-started/)
+- [AI 代理实验跟踪](/zh/guides/ai-agent-experiment-tracking/)
 - [Bot Traffic](/zh/reference/bot-traffic/)
 - [Authentication](/zh/reference/authentication/)
 - [API Reference](/zh/api/)

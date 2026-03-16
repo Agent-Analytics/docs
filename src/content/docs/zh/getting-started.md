@@ -57,6 +57,7 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 如果你的网站使用 Astro，请给这段 tracker 标签加上 `is:inline`。
 
 如果你需要声明式事件、跨域身份、consent、滚动深度、vitals 或错误跟踪等高级选项，请使用 [Tracker.js 指南](/zh/reference/tracker-js/)。
+如果你想在完成配置后让代理帮你启动第一个浏览器侧 A/B 测试，请继续阅读 [AI 代理实验跟踪](/zh/guides/ai-agent-experiment-tracking/)。
 
 ## 5. 验证闭环
 
@@ -72,6 +73,7 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 ## 下一步
 
 - 使用 [安装](/zh/installation/) 获取针对不同代理的最快接入路径。
+- 当你想让代理替你启动并读取浏览器侧实验时，使用 [AI 代理实验跟踪](/zh/guides/ai-agent-experiment-tracking/)。
 - 使用 [Tracker.js](/zh/reference/tracker-js/) 查看浏览器端跟踪选项。
 - 使用 [Bot Traffic](/zh/reference/bot-traffic/) 检查从正常分析中被过滤掉的自动化流量。
 - 使用 [Authentication](/zh/reference/authentication/) 理解读令牌与写令牌的区别。

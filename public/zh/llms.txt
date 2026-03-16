@@ -12,7 +12,9 @@ API base URL: https://api.agentanalytics.sh
 - [Full Docs + API Reference](https://docs.agentanalytics.sh/llms-full.txt): LLM-friendly complete export
 
 ### Guides
+- [Guides](https://docs.agentanalytics.sh/guides/): Task-oriented guides for setting up Agent Analytics and running experiments through your AI agent.
 - [Getting Started](https://docs.agentanalytics.sh/getting-started/): Create a project, install Agent Analytics in your agent, and verify the first query.
+- [AI Agent Experiment Tracking](https://docs.agentanalytics.sh/guides/ai-agent-experiment-tracking/): Run website and app A/B tests through your AI agent with prompt-first experiment setup, declarative variants, QA, and results review.
 
 ### Installation
 - [Installation Overview](https://docs.agentanalytics.sh/installation/): Choose the right install path for Claude, Cursor, OpenClaw, Codex, and related AI tools.

@@ -1,0 +1,21 @@
+---
+title: Guides
+description: Task-oriented guides for setting up Agent Analytics and running experiments through your AI agent.
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Use these guides when you want to tell an AI agent what to do, not manually stitch together the low-level steps yourself.
+
+## Start with the right guide
+
+<CardGrid stagger>
+  <LinkCard title="Getting Started" href="/getting-started/">
+    Connect your agent, create the first project, add the tracker, and verify your first analytics loop.
+  </LinkCard>
+  <LinkCard title="AI Agent Experiment Tracking" href="/guides/ai-agent-experiment-tracking/">
+    Plan, launch, QA, and read browser-side A/B tests by asking your agent to handle the experiment workflow.
+  </LinkCard>
+</CardGrid>
+
+If you need environment-specific setup, use the [installation hub](/installation/). If you need low-level browser or endpoint details, continue to [Tracker.js](/reference/tracker-js/) or the [API reference](/api/).

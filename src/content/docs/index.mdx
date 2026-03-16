@@ -1,9 +1,9 @@
 ---
 title: Agent Analytics Docs
-description: Install Agent Analytics in Claude, Cursor, OpenClaw, Codex, and other AI tools.
+description: Guide-first docs for Agent Analytics across setup, experiments, installation paths, and API reference.
 template: splash
 hero:
-  tagline: Real install guides for agent-native analytics.
+  tagline: Real guides for agent-native analytics.
   image:
     html: |
       <div class="aa-hero-visual" aria-hidden="true">
@@ -44,12 +44,12 @@ hero:
         </div>
       </div>
   actions:
-    - text: Start here
+    - text: Get started
       link: /getting-started/
       icon: right-arrow
-    - text: API reference
-      link: /api/
-      icon: external
+    - text: Browse guides
+      link: /guides/
+      icon: right-arrow
       variant: minimal
 ---
 
@@ -58,7 +58,8 @@ import { CardGrid, Icon } from '@astrojs/starlight/components';
 Agent Analytics is a web analytics platform with an agent-friendly HTTP API, an MCP server, and an agent skill layer.
 These docs now split the experience cleanly:
 
-- Use the guides when you want the fastest install path for a specific agent.
+- Use Getting Started when you want the shortest path from zero to a live project.
+- Use the guides when you want a prompt-first setup or workflow for a real task.
 - Use the API reference when you need endpoint-level request and response detail.
 - Use the LLM text exports when you want a compact machine-readable index of the docs.
 
@@ -68,13 +69,22 @@ These docs now split the experience cleanly:
   <a class="aa-home-link-card" data-tone="orange" href="/getting-started/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="download" size="1.333em" />
-      <span>Get set up fast</span>
+      <span>Get started</span>
     </div>
     <div class="aa-home-link-card__body">
-      Start with the recommended setup path, create a project, add tracking, and verify your agent can read data back.
+      Take the shortest path to a live project, tracker install, and first successful analytics query.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="purple" href="/installation/">
+  <a class="aa-home-link-card" data-tone="purple" href="/guides/">
+    <div class="aa-home-link-card__title">
+      <Icon class="aa-home-link-card__icon" name="open-book" size="1.333em" />
+      <span>Browse guides</span>
+    </div>
+    <div class="aa-home-link-card__body">
+      Use prompt-first guides for setup, experiment tracking, and other agent-driven workflows.
+    </div>
+  </a>
+  <a class="aa-home-link-card" data-tone="green" href="/installation/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="laptop" size="1.333em" />
       <span>Choose your agent</span>
@@ -83,7 +93,7 @@ These docs now split the experience cleanly:
       Dedicated install pages cover Claude Code, Claude Desktop / Cowork, Cursor, OpenClaw, and OpenAI Codex.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="green" href="/api/">
+  <a class="aa-home-link-card" data-tone="red" href="/api/">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="seti:json" size="1.333em" />
       <span>API</span>
@@ -92,7 +102,7 @@ These docs now split the experience cleanly:
       Interactive reference, endpoint details, and the canonical OpenAPI spec.
     </div>
   </a>
-  <a class="aa-home-link-card" data-tone="red" href="/llms.txt">
+  <a class="aa-home-link-card" data-tone="orange" href="/llms.txt">
     <div class="aa-home-link-card__title">
       <Icon class="aa-home-link-card__icon" name="open-book" size="1.333em" />
       <span>LLMs.txt for Agents</span>
