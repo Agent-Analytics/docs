@@ -50,6 +50,8 @@ Copyable prompt:
 Create an experiment for the signup CTA on my-site with control and new_cta variants, using signup as the goal event.
 ```
 
+If you want the exact request and response shape behind that step, use the [Experiments API reference](/api/#tag/experiments).
+
 Keep experiment names in `snake_case`, and keep the scope easy to explain later. `signup_cta` is better than something vague like `homepage_test`.
 
 ## 4. Ask your agent to wire the variant declaratively
@@ -100,6 +102,8 @@ Copyable prompt:
 Check results for signup_cta and tell me whether we have enough data to pick a winner. If we do, recommend whether to keep running it, pause it, or complete it with a winner.
 ```
 
+For the underlying HTTP endpoints for reading, pausing, resuming, completing, or deleting experiments, use the [Experiments API reference](/api/#tag/experiments).
+
 Make the decision on the business goal event, not on raw traffic. A variant with more exposures is not automatically better if it does not improve `signup` or `checkout`.
 
 ## Common mistakes
@@ -117,4 +121,5 @@ Make the decision on the business goal event, not on raw traffic. A variant with
 - [Getting Started](/getting-started/)
 - [Tracker.js](/reference/tracker-js/)
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
+- [Experiments API](/api/#tag/experiments)
 - [API Reference](/api/)

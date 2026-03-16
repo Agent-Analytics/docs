@@ -50,6 +50,8 @@ description: הריצו ניסויי A/B באתר או באפליקציה דרך
 צור ניסוי עבור ה-signup CTA ב-my-site עם הווריאנטים control ו-new_cta, והשתמש ב-signup כאירוע המטרה.
 ```
 
+אם אתם רוצים את מבנה הבקשה והתגובה המדויק שמאחורי השלב הזה, השתמשו ב-[עיון ה-API של Experiments](/he/api/#tag/experiments).
+
 שמרו על שמות ניסויים ב-`snake_case`, ובחרו שם שקל להסביר גם אחר כך. `signup_cta` עדיף על שם עמום כמו `homepage_test`.
 
 ## 4. בקשו מהסוכן לחווט את הווריאנט בצורה דקלרטיבית
@@ -100,6 +102,8 @@ description: הריצו ניסויי A/B באתר או באפליקציה דרך
 בדוק את התוצאות של signup_cta ותגיד לי אם יש לנו מספיק נתונים כדי לבחור מנצח. אם כן, המלץ אם להמשיך להריץ, לעצור זמנית או להשלים את הניסוי עם וריאנט מנצח.
 ```
 
+לנקודות הקצה ב-HTTP שקוראות תוצאות, עוצרות, מחדשות, משלימות או מוחקות ניסויים, השתמשו ב-[עיון ה-API של Experiments](/he/api/#tag/experiments).
+
 קבלו את ההחלטה על סמך אירוע המטרה העסקי, לא על סמך התנועה הגולמית. וריאנט עם יותר exposures לא בהכרח טוב יותר אם הוא לא משפר `signup` או `checkout`.
 
 ## טעויות נפוצות
@@ -117,4 +121,5 @@ description: הריצו ניסויי A/B באתר או באפליקציה דרך
 - [התחלה מהירה](/he/getting-started/)
 - [Tracker.js](/he/reference/tracker-js/)
 - [CLI vs MCP vs API](/he/reference/cli-mcp-api/)
+- [Experiments API](/he/api/#tag/experiments)
 - [API Reference](/he/api/)
