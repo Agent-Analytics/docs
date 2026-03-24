@@ -42,7 +42,7 @@ description: התקינו את Agent Analytics ב-Claude Code דרך התוסף 
 אם אתם לא רוצים את התוסף המלא, עברו למסלול ה-skill לפני שאתם יורדים ל-MCP גולמי:
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-mcp
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ```
 
 המסלול הזה מלמד את Claude Code איך להגדיר מעקב, לשאול אנליטיקה ולהריץ ניסויים. עדיין צריך מפתח API תקין של Agent Analytics בסביבת העבודה שבה Claude Code רץ.

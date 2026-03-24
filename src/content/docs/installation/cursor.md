@@ -20,7 +20,7 @@ For Cursor, start with the Agent Analytics skill plus CLI-style workflows. In pr
 ## Recommended: install the agent skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-mcp
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 export AGENT_ANALYTICS_API_KEY=aak_...
 ```
 

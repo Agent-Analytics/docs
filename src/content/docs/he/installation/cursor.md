@@ -20,7 +20,7 @@ description: התקינו את Agent Analytics skill ב-Cursor והעדיפו wo
 ## מומלץ: התקנת ה-Agent Skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-mcp
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 export AGENT_ANALYTICS_API_KEY=aak_...
 ```
 

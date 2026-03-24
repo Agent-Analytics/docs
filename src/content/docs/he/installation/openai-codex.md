@@ -19,7 +19,7 @@ description: התקינו את Agent Analytics skill עבור OpenAI Codex, הג
 ## מומלץ: התקנת Agent Analytics skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-mcp
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ```
 
 אחר כך חשפו את מפתח ה-API לסביבת הסוכן:

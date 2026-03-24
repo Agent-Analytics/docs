@@ -19,7 +19,7 @@ For OpenAI Codex, the cleanest path today is the Agent Skills install. It keeps 
 ## Recommended: install the Agent Analytics skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-mcp
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ```
 
 Then expose your API key to the agent environment:
