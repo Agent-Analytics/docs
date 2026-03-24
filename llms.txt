@@ -101,6 +101,7 @@ npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 - `GET /account/all-sites` — Historical all-sites overview
 - `GET /account/bot-traffic` — Filtered automated traffic across all active projects
 - `POST /account/revoke-key` — Revoke and regenerate API key
+- `POST /account/feedback` — Submit product or workflow feedback
 
 ### Experiments
 - `GET /experiments/config` — Get experiment config for tracker.js

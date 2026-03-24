@@ -1208,6 +1208,27 @@ components:
           rate_limit_rpm: 10
         monthly_spend_cap_dollars: null
 
+    FeedbackRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          description: Sanitized summary of the friction, missing capability, or workflow problem.
+          example: The agent had to calculate funnel drop-off manually instead of using a built-in report.
+        project:
+          type: string
+          description: Optional project name for context.
+          example: my-site
+        command:
+          type: string
+          description: Optional CLI command or workflow step that led to the issue.
+          example: agent-analytics funnel my-site --steps "page_view,signup,purchase"
+        context:
+          type: string
+          description: Optional sanitized context. Do not include private owner details, secrets, or raw customer data.
+          example: The agent understood the goal but had to compute the percentages manually.
+
     Experiment:
       type: object
       properties:
@@ -3075,6 +3096,49 @@ paths:
                     type: string
                     description: The new API key. Save this — it won't be shown again.
                     example: aak_...
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /account/feedback:
+    post:
+      operationId: submitFeedback
+      summary: Submit product or workflow feedback
+      description: |
+        Sends feedback about Agent Analytics product gaps, confusing workflows, or missing capabilities to the internal review channel.
+
+        This endpoint is meant for sanitized summaries of what was hard and what Agent Analytics should have done instead. Do not include private owner details, secrets, API keys, or raw customer data.
+
+        **CLI:** `npx @agent-analytics/cli feedback --message "..."`
+      tags: [Account]
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+      responses:
+        '200':
+          description: Feedback accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+        '400':
+          description: Invalid JSON or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Missing or invalid API key
           content:

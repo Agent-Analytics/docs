@@ -385,7 +385,7 @@ If you have not created your first real project yet, continue with [First Projec
 If you do not want the full plugin, use the skill path before raw MCP:
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-mcp
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ```
 
 This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It still requires a valid Agent Analytics API key in the environment used by Claude Code.
@@ -501,7 +501,7 @@ For Cursor, start with the Agent Analytics skill plus CLI-style workflows. In pr
 ## Recommended: install the agent skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-mcp
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 export AGENT_ANALYTICS_API_KEY=aak_...
 ```
 
@@ -648,7 +648,7 @@ For OpenAI Codex, the cleanest path today is the Agent Skills install. It keeps 
 ## Recommended: install the Agent Analytics skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-mcp
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ```
 
 Then expose your API key to the agent environment:
@@ -5451,6 +5451,109 @@ Revokes the current API key and generates a new one. The old key stops working i
 }
 ```
 
+### Submit product or workflow feedback
+
+- **Method:** `POST`
+- **Path:** `/account/feedback`
+- **Tags:** Account
+
+Sends feedback about Agent Analytics product gaps, confusing workflows, or missing capabilities to the internal review channel.
+
+This endpoint is meant for sanitized summaries of what was hard and what Agent Analytics should have done instead. Do not include private owner details, secrets, API keys, or raw customer data.
+
+**CLI:** `npx @agent-analytics/cli feedback --message "..."`
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`message` (required)**
+
+  `string` — Sanitized summary of the friction, missing capability, or workflow problem.
+
+- **`command`**
+
+  `string` — Optional CLI command or workflow step that led to the issue.
+
+- **`context`**
+
+  `string` — Optional sanitized context. Do not include private owner details, secrets, or raw customer data.
+
+- **`project`**
+
+  `string` — Optional project name for context.
+
+**Example:**
+
+```json
+{
+  "message": "The agent had to calculate funnel drop-off manually instead of using a built-in report.",
+  "project": "my-site",
+  "command": "agent-analytics funnel my-site --steps \"page_view,signup,purchase\"",
+  "context": "The agent understood the goal but had to compute the percentages manually."
+}
+```
+
+#### Responses
+
+##### Status: 200 Feedback accepted
+
+###### Content-Type: application/json
+
+- **`ok`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true
+}
+```
+
+##### Status: 400 Invalid JSON or validation error
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
 ### Get experiment config for tracker.js
 
 - **Method:** `GET`
@@ -9184,6 +9287,37 @@ true
     "rate_limit_rpm": 10
   },
   "monthly_spend_cap_dollars": null
+}
+```
+
+### FeedbackRequest
+
+- **Type:**`object`
+
+* **`message` (required)**
+
+  `string` — Sanitized summary of the friction, missing capability, or workflow problem.
+
+* **`command`**
+
+  `string` — Optional CLI command or workflow step that led to the issue.
+
+* **`context`**
+
+  `string` — Optional sanitized context. Do not include private owner details, secrets, or raw customer data.
+
+* **`project`**
+
+  `string` — Optional project name for context.
+
+**Example:**
+
+```json
+{
+  "message": "The agent had to calculate funnel drop-off manually instead of using a built-in report.",
+  "project": "my-site",
+  "command": "agent-analytics funnel my-site --steps \"page_view,signup,purchase\"",
+  "context": "The agent understood the goal but had to compute the percentages manually."
 }
 ```
 
