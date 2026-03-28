@@ -1,32 +1,60 @@
 ---
-title: CLI vs MCP vs API
-description: Agent Analytics exposes one analytics surface through MCP, the CLI, and raw HTTP. Choose the interface that fits the environment your AI agent already has.
+title: Plugin vs Skill vs MCP vs CLI vs API
+description: Agent Analytics exposes one analytics surface through plugin, skill, MCP, CLI, and raw HTTP. Choose the native path that fits the environment your AI agent already uses.
 ---
 
-Agent Analytics exposes the same analytics surface through three real access modes:
+Agent Analytics exposes one analytics surface through five real access paths:
 
+- `Plugin` for Claude Code when you want the MCP connection and analytics workflow layer bundled together
+- `Skill` for agent environments that already support skills and command execution
 - `MCP` for chat-native and editor-native tool use
 - `CLI` for shell-oriented agent workflows
 - `API` for raw HTTP control
 
-The product model does not change between them. Projects, analytics reads, and experiment operations stay the same; only the interface changes.
+The product model does not change between them. Projects, analytics reads, and experiment operations stay the same; only the native entrypoint changes.
 
-The CLI is a convenience wrapper around the same public HTTP API. If an environment is strict about transient package execution or security scanners dislike `npx`, use the API docs directly and keep the same underlying workflows.
+## Recommended path by environment
 
-Which one is best depends on what your AI agent can already do and where it already lives.
+| Environment | Recommended path | Why |
+| --- | --- | --- |
+| Claude Code | Plugin first | Shortest hosted path with both MCP connectivity and Agent Analytics workflow guidance |
+| Claude Desktop / Cowork | Hosted MCP | Best fit for connector-style chat tools with native tool calls |
+| Cursor | Skill + CLI first | Usually lower overhead than MCP when the agent can already run commands |
+| OpenAI Codex | Skill first | Keeps the workflow agent-native without requiring MCP |
+| OpenClaw | Skill first | Cleanest path for scheduled analytics workflows from chat |
+| Custom runtime or internal agent | API | Best fit when you own retries, parsing, and orchestration |
 
-## When to use each
+## When to use each path
+
+### Plugin
+
+Use the plugin when your environment is Claude Code and you want one install that packages both:
+
+- the hosted MCP connection
+- the analytics-specific workflow layer
+
+This is the cleanest default when the plugin marketplace is available.
+
+### Skill
+
+Use a skill when your agent already supports skills and can execute commands in the same environment.
+
+A skill is usually the best fit when:
+
+- you want a guided workflow layer around common analytics tasks
+- your agent already has terminal access
+- you want to stay in the agent's native loop instead of switching to tool-call-heavy MCP flows
 
 ### MCP
 
-Use MCP when your AI agent already runs inside a tool that supports connectors or MCP servers, such as Claude Desktop, Cowork, Cursor, or Claude Code plugin flows.
+Use MCP when your AI agent already runs inside a tool that supports connectors or MCP servers.
 
 MCP is usually the best fit when:
 
 - you want the install to feel native inside chat
 - you want tool calls instead of shell commands
 - you do not want to hand-roll auth headers or request payloads
-- you want quick project or account summaries like `analytics_overview`, `bot_traffic_overview`, or `all_sites_bot_traffic`
+- you want quick project or account summaries through structured tool responses
 
 Tradeoff:
 
@@ -78,19 +106,14 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 
 ## Quick rule of thumb
 
-- Choose `CLI` first in shell-capable environments when the agent can run commands directly.
-- Choose `MCP` when the agent already lives inside a connector-style chat environment and you want native tool calls.
+- Choose `plugin` first in Claude Code when the marketplace path is available.
+- Choose `skill + CLI` first in shell-capable environments like Cursor or Codex.
+- Choose `MCP` when the agent already lives in a connector-style chat environment and you want native tool calls.
 - Choose `API` when you need full control, custom integration, or lower-level debugging.
-
-If you are choosing from scratch, think about it this way:
-
-- `CLI` is usually the default for coding agents with terminal access.
-- `MCP` is usually the default for chat-native tools without a good shell path.
-- `API` is the lowest-level option when you are building your own integration.
 
 ## Related
 
-- [Bot Traffic](/reference/bot-traffic/)
 - [Installation Overview](/installation/)
 - [Authentication](/reference/authentication/)
+- [Bot Traffic](/reference/bot-traffic/)
 - [API Reference](/api/)

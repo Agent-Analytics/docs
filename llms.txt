@@ -18,7 +18,7 @@ API base URL: https://api.agentanalytics.sh
 - [AI Agent Experiment Tracking](https://docs.agentanalytics.sh/guides/ai-agent-experiment-tracking/): Run website and app A/B tests through your AI agent with prompt-first experiment setup, declarative variants, QA, and results review.
 
 ### Installation
-- [Installation Overview](https://docs.agentanalytics.sh/installation/): Choose the right install path for Claude, Cursor, OpenClaw, Codex, and related AI tools.
+- [Installation Overview](https://docs.agentanalytics.sh/installation/): Choose the native Agent Analytics access path for Claude, Cursor, OpenClaw, Codex, and related AI tools.
 - [Claude Code](https://docs.agentanalytics.sh/installation/claude-code/): Install Agent Analytics in Claude Code with the hosted plugin first, then use the skill path before dropping to raw MCP setup.
 - [Claude Desktop / Cowork](https://docs.agentanalytics.sh/installation/claude-desktop-cowork/): Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
 - [Cursor](https://docs.agentanalytics.sh/installation/cursor/): Install the Agent Analytics skill in Cursor and use CLI-style workflows first. Use MCP only when you specifically want connector-style tool calls.
@@ -29,7 +29,7 @@ API base URL: https://api.agentanalytics.sh
 - [Tracker.js](https://docs.agentanalytics.sh/reference/tracker-js/): Add Agent Analytics to any site with one script tag, then turn on declarative events, consent, performance tracking, and other browser-side features.
 - [Bot Traffic](https://docs.agentanalytics.sh/reference/bot-traffic/): See which automated callers hit your tracker, how many events were filtered, and which actors generated that traffic.
 - [Authentication](https://docs.agentanalytics.sh/reference/authentication/): Understand the difference between API keys and project tokens before you wire an agent or a tracker.
-- [CLI vs MCP vs API](https://docs.agentanalytics.sh/reference/cli-mcp-api/): Agent Analytics exposes one analytics surface through MCP, the CLI, and raw HTTP. Choose the interface that fits the environment your AI agent already has.
+- [Plugin vs Skill vs MCP vs CLI vs API](https://docs.agentanalytics.sh/reference/cli-mcp-api/): Agent Analytics exposes one analytics surface through plugin, skill, MCP, CLI, and raw HTTP. Choose the native path that fits the environment your AI agent already uses.
 - [Rate Limits](https://docs.agentanalytics.sh/reference/rate-limits/): Hosted Agent Analytics uses account-level API limits and event-volume limits that vary by plan.
 - [Error Format](https://docs.agentanalytics.sh/reference/error-format/): All API errors return a machine-readable code plus a human-readable message.
 

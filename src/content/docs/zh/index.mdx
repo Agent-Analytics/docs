@@ -1,9 +1,9 @@
 ---
 title: Agent Analytics 文档
-description: 以指南优先的方式使用 Agent Analytics 文档，覆盖配置、实验、安装路径和 API 参考。
+description: 以指南优先的方式使用你的 AI 代理可以运行的 Web Analytics 文档，覆盖 plugin、skill、MCP、CLI 和 API 路径。
 template: splash
 hero:
-  tagline: 面向 agent-native 分析的真实指南。
+  tagline: 面向你的 AI 代理真正能运行的 Web Analytics 的 guide-first 文档。
   image:
     html: |
       <div class="aa-hero-visual" aria-hidden="true">
@@ -55,12 +55,13 @@ hero:
 
 import { CardGrid, Icon } from '@astrojs/starlight/components';
 
-Agent Analytics 是一个网站分析平台，提供面向代理的 HTTP API、MCP 服务器，以及一层 agent skill 工作流。
+Agent Analytics 是一套给代理使用的 Web Analytics，同一套分析界面通过 plugin、skill、MCP、CLI 和 HTTP API 暴露出来。
 这套文档现在把体验拆分得更清晰：
 
 - 当你想用最短路径从零走到一个可用项目时，用[快速开始](/zh/getting-started/)。
 - 当你的代理已经装好，并且你想走最清晰的创建项目、放入代码片段和验证第一个 page view 的路径时，用 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)。
 - 当你想用提示词驱动真实任务流程或配置流程时，用这些指南。
+- 当你想最清楚地理解 plugin、skill、MCP、CLI 和 API 在不同代理环境里的用法时，用 [CLI、MCP 与 API](/zh/reference/cli-mcp-api/)。
 - 当你需要逐个端点查看请求和响应细节时，用 API 参考。
 - 当你需要一份紧凑、可机读的文档索引时，用 LLM 文本导出。
 
@@ -91,7 +92,7 @@ Agent Analytics 是一个网站分析平台，提供面向代理的 HTTP API、M
       <span>选择你的代理</span>
     </div>
     <div class="aa-home-link-card__body">
-      独立安装页覆盖 Claude Code、Claude Desktop / Cowork、Cursor、OpenClaw 和 OpenAI Codex。
+      独立安装页覆盖 Claude Code、Claude Desktop / Cowork、Cursor、OpenClaw 和 OpenAI Codex，并说明哪条访问路径应该优先使用。
     </div>
   </a>
   <a class="aa-home-link-card" data-tone="red" href="/zh/api/">
@@ -100,7 +101,7 @@ Agent Analytics 是一个网站分析平台，提供面向代理的 HTTP API、M
       <span>API</span>
     </div>
     <div class="aa-home-link-card__body">
-      交互式参考、端点细节，以及标准 OpenAPI 规范。
+      交互式参考、端点细节，以及同一套 agent-first 分析界面背后的标准 OpenAPI 规范。
     </div>
   </a>
   <a class="aa-home-link-card" data-tone="orange" href="/zh/llms.txt">

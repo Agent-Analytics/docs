@@ -1,30 +1,60 @@
 ---
-title: CLI מול MCP מול API
-description: אפשר להשתמש ב-Agent Analytics דרך MCP, דרך CLI או דרך HTTP גולמי. בחרו את הממשק שמתאים לסביבה שבה הסוכן כבר רץ.
+title: Plugin מול Skill מול MCP מול CLI מול API
+description: Agent Analytics חושפת משטח אנליטיקה אחד דרך plugin, skill, MCP, CLI ו-HTTP גולמי. בחרו את המסלול הטבעי שמתאים לסביבה שבה הסוכן כבר עובד.
 ---
 
-ל-Agent Analytics יש שלושה מצבי גישה אמיתיים:
+Agent Analytics חושפת משטח אנליטיקה אחד דרך חמישה מסלולי גישה אמיתיים:
 
+- `Plugin` עבור Claude Code כשאתם רוצים את חיבור ה-MCP ואת שכבת ה-workflow של האנליטיקה באותה התקנה
+- `Skill` עבור סביבות סוכן שכבר תומכות ב-skills ובהרצת פקודות
 - `MCP` עבור שימוש בכלים מתוך צ'אט או מתוך עורך
 - `CLI` עבור workflow של סוכנים מוכווני shell
 - `API` עבור שליטה ישירה ב-HTTP
 
-ה-CLI הוא wrapper נוח סביב אותו HTTP API ציבורי. אם הסביבה שלכם מחמירה לגבי הרצת חבילות זמניות או שסורקי אבטחה לא אוהבים `npx`, השתמשו ישירות ב-API docs ותישארו עם אותו workflow בסיסי.
+מודל המוצר לא משתנה ביניהם. פרויקטים, קריאות אנליטיקה ופעולות על ניסויים נשארים אותם דברים; רק נקודת הכניסה הטבעית משתנה.
 
-מה הכי טוב תלוי במה שהסוכן שלכם כבר יודע לעשות.
+## המסלול המומלץ לפי סביבה
 
-## מתי להשתמש בכל אחד
+| סביבה | מסלול מומלץ | למה |
+| --- | --- | --- |
+| Claude Code | Plugin קודם | המסלול המארח הקצר ביותר עם קישוריות MCP ו-guidance של Agent Analytics יחד |
+| Claude Desktop / Cowork | Hosted MCP | ההתאמה הטובה ביותר לכלי צ'אט בסגנון connector עם tool calls טבעיים |
+| Cursor | Skill + CLI קודם | לרוב פחות overhead מ-MCP כשהסוכן כבר יודע להריץ פקודות |
+| OpenAI Codex | Skill קודם | שומר על ה-workflow כ-agent-native בלי לחייב MCP |
+| OpenClaw | Skill קודם | המסלול הנקי ביותר ל-workflows מתוזמנים של אנליטיקה מתוך צ'אט |
+| Custom runtime או סוכן פנימי | API | הכי מתאים כשאתם שולטים בניסיונות חוזרים, parsing ו-orchestration |
+
+## מתי להשתמש בכל מסלול
+
+### Plugin
+
+השתמשו ב-plugin כשהסביבה היא Claude Code ואתם רוצים התקנה אחת שאורזת גם:
+
+- את חיבור ה-MCP המארח
+- את שכבת ה-workflow הייעודית של Agent Analytics
+
+זו ברירת המחדל הנקייה ביותר כשה-plugin marketplace זמין.
+
+### Skill
+
+השתמשו ב-skill כשהסוכן כבר תומך ב-skills ויכול להריץ פקודות באותה סביבה.
+
+Skill היא בדרך כלל ההתאמה הטובה ביותר כש:
+
+- אתם רוצים שכבת workflow מודרכת סביב משימות אנליטיקה נפוצות
+- לסוכן כבר יש גישת טרמינל
+- אתם רוצים להישאר בלולאה הטבעית של הסוכן במקום לעבור לזרימות MCP עתירות tool calls
 
 ### MCP
 
-השתמשו ב-MCP כשהסוכן כבר רץ בתוך כלי שתומך ב-connectors או בשרתי MCP, כמו Claude Desktop, Cowork, Cursor או זרימות העבודה של Claude Code plugin.
+השתמשו ב-MCP כשהסוכן כבר רץ בתוך כלי שתומך ב-connectors או בשרתי MCP.
 
 MCP בדרך כלל מתאים במיוחד כש:
 
 - אתם רוצים שההתקנה תרגיש טבעית בתוך הצ'אט
 - אתם רוצים tool calls במקום פקודות shell
 - אתם לא רוצים לכתוב ידנית כותרות auth או payloads
-- אתם רוצים סיכומים מהירים של פרויקט או חשבון כמו `analytics_overview`, `bot_traffic_overview` או `all_sites_bot_traffic`
+- אתם רוצים סיכומים מהירים של פרויקט או חשבון דרך תוצאות כלי מובנות
 
 Tradeoff:
 
@@ -76,13 +106,14 @@ API בדרך כלל מתאים במיוחד כש:
 
 ## כלל אצבע מהיר
 
-- בחרו ב-`CLI` תחילה בסביבות שמסוגלות להריץ shell, כמו Cursor, כשהסוכן יכול להריץ פקודות ישירות.
-- בחרו ב-`MCP` כשאתם רוצים במפורש כלים בסגנון connector או כשאין מסלול shell טוב.
-- בחרו ב-`API` כשאתם צריכים שליטה מלאה או דיבוג ברמה נמוכה יותר.
+- בחרו ב-`plugin` תחילה ב-Claude Code כשהמסלול דרך marketplace זמין.
+- בחרו ב-`skill + CLI` תחילה בסביבות שמסוגלות להריץ shell כמו Cursor או Codex.
+- בחרו ב-`MCP` כשהסוכן כבר חי בסביבת צ'אט בסגנון connector ואתם רוצים tool calls טבעיים.
+- בחרו ב-`API` כשאתם צריכים שליטה מלאה, אינטגרציה מותאמת או דיבוג ברמה נמוכה יותר.
 
 ## קשור
 
-- [Bot Traffic](/he/reference/bot-traffic/)
 - [סקירת התקנה](/he/installation/)
 - [Authentication](/he/reference/authentication/)
+- [Bot Traffic](/he/reference/bot-traffic/)
 - [API Reference](/he/api/)

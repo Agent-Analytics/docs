@@ -1,34 +1,64 @@
 ---
-title: CLI、MCP 与 API
-description: Agent Analytics 可以通过 MCP、CLI 或原始 HTTP 使用。请选择最适合你的代理现有运行环境的接口。
+title: Plugin、Skill、MCP、CLI 与 API
+description: Agent Analytics 通过 plugin、skill、MCP、CLI 和原始 HTTP 暴露同一套分析界面。请选择最适合你的代理现有运行环境的原生路径。
 ---
 
-Agent Analytics 有三种真正的访问方式：
+Agent Analytics 通过五种真实访问路径暴露同一套分析界面：
 
-- `MCP`：适合原生聊天或原生编辑器工具调用
-- `CLI`：适合 shell 导向的代理工作流
-- `API`：适合直接控制 HTTP
+- `Plugin` 适用于 Claude Code，当你想把 MCP 连接和分析 workflow 层打包成一次安装
+- `Skill` 适用于已经支持 skills 且能执行命令的代理环境
+- `MCP` 适用于原生聊天或原生编辑器工具调用
+- `CLI` 适用于 shell 导向的代理工作流
+- `API` 适用于直接控制 HTTP
 
-CLI 是建立在同一套公开 HTTP API 之上的便捷封装。如果你的环境对临时执行包比较严格，或者安全扫描器不喜欢 `npx`，那就直接使用 API 文档，底层工作流不会变化。
+产品模型不会因为入口不同而变化。项目、分析读取和实验操作都保持一致；变化的只是最自然的入口方式。
 
-最佳选择取决于你的代理已经具备什么能力。
+## 按环境推荐的路径
 
-## 何时使用哪一种
+| 环境 | 推荐路径 | 原因 |
+| --- | --- | --- |
+| Claude Code | Plugin 优先 | 最短的托管接入路径，同时拿到 MCP 连接和 Agent Analytics workflow guidance |
+| Claude Desktop / Cowork | Hosted MCP | 最适合 connector 风格聊天工具的原生 tool call |
+| Cursor | Skill + CLI 优先 | 当代理已经能执行命令时，通常比 MCP 开销更低 |
+| OpenAI Codex | Skill 优先 | 保持 agent-native workflow，不强依赖 MCP |
+| OpenClaw | Skill 优先 | 在聊天里跑定时分析 workflow 的最干净路径 |
+| Custom runtime 或内部代理 | API | 最适合自己掌控重试、解析和编排的场景 |
+
+## 何时使用哪一种路径
+
+### Plugin
+
+当环境是 Claude Code，并且你想通过一次安装同时获得下面两样东西时，优先使用 plugin：
+
+- 托管 MCP 连接
+- Agent Analytics 专用 workflow 层
+
+当 marketplace 路径可用时，这是最干净的默认方案。
+
+### Skill
+
+当你的代理已经支持 skills，并且能在同一环境里执行命令时，使用 skill。
+
+Skill 通常最适合以下情况：
+
+- 你想给常见分析任务加上一层引导式 workflow
+- 你的代理已经有终端访问能力
+- 你想留在代理自己的原生闭环里，而不是切换到 tool-call 更重的 MCP 流程
 
 ### MCP
 
-当你的代理已经运行在支持 connectors 或 MCP servers 的工具中时，使用 MCP，例如 Claude Desktop、Cowork、Cursor 或 Claude Code 插件流程。
+当你的代理已经运行在支持 connectors 或 MCP servers 的工具中时，使用 MCP。
 
 MCP 通常最适合以下情况：
 
 - 你希望安装过程在聊天里显得更原生
 - 你想使用工具调用，而不是 shell 命令
 - 你不想手动拼 auth header 或请求 payload
-- 你想快速获得项目或账户级摘要，例如 `analytics_overview`、`bot_traffic_overview` 或 `all_sites_bot_traffic`
+- 你想快速获得项目或账户级摘要，并通过结构化工具结果返回
 
 权衡：
 
-- MCP 往往比 skill + CLI 流程带来更高的延迟和 token 开销，因为模型需要管理更多的工具调用往返和工具结果 payload。
+- MCP 往往比 skill + CLI 流程带来更高的延迟和 token 开销，因为模型需要管理更多工具调用往返和工具结果 payload。
 
 ### CLI
 
@@ -76,13 +106,14 @@ API 通常最适合以下情况：
 
 ## 快速经验法则
 
-- 在 Cursor 这类可执行 shell 命令的环境中，优先选择 `CLI`。
-- 当你明确希望使用 connector 风格工具调用，或者没有良好的 shell 路径时，选择 `MCP`。
-- 当你需要完全控制或更底层的调试时，选择 `API`。
+- 在 Claude Code 中，若 marketplace 路径可用，优先选择 `plugin`。
+- 在 Cursor 或 Codex 这类能跑 shell 的环境中，优先选择 `skill + CLI`。
+- 当代理已经生活在 connector 风格的聊天环境里，并且你希望使用原生 tool calls 时，选择 `MCP`。
+- 当你需要完全控制、自定义集成或底层调试时，选择 `API`。
 
 ## 相关内容
 
-- [Bot Traffic](/zh/reference/bot-traffic/)
 - [安装总览](/zh/installation/)
 - [Authentication](/zh/reference/authentication/)
+- [Bot Traffic](/zh/reference/bot-traffic/)
 - [API Reference](/zh/api/)
