@@ -38,7 +38,7 @@ Ask Claude:
 - `Show me a 7 day overview for my-site`
 - `Where do users drop off between signup and purchase?`
 
-This path is the best hosted experience for conversational analytics because the MCP server can return structured tool results and rich UI where supported.
+This path is the best hosted experience for conversational analytics because the MCP server can return structured tool results and rich UI where supported, while staying on the same analytics surface as CLI and raw API usage.
 
 If you have not created your first real project yet, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
@@ -49,7 +49,7 @@ If you have not created your first real project yet, continue with [First Projec
 
 ## Troubleshooting
 
-- If authentication succeeds but no projects appear, confirm the signed-in account matches your Agent Analytics dashboard account.
+- If authentication succeeds but no projects appear, confirm the signed-in account matches your Agent Analytics account.
 - If a custom connector URL is rejected, re-enter the exact MCP endpoint: `https://mcp.agentanalytics.sh/mcp`
 - If you need lower-level debugging, switch to the [API reference](/api/) and test the same workflow with direct HTTP calls.
 

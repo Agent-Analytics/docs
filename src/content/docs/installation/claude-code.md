@@ -23,7 +23,7 @@ Use the plugin path first. It gives Claude Code both the MCP server connection a
 /plugin install agent-analytics
 ```
 
-This is the shortest hosted path for Claude Code because it packages the MCP connection and the usage guidance together.
+This is the shortest hosted path for Claude Code because it packages the MCP connection and the workflow guidance around the same analytics surface together.
 
 ## Verify the install
 
@@ -59,7 +59,7 @@ Use `--transport http`. The hosted MCP server is not configured for legacy SSE t
 
 ## Troubleshooting
 
-- Make sure Claude Code is using the same GitHub or Google account as your Agent Analytics dashboard account.
+- Make sure Claude Code is using the same GitHub or Google account as your Agent Analytics account.
 - If the skill installs but Claude Code cannot query data, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
 - If the MCP command fails, verify you used `--transport http`.
 

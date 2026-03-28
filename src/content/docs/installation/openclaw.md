@@ -3,7 +3,7 @@ title: OpenClaw
 description: Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and use the official CLI from chat.
 ---
 
-For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native and works well with CLI-oriented workflows.
+For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native while using the same underlying analytics surface the CLI and API expose.
 
 The important detail: `npx` is only the launcher. The skill is using the official Agent Analytics CLI, and that CLI wraps the same documented HTTP API shown in the docs.
 
@@ -25,7 +25,7 @@ The hosted listing is here:
 
 Once installed, OpenClaw can create projects, generate tracking snippets, query stats, inspect funnels, and manage experiments from the same conversation loop.
 
-The public docs still matter because they show exactly what the CLI is wrapping:
+The public docs still matter because they show exactly what the skill is wrapping:
 
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
 - [API Reference](/api/)

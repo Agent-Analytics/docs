@@ -1,23 +1,25 @@
 ---
 title: CLI vs MCP vs API
-description: Agent Analytics can be used through MCP, the CLI, or raw HTTP. Choose the interface that fits the environment your agent already has.
+description: Agent Analytics exposes one analytics surface through MCP, the CLI, and raw HTTP. Choose the interface that fits the environment your AI agent already has.
 ---
 
-Agent Analytics has three real access modes:
+Agent Analytics exposes the same analytics surface through three real access modes:
 
 - `MCP` for chat-native and editor-native tool use
 - `CLI` for shell-oriented agent workflows
 - `API` for raw HTTP control
 
+The product model does not change between them. Projects, analytics reads, and experiment operations stay the same; only the interface changes.
+
 The CLI is a convenience wrapper around the same public HTTP API. If an environment is strict about transient package execution or security scanners dislike `npx`, use the API docs directly and keep the same underlying workflows.
 
-Which one is best depends on what your agent can already do.
+Which one is best depends on what your AI agent can already do and where it already lives.
 
 ## When to use each
 
 ### MCP
 
-Use MCP when your agent already runs inside a tool that supports connectors or MCP servers, such as Claude Desktop, Cowork, Cursor, or Claude Code plugin flows.
+Use MCP when your AI agent already runs inside a tool that supports connectors or MCP servers, such as Claude Desktop, Cowork, Cursor, or Claude Code plugin flows.
 
 MCP is usually the best fit when:
 
@@ -32,11 +34,11 @@ Tradeoff:
 
 ### CLI
 
-Use the CLI when your agent already has terminal access and is comfortable executing commands.
+Use the CLI when your AI agent already has terminal access and is comfortable executing commands.
 
 CLI is usually the best fit when:
 
-- your agent already lives in a shell-first environment
+- your AI agent already lives in a shell-first environment
 - you want predictable command output
 - you prefer command composition over tool integration
 - you want lower overhead than MCP in editor-style agents like Cursor
@@ -76,9 +78,15 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 
 ## Quick rule of thumb
 
-- Choose `CLI` first in shell-capable environments like Cursor when the agent can run commands directly.
-- Choose `MCP` when you specifically want native connector-style tool use or do not have a good shell path.
-- Choose `API` when you need full control or lower-level debugging.
+- Choose `CLI` first in shell-capable environments when the agent can run commands directly.
+- Choose `MCP` when the agent already lives inside a connector-style chat environment and you want native tool calls.
+- Choose `API` when you need full control, custom integration, or lower-level debugging.
+
+If you are choosing from scratch, think about it this way:
+
+- `CLI` is usually the default for coding agents with terminal access.
+- `MCP` is usually the default for chat-native tools without a good shell path.
+- `API` is the lowest-level option when you are building your own integration.
 
 ## Related
 
