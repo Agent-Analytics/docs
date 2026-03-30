@@ -94,6 +94,7 @@ API 通常最适合以下情况：
 | `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
 | `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
 | `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
+| `npx @agent-analytics/cli query my-site --metrics event_count --count-mode raw` | `POST /query` |
 | `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
 | `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
 | `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
@@ -103,6 +104,11 @@ API 通常最适合以下情况：
 | `npx @agent-analytics/cli logout` | None. 仅本地命令，会清除已保存的 CLI auth，不会调用 API。 |
 
 `logout` 会清除 CLI 保存在磁盘上的 API key，但不会在服务器上吊销它。如果你曾在 shell 中导出 `AGENT_ANALYTICS_API_KEY`，CLI 仍会继续使用这个环境变量进行认证，直到你把它取消掉。
+
+## Query 注意事项
+
+- `/events` 仍然是原始且不丢失的日志。当 `/query` 请求 `event_count` 时，新的默认值是 `session_then_user`，它会在当前筛选结果内按 `session_id`、然后 `user_id`、最后事件 `id` 做去重。
+- 当问题是摄取量、重复写入排查或原始行数调试时，请显式使用 `--count-mode raw`。
 
 ## 快速经验法则
 

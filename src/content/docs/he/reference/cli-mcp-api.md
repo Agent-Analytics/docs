@@ -94,6 +94,7 @@ API בדרך כלל מתאים במיוחד כש:
 | `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
 | `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
 | `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
+| `npx @agent-analytics/cli query my-site --metrics event_count --count-mode raw` | `POST /query` |
 | `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
 | `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
 | `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
@@ -103,6 +104,11 @@ API בדרך כלל מתאים במיוחד כש:
 | `npx @agent-analytics/cli logout` | None. פקודה מקומית בלבד שמוחקת auth שמור של CLI ולא קוראת ל-API. |
 
 `logout` מוחק את ה-API key שנשמר על הדיסק על ידי ה-CLI. הוא לא מבטל את המפתח בשרת. אם ייצאתם את `AGENT_ANALYTICS_API_KEY` ב-shell, ה-CLI עדיין יתחבר עם משתנה הסביבה הזה עד שתבטלו אותו.
+
+## הערות על query
+
+- `/events` נשאר הלוג הגולמי וה-lossless. כש-`/query` מבקש `event_count`, ברירת המחדל החדשה היא `session_then_user`, שמבצעת dedupe לפי `session_id`, אחר כך `user_id`, ואז מזהה האירוע (`id`) בתוך קבוצת התוצאות המסוננת.
+- השתמשו ב-`--count-mode raw` כשהשאלה היא על נפח ingestion או על דיבוג של כתיבות כפולות, ולא על ספירת activation בטוחה יותר.
 
 ## כלל אצבע מהיר
 

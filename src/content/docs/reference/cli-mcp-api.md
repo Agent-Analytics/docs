@@ -94,6 +94,7 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 | `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
 | `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
 | `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
+| `npx @agent-analytics/cli query my-site --metrics event_count --count-mode raw` | `POST /query` |
 | `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
 | `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
 | `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
@@ -107,6 +108,8 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 ## Query caveats
 
 - The canonical CLI syntax is `npx @agent-analytics/cli query <project> ...`. Do not use `--project`.
+- `/events` remains the raw lossless log. `/query` now defaults `event_count` to `session_then_user` when requested, which dedupes by `session_id`, then `user_id`, then event `id` inside the filtered result set.
+- Use `--count-mode raw` when the question is about ingestion volume or debugging duplicate writes rather than activation-safe counts.
 - `filters[].field` can target built-in fields or any `properties.*` key, including first-touch attribution fields such as `properties.first_utm_source`.
 - `group_by` is limited to built-in fields only: `event`, `date`, `user_id`, `session_id`, and `country`.
 - Example attribution filter: `--filter '[{"field":"properties.first_utm_source","op":"eq","value":"reddit"}]'`

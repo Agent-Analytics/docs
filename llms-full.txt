@@ -1119,6 +1119,7 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 | `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
 | `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
 | `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
+| `npx @agent-analytics/cli query my-site --metrics event_count --count-mode raw` | `POST /query` |
 | `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
 | `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
 | `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
@@ -1132,6 +1133,8 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 ## Query caveats
 
 - The canonical CLI syntax is `npx @agent-analytics/cli query <project> ...`. Do not use `--project`.
+- `/events` remains the raw lossless log. `/query` now defaults `event_count` to `session_then_user` when requested, which dedupes by `session_id`, then `user_id`, then event `id` inside the filtered result set.
+- Use `--count-mode raw` when the question is about ingestion volume or debugging duplicate writes rather than activation-safe counts.
 - `filters[].field` can target built-in fields or any `properties.*` key, including first-touch attribution fields such as `properties.first_utm_source`.
 - `group_by` is limited to built-in fields only: `event`, `date`, `user_id`, `session_id`, and `country`.
 - Example attribution filter: `--filter '[{"field":"properties.first_utm_source","op":"eq","value":"reddit"}]'`
@@ -2026,6 +2029,10 @@ Property-based grouping such as `properties.hostname`, `properties.first_utm_sou
 
 **Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`, `properties.first_utm_source`)
 
+**Count modes:** `session_then_user` (default when `event_count` is requested) or `raw`
+
+`/events` remains lossless and returns every ingested row. `/query` now defaults `event_count` to `session_then_user`, which dedupes by `session_id`, then `user_id`, then event `id` inside the filtered result set. Use `count_mode: raw` when the question is about ingestion volume or debugging raw writes.
+
 **CLI:** `npx @agent-analytics/cli query my-site --metrics event_count --group-by event --filter '[{"field":"country","op":"eq","value":"US"}]'`
 
 #### Request Body
@@ -2035,6 +2042,10 @@ Property-based grouping such as `properties.hostname`, `properties.first_utm_sou
 - **`project` (required)**
 
   `string` — Project name
+
+- **`count_mode`**
+
+  `string`, possible values: `"raw", "session_then_user"` — How \`event\_count\` is aggregated. When \`metrics\` includes \`event\_count\` and \`count\_mode\` is omitted, the API defaults to \`session\_then\_user\` for activation-safe counting. Use \`raw\` to count ingested rows without dedupe.
 
 - **`date_from`**
 
@@ -2108,6 +2119,7 @@ Property-based grouping such as `properties.hostname`, `properties.first_utm_sou
   ],
   "date_from": "2025-01-01",
   "date_to": "2025-01-07",
+  "count_mode": "raw",
   "order_by": "event_count",
   "order": "desc",
   "limit": 100
@@ -6982,6 +6994,10 @@ true
 
   `string` — Project name
 
+* **`count_mode`**
+
+  `string`, possible values: `"raw", "session_then_user"` — How \`event\_count\` is aggregated. When \`metrics\` includes \`event\_count\` and \`count\_mode\` is omitted, the API defaults to \`session\_then\_user\` for activation-safe counting. Use \`raw\` to count ingested rows without dedupe.
+
 * **`date_from`**
 
   `string` — Start date (ISO 8601 or \`Nd\` shorthand). Defaults to 7 days ago.
@@ -7054,6 +7070,7 @@ true
   ],
   "date_from": "2025-01-01",
   "date_to": "2025-01-07",
+  "count_mode": "raw",
   "order_by": "event_count",
   "order": "desc",
   "limit": 100
