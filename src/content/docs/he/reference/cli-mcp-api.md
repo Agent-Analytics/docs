@@ -93,7 +93,7 @@ API בדרך כלל מתאים במיוחד כש:
 | `npx @agent-analytics/cli bot-traffic my-site --period 7d` | `GET /bot-traffic?project=my-site&period=7d` |
 | `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
 | `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
-| `npx @agent-analytics/cli query --project my-site --metrics event_count` | `POST /query` |
+| `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
 | `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
 | `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
 | `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |

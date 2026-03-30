@@ -329,7 +329,7 @@ components:
             type: string
             enum: [event, date, user_id, session_id, country]
           default: []
-          description: Fields to group results by
+          description: Built-in fields to group results by. Property-based grouping such as `properties.hostname` is not supported.
         filters:
           type: array
           items:
@@ -337,7 +337,7 @@ components:
             properties:
               field:
                 type: string
-                description: "Field to filter on. Built-in: `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`. Property fields: `properties.path`, `properties.browser`, etc."
+                description: "Field to filter on. Built-in: `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`. You can also filter on any `properties.*` field, including first-touch attribution fields like `properties.first_utm_source`."
                 example: event
               op:
                 type: string
@@ -1653,11 +1653,13 @@ paths:
 
         **Group by:** `event`, `date`, `user_id`, `session_id`, `country`
 
+        Property-based grouping such as `properties.hostname`, `properties.first_utm_source`, or `properties.cta` is not supported.
+
         **Filter operators:** `eq`, `neq`, `gt`, `lt`, `gte`, `lte`, `contains`
 
-        **Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`)
+        **Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`, `properties.first_utm_source`)
 
-        **CLI:** `npx @agent-analytics/cli query --project my-site --metrics event_count --group-by event --filter '[{"field":"country","op":"eq","value":"US"}]'`
+        **CLI:** `npx @agent-analytics/cli query my-site --metrics event_count --group-by event --filter '[{"field":"country","op":"eq","value":"US"}]'`
       tags: [Analytics]
       security:
         - ApiKey: []
