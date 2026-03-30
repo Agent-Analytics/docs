@@ -9,9 +9,11 @@ In Paperclip, the clean path is not to branch into a second install chooser. The
 
 The Paperclip company skill key is `agent-analytics/agent-analytics-skill/agent-analytics`. The skill requires `npx` and `AGENT_ANALYTICS_API_KEY`.
 
+If you want the strategic context before you install, read [If You Use Paperclip, You Need End-User Analytics](https://blog.agentanalytics.sh/blog/paperclip-companies-need-agent-readable-analytics/).
+
 If the skill is already attached to the right agent and you only need the activation loop, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
-## Recommended owner: make this a CEO task in Paperclip
+## Recommended: make this a CEO task in Paperclip
 
 For most Paperclip companies, this setup should start as a CEO task.
 
@@ -35,6 +37,16 @@ Hire an Analyst employee that will use Agent Analytics
 
 We will use Agent Analytics for tracking our company analytics, install the skill: Agent-Analytics/agent-analytics-skill, and use my API key: xxxx
 ```
+
+## Fast path
+
+If you want the shortest operating sequence, use this order:
+
+1. Get the prerequisites ready.
+2. Create one CEO-owned Paperclip task for the analytics setup.
+3. Install the skill on the project agents that need it, starting with the analyst or handoff developer.
+4. Debug the first live events from Paperclip by having that owner verify the install and inspect the tracked surface.
+5. Ask the analytics owner for daily reports once the first project is live.
 
 ## 1. Get the prerequisites ready
 
@@ -164,6 +176,8 @@ Ask the agent one of these:
 
 The success condition is simple: your agent can create the project, verify tracking, and answer a real analytics question without you hand-writing requests or opening a reporting dashboard first.
 
+Once that works, make the cadence explicit. Ask the analytics owner for a short daily report on traffic, activation, and blockers so the CEO can keep routing work based on real user movement instead of anecdotes.
+
 ## Recommended rollout order for Paperclip companies
 
 Use this order if you want the fastest time to first value:
@@ -188,6 +202,7 @@ That order keeps the setup honest and avoids turning the first session into a br
 
 ## Related
 
+- [If You Use Paperclip, You Need End-User Analytics](https://blog.agentanalytics.sh/blog/paperclip-companies-need-agent-readable-analytics/)
 - [Getting Started](/getting-started/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Tracker.js](/reference/tracker-js/)
