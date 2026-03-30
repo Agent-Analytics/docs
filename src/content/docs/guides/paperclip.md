@@ -1,11 +1,11 @@
 ---
 title: Install Agent Analytics on Paperclip
-description: Make Agent Analytics a CEO-owned Paperclip task, install the company skill, assign it to the analytics owner, expose AGENT_ANALYTICS_API_KEY, and verify the first analytics read.
+description: Create a task for your CEO in Paperclip, install the Agent Analytics company skill, assign it to the analytics owner, expose AGENT_ANALYTICS_API_KEY, and verify the first analytics read.
 ---
 
 Use this guide when your company runs on Paperclip and you want the direct Agent Analytics install path.
 
-In Paperclip, the clean path is not to branch into a second install chooser. The CEO or operator should create one explicit setup task, import the Agent Analytics skill into the company, attach it to the agent that will own analytics work, and make `AGENT_ANALYTICS_API_KEY` available in that agent environment.
+In Paperclip, the install should start with one explicit task for the CEO. That task should ask the CEO to assign an analytics owner, install the Agent Analytics company skill, expose `AGENT_ANALYTICS_API_KEY` in the right runtime, and have the owner verify the first analytics read.
 
 The Paperclip company skill key is `agent-analytics/agent-analytics-skill/agent-analytics`. The skill requires `npx` and `AGENT_ANALYTICS_API_KEY`.
 
@@ -13,9 +13,9 @@ If you want the strategic context before you install, read [If You Use Paperclip
 
 If the skill is already attached to the right agent and you only need the activation loop, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
-## Recommended: make this a CEO task in Paperclip
+## Start here: create a task for your CEO
 
-For most Paperclip companies, this setup should start as a CEO task.
+For most Paperclip companies, the install starts by creating one task for the CEO inside Paperclip.
 
 Why:
 
@@ -23,27 +23,32 @@ Why:
 - the CEO is usually the person who can install or approve company skills
 - this keeps the setup tied to a real company workflow instead of an isolated tool test
 
-The clean operating model is:
-
-1. The CEO creates a Paperclip task to hire or assign the analytics owner.
-2. That task tells the new or existing analyst agent to use Agent Analytics for company analytics.
-3. The CEO installs the company skill and makes the API key available in the agent runtime.
-4. The analyst agent verifies access, creates the first project, and starts answering real traffic and onboarding questions.
-
-If you want a copy-ready issue draft, use this:
+Use this task text directly:
 
 ```text
-Hire an Analyst employee that will use Agent Analytics
+Create a task for the CEO:
 
-We will use Agent Analytics for tracking our company analytics, install the skill: Agent-Analytics/agent-analytics-skill, and use my API key: xxxx
+Install Agent Analytics for our Paperclip company.
+
+1. Assign or hire the agent that will own analytics work.
+2. Install the company skill `agent-analytics/agent-analytics-skill/agent-analytics`.
+3. Make `AGENT_ANALYTICS_API_KEY` available in that agent runtime.
+4. Ask the analytics owner to verify access, create our first project, and confirm the first live page_view.
 ```
+
+After the CEO receives that task, the clean operating model is:
+
+1. The CEO assigns or hires the analytics owner.
+2. The CEO installs the Agent Analytics skill into the company library.
+3. The CEO or operator exposes `AGENT_ANALYTICS_API_KEY` in the runtime that agent actually uses.
+4. The analytics owner verifies access, creates the first project, and starts answering real traffic and onboarding questions.
 
 ## Fast path
 
 If you want the shortest operating sequence, use this order:
 
 1. Get the prerequisites ready.
-2. Create one CEO-owned Paperclip task for the analytics setup.
+2. Create one Paperclip task for your CEO with the install request.
 3. Install the skill on the project agents that need it, starting with the analyst or handoff developer.
 4. Debug the first live events from Paperclip by having that owner verify the install and inspect the tracked surface.
 5. Ask the analytics owner for daily reports once the first project is live.
@@ -56,7 +61,7 @@ If you want the shortest operating sequence, use this order:
 - A valid Agent Analytics API key
 - `npx` available in the environment that Paperclip uses to run that agent
 
-## 2. Hire or assign the analytics owner
+## 2. Ask the CEO to hire or assign the analytics owner
 
 Before you install anything, decide who will actually use the skill.
 
@@ -67,7 +72,7 @@ In most companies this should be an analyst-style employee or agent that owns:
 - top pages, sources, and funnel checks
 - experiment readouts or weekly reporting
 
-If you are hiring or creating that role in Paperclip now, include the Agent Analytics skill in the setup task so the role is created with the right responsibility from day one.
+If you are hiring or creating that role in Paperclip now, include the Agent Analytics skill in the CEO task so the role is created with the right responsibility from day one.
 
 ## 3. Install the skill into the Paperclip company library
 
@@ -182,13 +187,14 @@ Once that works, make the cadence explicit. Ask the analytics owner for a short 
 
 Use this order if you want the fastest time to first value:
 
-1. The CEO creates or assigns the analytics owner.
-2. Install the skill into the Paperclip company and attach it to that owner.
-3. Expose `AGENT_ANALYTICS_API_KEY` to that agent environment.
-4. Track one real site or onboarding surface.
-5. Verify the first `page_view`.
-6. Ask one weekly traffic or signup question.
-7. Expand to more projects, funnels, experiments, or app surfaces later.
+1. Create the Paperclip task for your CEO.
+2. The CEO creates or assigns the analytics owner.
+3. Install the skill into the Paperclip company and attach it to that owner.
+4. Expose `AGENT_ANALYTICS_API_KEY` to that agent environment.
+5. Track one real site or onboarding surface.
+6. Verify the first `page_view`.
+7. Ask one weekly traffic or signup question.
+8. Expand to more projects, funnels, experiments, or app surfaces later.
 
 That order keeps the setup honest and avoids turning the first session into a broad instrumentation project.
 
