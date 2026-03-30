@@ -110,24 +110,63 @@ If the setup is correct, the agent should answer without you hand-writing reques
 
 URL: https://docs.agentanalytics.sh/guides/paperclip/
 
-Add the Agent Analytics skill to a Paperclip company, assign it to the right agent, expose AGENT_ANALYTICS_API_KEY, and verify the first analytics read.
+Make Agent Analytics a CEO-owned Paperclip task, install the company skill, assign it to the analytics owner, expose AGENT_ANALYTICS_API_KEY, and verify the first analytics read.
 
 Use this guide when your company runs on Paperclip and you want the direct Agent Analytics install path.
 
-In Paperclip, the clean path is not to branch into a second install chooser. Import the Agent Analytics skill into the company, attach it to the agent that will own analytics work, and make `AGENT_ANALYTICS_API_KEY` available in that agent environment.
+In Paperclip, the clean path is not to branch into a second install chooser. The CEO or operator should create one explicit setup task, import the Agent Analytics skill into the company, attach it to the agent that will own analytics work, and make `AGENT_ANALYTICS_API_KEY` available in that agent environment.
 
 The Paperclip company skill key is `agent-analytics/agent-analytics-skill/agent-analytics`. The skill requires `npx` and `AGENT_ANALYTICS_API_KEY`.
 
 If the skill is already attached to the right agent and you only need the activation loop, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
+## Recommended owner: make this a CEO task in Paperclip
+
+For most Paperclip companies, this setup should start as a CEO task.
+
+Why:
+
+- the CEO is usually the person who can hire or create the right analytics owner
+- the CEO is usually the person who can install or approve company skills
+- this keeps the setup tied to a real company workflow instead of an isolated tool test
+
+The clean operating model is:
+
+1. The CEO creates a Paperclip task to hire or assign the analytics owner.
+2. That task tells the new or existing analyst agent to use Agent Analytics for company analytics.
+3. The CEO installs the company skill and makes the API key available in the agent runtime.
+4. The analyst agent verifies access, creates the first project, and starts answering real traffic and onboarding questions.
+
+If you want a copy-ready issue draft, use this:
+
+```text
+Hire an Analyst employee that will use Agent Analytics
+
+We will use Agent Analytics for tracking our company analytics, install the skill: Agent-Analytics/agent-analytics-skill, and use my API key: xxxx
+```
+
 ## 1. Get the prerequisites ready
 
-- A Paperclip company with at least one agent that should own analytics work
+- A Paperclip company where the CEO or operator can create tasks and manage skills
+- A new or existing agent that should own analytics work
 - An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - A valid Agent Analytics API key
 - `npx` available in the environment that Paperclip uses to run that agent
 
-## 2. Install the skill into the Paperclip company library
+## 2. Hire or assign the analytics owner
+
+Before you install anything, decide who will actually use the skill.
+
+In most companies this should be an analyst-style employee or agent that owns:
+
+- docs and onboarding traffic questions
+- signup and activation analysis
+- top pages, sources, and funnel checks
+- experiment readouts or weekly reporting
+
+If you are hiring or creating that role in Paperclip now, include the Agent Analytics skill in the setup task so the role is created with the right responsibility from day one.
+
+## 3. Install the skill into the Paperclip company library
 
 If the company already has the skill installed, skip this step.
 
@@ -142,9 +181,9 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/
 
 That adds the published Agent Analytics skill to the Paperclip company library.
 
-## 3. Assign the skill to the right agent
+## 4. Assign the skill to the right agent
 
-Attach the skill to the agent that should create projects, inspect traffic, and answer analytics questions:
+Attach the skill to the analyst or other agent that should create projects, inspect traffic, and answer analytics questions:
 
 ```bash
 curl -sS -X POST "$PAPERCLIP_API_URL/api/agents/<agent-id>/skills/sync" \
@@ -159,7 +198,7 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/agents/<agent-id>/skills/sync" \
 
 If you are hiring or creating a new Paperclip agent, include the same skill key in `desiredSkills` so it is available on day one.
 
-## 4. Expose `AGENT_ANALYTICS_API_KEY` to the agent environment
+## 5. Expose `AGENT_ANALYTICS_API_KEY` to the agent environment
 
 The skill reads `AGENT_ANALYTICS_API_KEY` from the environment that the Paperclip agent actually runs in.
 
@@ -169,7 +208,7 @@ The skill reads `AGENT_ANALYTICS_API_KEY` from the environment that the Papercli
 
 Under the hood, the skill launches the official Agent Analytics CLI through `npx @agent-analytics/cli@0.5.2`. That CLI wraps the same documented HTTP API shown in these docs.
 
-## 5. Verify the install from Paperclip
+## 6. Verify the install from Paperclip
 
 Ask the agent:
 
@@ -185,7 +224,7 @@ Good follow-up checks:
 
 If those fail, stop and fix the skill assignment, `AGENT_ANALYTICS_API_KEY`, or `npx` path before you continue.
 
-## 6. Create the first project for one real company surface
+## 7. Create the first project for one real company surface
 
 Start with one surface that matters to the Paperclip company right now:
 
@@ -206,7 +245,7 @@ If the agent can edit code, ask instead:
 Create a project for docs.my-company.com, add the tracking snippet to the site, and tell me exactly which file you changed.
 ```
 
-## 7. Add the tracker and verify the first live event
+## 8. Add the tracker and verify the first live event
 
 Once the tracker is in place, load a real page on that surface and ask:
 
@@ -221,7 +260,7 @@ Good alternatives:
 
 If you still need the full install-to-live walkthrough, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
-## 8. Ask one real Paperclip-style question
+## 9. Ask one real Paperclip-style question
 
 The first query should be concrete and operational, not abstract.
 
@@ -238,12 +277,13 @@ The success condition is simple: your agent can create the project, verify track
 
 Use this order if you want the fastest time to first value:
 
-1. Install the skill into the Paperclip company and attach it to the right agent.
-2. Expose `AGENT_ANALYTICS_API_KEY` to that agent environment.
-3. Track one real site or onboarding surface.
-4. Verify the first `page_view`.
-5. Ask one weekly traffic or signup question.
-6. Expand to more projects, funnels, experiments, or app surfaces later.
+1. The CEO creates or assigns the analytics owner.
+2. Install the skill into the Paperclip company and attach it to that owner.
+3. Expose `AGENT_ANALYTICS_API_KEY` to that agent environment.
+4. Track one real site or onboarding surface.
+5. Verify the first `page_view`.
+6. Ask one weekly traffic or signup question.
+7. Expand to more projects, funnels, experiments, or app surfaces later.
 
 That order keeps the setup honest and avoids turning the first session into a broad instrumentation project.
 
