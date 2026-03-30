@@ -357,7 +357,7 @@ components:
         count_mode:
           type: string
           enum: [raw, session_then_user]
-          description: How `event_count` is aggregated. When `metrics` includes `event_count` and `count_mode` is omitted, the API defaults to `session_then_user` for activation-safe counting. Use `raw` to count ingested rows without dedupe.
+          description: "How `event_count` is aggregated. Default for `event_count`: `session_then_user`. Session-backed rows count by session, no-session rows fall back to user only when that user has no session-backed row in the same group, and fully anonymous rows fall back to event id. Ignored for queries without `event_count`. Use `raw` to count ingested rows without dedupe."
         order_by:
           type: string
           enum: [event_count, unique_users, session_count, date, event]
@@ -1663,9 +1663,9 @@ paths:
 
         **Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`, `properties.first_utm_source`)
 
-        **Count modes:** `session_then_user` (default when `event_count` is requested) or `raw`
+        **Count modes:** `session_then_user` (default for `event_count`) or `raw`
 
-        `/events` remains lossless and returns every ingested row. `/query` now defaults `event_count` to `session_then_user`, which dedupes by `session_id`, then `user_id`, then event `id` inside the filtered result set. Use `count_mode: raw` when the question is about ingestion volume or debugging raw writes.
+        `/events` remains lossless and returns every ingested row. `/query` uses `session_then_user` as the default for `event_count`: session-backed rows count by session, no-session rows fall back to `user_id` only when that user has no session-backed row in the same filtered/grouped result set, and fully anonymous rows fall back to event `id`. `count_mode` is ignored for queries without `event_count`. Use `count_mode: raw` when the question is about ingestion volume or debugging raw writes.
 
         **CLI:** `npx @agent-analytics/cli query my-site --metrics event_count --group-by event --filter '[{"field":"country","op":"eq","value":"US"}]'`
       tags: [Analytics]

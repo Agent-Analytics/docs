@@ -1133,7 +1133,7 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 ## Query caveats
 
 - The canonical CLI syntax is `npx @agent-analytics/cli query <project> ...`. Do not use `--project`.
-- `/events` remains the raw lossless log. `/query` now defaults `event_count` to `session_then_user` when requested, which dedupes by `session_id`, then `user_id`, then event `id` inside the filtered result set.
+- `/events` remains the raw lossless log. `/query` uses `session_then_user` as the default for `event_count`: session-backed rows count by session, no-session rows fall back to `user_id` only when that user has no session-backed row in the same filtered/grouped result set, and fully anonymous rows fall back to event `id`.
 - Use `--count-mode raw` when the question is about ingestion volume or debugging duplicate writes rather than activation-safe counts.
 - `filters[].field` can target built-in fields or any `properties.*` key, including first-touch attribution fields such as `properties.first_utm_source`.
 - `group_by` is limited to built-in fields only: `event`, `date`, `user_id`, `session_id`, and `country`.
@@ -2029,9 +2029,9 @@ Property-based grouping such as `properties.hostname`, `properties.first_utm_sou
 
 **Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`, `properties.first_utm_source`)
 
-**Count modes:** `session_then_user` (default when `event_count` is requested) or `raw`
+**Count modes:** `session_then_user` (default for `event_count`) or `raw`
 
-`/events` remains lossless and returns every ingested row. `/query` now defaults `event_count` to `session_then_user`, which dedupes by `session_id`, then `user_id`, then event `id` inside the filtered result set. Use `count_mode: raw` when the question is about ingestion volume or debugging raw writes.
+`/events` remains lossless and returns every ingested row. `/query` uses `session_then_user` as the default for `event_count`: session-backed rows count by session, no-session rows fall back to `user_id` only when that user has no session-backed row in the same filtered/grouped result set, and fully anonymous rows fall back to event `id`. `count_mode` is ignored for queries without `event_count`. Use `count_mode: raw` when the question is about ingestion volume or debugging raw writes.
 
 **CLI:** `npx @agent-analytics/cli query my-site --metrics event_count --group-by event --filter '[{"field":"country","op":"eq","value":"US"}]'`
 
@@ -2045,7 +2045,7 @@ Property-based grouping such as `properties.hostname`, `properties.first_utm_sou
 
 - **`count_mode`**
 
-  `string`, possible values: `"raw", "session_then_user"` — How \`event\_count\` is aggregated. When \`metrics\` includes \`event\_count\` and \`count\_mode\` is omitted, the API defaults to \`session\_then\_user\` for activation-safe counting. Use \`raw\` to count ingested rows without dedupe.
+  `string`, possible values: `"raw", "session_then_user"` — How \`event\_count\` is aggregated. Default for \`event\_count\`: \`session\_then\_user\`. Session-backed rows count by session, no-session rows fall back to user only when that user has no session-backed row in the same group, and fully anonymous rows fall back to event id. Ignored for queries without \`event\_count\`. Use \`raw\` to count ingested rows without dedupe.
 
 - **`date_from`**
 
@@ -6996,7 +6996,7 @@ true
 
 * **`count_mode`**
 
-  `string`, possible values: `"raw", "session_then_user"` — How \`event\_count\` is aggregated. When \`metrics\` includes \`event\_count\` and \`count\_mode\` is omitted, the API defaults to \`session\_then\_user\` for activation-safe counting. Use \`raw\` to count ingested rows without dedupe.
+  `string`, possible values: `"raw", "session_then_user"` — How \`event\_count\` is aggregated. Default for \`event\_count\`: \`session\_then\_user\`. Session-backed rows count by session, no-session rows fall back to user only when that user has no session-backed row in the same group, and fully anonymous rows fall back to event id. Ignored for queries without \`event\_count\`. Use \`raw\` to count ingested rows without dedupe.
 
 * **`date_from`**
 

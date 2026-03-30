@@ -107,7 +107,7 @@ API 通常最适合以下情况：
 
 ## Query 注意事项
 
-- `/events` 仍然是原始且不丢失的日志。当 `/query` 请求 `event_count` 时，新的默认值是 `session_then_user`，它会在当前筛选结果内按 `session_id`、然后 `user_id`、最后事件 `id` 做去重。
+- `/events` 仍然是原始且不丢失的日志。对于 `event_count`，`/query` 的默认模式是 `session_then_user`：带 `session_id` 的行按 session 计数；没有 session 的行只有在该用户在同一筛选/分组结果里没有任何 session 行时才回退到 `user_id`；完全匿名的行才回退到事件 `id`。
 - 当问题是摄取量、重复写入排查或原始行数调试时，请显式使用 `--count-mode raw`。
 
 ## 快速经验法则

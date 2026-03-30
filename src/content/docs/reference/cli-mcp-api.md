@@ -108,7 +108,7 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 ## Query caveats
 
 - The canonical CLI syntax is `npx @agent-analytics/cli query <project> ...`. Do not use `--project`.
-- `/events` remains the raw lossless log. `/query` now defaults `event_count` to `session_then_user` when requested, which dedupes by `session_id`, then `user_id`, then event `id` inside the filtered result set.
+- `/events` remains the raw lossless log. `/query` uses `session_then_user` as the default for `event_count`: session-backed rows count by session, no-session rows fall back to `user_id` only when that user has no session-backed row in the same filtered/grouped result set, and fully anonymous rows fall back to event `id`.
 - Use `--count-mode raw` when the question is about ingestion volume or debugging duplicate writes rather than activation-safe counts.
 - `filters[].field` can target built-in fields or any `properties.*` key, including first-touch attribution fields such as `properties.first_utm_source`.
 - `group_by` is limited to built-in fields only: `event`, `date`, `user_id`, `session_id`, and `country`.
