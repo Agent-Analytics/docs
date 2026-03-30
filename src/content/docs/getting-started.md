@@ -9,7 +9,7 @@ Use the hosted app for account setup and key creation. Use your AI agent, termin
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
-If you are here from a Paperclip workflow and want the shortest route to the right install page plus the first live project, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/).
+If you are here from a Paperclip workflow and want the direct company-skill install path, start with [Install Agent Analytics on Paperclip](/guides/paperclip/).
 
 ## 1. Get your API key
 
@@ -81,7 +81,7 @@ If the setup is correct, the agent should answer without you hand-writing reques
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
 - Use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) when you want the full activation walkthrough from installed agent to first live project.
-- Use [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/) when the company context is already known and you need the fastest runtime-to-first-project path.
+- Use [Install Agent Analytics on Paperclip](/guides/paperclip/) when your company runs on Paperclip and you need the direct company-skill install path.
 - Use [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/) when your app changes screens client-side and you need accurate page tracking without double-counting.
 - Use [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/) when you want your AI agent to launch and read browser-side experiments for you.
 - Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.
