@@ -10,6 +10,8 @@ description: Install the Agent Analytics skill for OpenAI Codex, set the API key
 
 For OpenAI Codex, the cleanest path today is the Agent Skills install. It keeps the workflow agent-native and does not require the MCP connector flow.
 
+If you are doing this for a Paperclip company, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/) first, then continue here for the Codex-specific install flow.
+
 ## Prerequisites
 
 - An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
@@ -49,6 +51,7 @@ If you have not created your first real project yet, continue with [First Projec
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [Authentication](/reference/authentication/)

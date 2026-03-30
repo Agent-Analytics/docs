@@ -5,6 +5,8 @@ description: Install the Agent Analytics skill in OpenClaw from ClawHub, expose 
 
 For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native while using the same underlying analytics surface the CLI and API expose.
 
+If you are setting this up for a Paperclip company, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/) first, then return here for the OpenClaw-specific install steps.
+
 The important detail: `npx` is only the launcher. The skill is using the official Agent Analytics CLI, and that CLI wraps the same documented HTTP API shown in the docs.
 
 ## Prerequisites
@@ -52,6 +54,7 @@ If you have not created your first real project yet, continue with [First Projec
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [OpenAI Codex](/installation/openai-codex/)

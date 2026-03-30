@@ -10,6 +10,8 @@ description: Install the Agent Analytics skill in Cursor and use CLI-style workf
 
 For Cursor, start with the Agent Analytics skill plus CLI-style workflows. In practice this is usually faster, cheaper on tokens, and easier to steer than MCP for day-to-day use.
 
+If you are doing this inside a Paperclip company, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/) first, then continue here for the Cursor-specific install flow.
+
 ## Prerequisites
 
 - An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
@@ -79,6 +81,7 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)

@@ -12,7 +12,7 @@ Use these guides when you want to tell an AI agent such as Claude Code, Cursor, 
 
 ## Start with the right guide
 
-If you need environment-specific setup, use the [installation hub](/installation/). If you need low-level browser or endpoint details, continue to [Tracker.js](/reference/tracker-js/) or the [API reference](/api/).
+If you are landing from a Paperclip company workflow, start with [Paperclip Company Setup](/guides/paperclip/). If you need environment-specific setup, use the [installation hub](/installation/). If you need low-level browser or endpoint details, continue to [Tracker.js](/reference/tracker-js/) or the [API reference](/api/).
 
 ## Getting Started
 
@@ -25,6 +25,8 @@ This is the shortest path from zero to a working Agent Analytics setup.
 Use the hosted app for account setup and key creation. Use your AI agent, terminal, or code for the day-to-day analytics loop.
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
+
+If you are here from a Paperclip workflow and want the shortest route to the right install page plus the first live project, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/).
 
 ## 1. Get your API key
 
@@ -96,12 +98,125 @@ If the setup is correct, the agent should answer without you hand-writing reques
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
 - Use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) when you want the full activation walkthrough from installed agent to first live project.
+- Use [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/) when the company context is already known and you need the fastest runtime-to-first-project path.
 - Use [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/) when your app changes screens client-side and you need accurate page tracking without double-counting.
 - Use [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/) when you want your AI agent to launch and read browser-side experiments for you.
 - Use [Tracker.js](/reference/tracker-js/) for browser-side tracking options.
 - Use [Bot Traffic](/reference/bot-traffic/) to inspect filtered automated callers separately from normal analytics.
 - Use [Authentication](/reference/authentication/) when you need the read token vs write token rules.
 - Use [API Reference](/api/) when you need endpoint-level details.
+
+## Set Up Agent Analytics for Your Paperclip Company
+
+URL: https://docs.agentanalytics.sh/guides/paperclip/
+
+Route a Paperclip company to the right Agent Analytics install path, create the first live project, and verify the first useful analytics read.
+
+Use this guide when you are coming from a Paperclip workflow and want one concrete path from campaign click to first useful analytics data.
+
+Paperclip is the company and workflow context. Agent Analytics is the analytics layer your agents can use. The install path depends on which agent runtime your Paperclip company already uses.
+
+If you already know the exact runtime and only need the install steps, jump straight to the [installation hub](/installation/). If the agent is already installed and you only need the activation loop, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
+
+## 1. Choose the runtime your Paperclip company already uses
+
+Pick the environment where your agents already run:
+
+- [OpenClaw](/installation/openclaw/) if the team uses ClawHub skills and chat-native workflows
+- [OpenAI Codex](/installation/openai-codex/) if the team uses Codex with the Agent Skills flow
+- [Cursor](/installation/cursor/) if the team works from Cursor and wants the skill plus CLI path
+- [Claude Code](/installation/claude-code/) if the team already runs Claude Code and wants the hosted plugin path first
+
+Do not invent a second runtime just for analytics. The goal is to add Agent Analytics to the environment the company already trusts.
+
+## 2. Complete the install and confirm the agent can see the account
+
+After you finish the right install page, ask the agent:
+
+```text
+List my Agent Analytics projects and confirm you can reach my account.
+```
+
+If that fails, stop and fix the install or API key path before you continue.
+
+## 3. Create the first project for one real company surface
+
+Start with one surface that matters to the Paperclip company right now:
+
+- the main marketing site
+- the docs site
+- the onboarding flow
+- the product app
+
+Ask the agent:
+
+```text
+Create a project for docs.my-company.com and give me the tracking snippet.
+```
+
+If the agent can edit code, ask instead:
+
+```text
+Create a project for docs.my-company.com, add the tracking snippet to the site, and tell me exactly which file you changed.
+```
+
+## 4. Add the tracker and verify the first live event
+
+Once the tracker is in place, load a real page on that surface and ask:
+
+```text
+Check whether docs.my-company.com has received its first page_view today and tell me which page you see.
+```
+
+Good alternatives:
+
+- `Verify that the tracker is live for docs.my-company.com.`
+- `Confirm the first page_view landed for docs.my-company.com today.`
+
+If you still need the full install-to-live walkthrough, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
+
+## 5. Ask one real Paperclip-style question
+
+The first query should be concrete and operational, not abstract.
+
+Ask the agent one of these:
+
+- `How is our docs site doing this week?`
+- `What are the top pages for our onboarding flow this week?`
+- `Which onboarding page has the highest signup rate?`
+- `Show bot traffic for our docs project this week.`
+
+The success condition is simple: your agent can create the project, verify tracking, and answer a real analytics question without you hand-writing requests or opening a reporting dashboard first.
+
+## Recommended rollout order for Paperclip companies
+
+Use this order if you want the fastest time to first value:
+
+1. Connect Agent Analytics in the runtime the company already uses.
+2. Track one real site or onboarding surface.
+3. Verify the first `page_view`.
+4. Ask one weekly traffic or signup question.
+5. Expand to more projects, funnels, experiments, or app surfaces later.
+
+That order keeps the setup honest and avoids turning the first session into a broad instrumentation project.
+
+## When to use a different page
+
+- Use [Getting Started](/getting-started/) if you want the short overview for the whole product.
+- Use [Installation](/installation/) if you only need the per-agent setup options.
+- Use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) if the agent install is already complete and you want the shortest activation walkthrough.
+- Use [Tracker.js](/reference/tracker-js/) if you need browser-side details such as SPA tracking, declarative events, consent, errors, or web vitals.
+- Use [CLI vs MCP vs API](/reference/cli-mcp-api/) if your team is deciding between access paths.
+
+## Related
+
+- [Getting Started](/getting-started/)
+- [Installation Overview](/installation/)
+- [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
+- [OpenClaw](/installation/openclaw/)
+- [Cursor](/installation/cursor/)
+- [OpenAI Codex](/installation/openai-codex/)
+- [Claude Code](/installation/claude-code/)
 
 ## First Project in 5 Minutes
 
@@ -340,6 +455,8 @@ Choose the native Agent Analytics access path for Claude, Cursor, OpenClaw, Code
 
 Choose the environment your AI agent already runs in. The analytics surface stays the same; only the native entrypoint changes. Each page leads with the recommended path for that environment, then covers alternatives where they matter.
 
+If you are landing here from a Paperclip workflow and want the shortest route to the right page, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/).
+
 ## Recommended install paths
 
 ## Claude Code
@@ -493,6 +610,8 @@ Install the Agent Analytics skill in Cursor and use CLI-style workflows first. U
 
 For Cursor, start with the Agent Analytics skill plus CLI-style workflows. In practice this is usually faster, cheaper on tokens, and easier to steer than MCP for day-to-day use.
 
+If you are doing this inside a Paperclip company, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/) first, then continue here for the Cursor-specific install flow.
+
 ## Prerequisites
 
 - An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
@@ -562,6 +681,7 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
@@ -575,6 +695,8 @@ URL: https://docs.agentanalytics.sh/installation/openclaw/
 Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and use the official CLI from chat.
 
 For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native while using the same underlying analytics surface the CLI and API expose.
+
+If you are setting this up for a Paperclip company, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/) first, then return here for the OpenClaw-specific install steps.
 
 The important detail: `npx` is only the launcher. The skill is using the official Agent Analytics CLI, and that CLI wraps the same documented HTTP API shown in the docs.
 
@@ -623,6 +745,7 @@ If you have not created your first real project yet, continue with [First Projec
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [OpenAI Codex](/installation/openai-codex/)
@@ -640,6 +763,8 @@ Install the Agent Analytics skill for OpenAI Codex, set the API key once, and us
 </div>
 
 For OpenAI Codex, the cleanest path today is the Agent Skills install. It keeps the workflow agent-native and does not require the MCP connector flow.
+
+If you are doing this for a Paperclip company, start with [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/) first, then continue here for the Codex-specific install flow.
 
 ## Prerequisites
 
@@ -680,6 +805,7 @@ If you have not created your first real project yet, continue with [First Projec
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Set Up Agent Analytics for Your Paperclip Company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [Authentication](/reference/authentication/)
