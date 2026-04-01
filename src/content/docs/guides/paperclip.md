@@ -1,15 +1,15 @@
 ---
-title: Install Agent Analytics on Paperclip
+title: Set up Agent Analytics for your Paperclip company
 description: Create a task for your CEO in Paperclip, install the Agent Analytics company skill, assign it to the analytics owner, expose AGENT_ANALYTICS_API_KEY, and verify the first analytics read.
 ---
 
-Use this guide when your company runs on Paperclip and you want the direct Agent Analytics install path.
+Use this guide when your company runs on Paperclip and you want the direct Agent Analytics setup path.
 
-In Paperclip, the install should start with one explicit task for the CEO. That task should ask the CEO to assign an analytics owner, install the Agent Analytics company skill, expose `AGENT_ANALYTICS_API_KEY` in the right runtime, and have the owner verify the first analytics read.
+In Paperclip, the setup should start with one explicit task for the CEO. That task should ask the CEO to assign an analytics owner, install the Agent Analytics company skill, expose `AGENT_ANALYTICS_API_KEY` in the right runtime, and have the owner verify the first analytics read.
 
 The Paperclip company skill key is `agent-analytics/agent-analytics-skill/agent-analytics`. The skill requires `npx` and `AGENT_ANALYTICS_API_KEY`.
 
-If you want the strategic context before you install, read [If You Use Paperclip, You Need End-User Analytics](https://blog.agentanalytics.sh/blog/paperclip-companies-need-agent-readable-analytics/).
+If you want the strategic context before you set this up, read [If You Use Paperclip, You Need End-User Analytics](https://blog.agentanalytics.sh/blog/paperclip-companies-need-agent-readable-analytics/).
 
 If the skill is already attached to the right agent and you only need the activation loop, continue with [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
@@ -28,7 +28,7 @@ Use this task text directly:
 ```text
 Create a task for the CEO:
 
-Install Agent Analytics for our Paperclip company.
+Set up Agent Analytics for our Paperclip company.
 
 1. Assign or hire the agent that will own analytics work.
 2. Install the company skill `agent-analytics/agent-analytics-skill/agent-analytics`.
