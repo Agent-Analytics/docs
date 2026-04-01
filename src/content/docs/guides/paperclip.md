@@ -15,7 +15,7 @@ If the skill is already attached to the right agent and you only need the activa
 
 ## Start here: create a task for your CEO
 
-For most Paperclip companies, the install starts by creating one task for the CEO inside Paperclip.
+For most Paperclip companies, the setup starts by creating one task for the CEO inside Paperclip.
 
 Why:
 
@@ -48,9 +48,9 @@ After the CEO receives that task, the clean operating model is:
 If you want the shortest operating sequence, use this order:
 
 1. Get the prerequisites ready.
-2. Create one Paperclip task for your CEO with the install request.
+2. Create one Paperclip task for your CEO with the setup request.
 3. Install the skill on the project agents that need it, starting with the analyst or handoff developer.
-4. Debug the first live events from Paperclip by having that owner verify the install and inspect the tracked surface.
+4. Debug the first live events from Paperclip by having that owner verify the setup and inspect the tracked surface.
 5. Ask the analytics owner for daily reports once the first project is live.
 
 ## 1. Get the prerequisites ready
@@ -63,7 +63,7 @@ If you want the shortest operating sequence, use this order:
 
 ## 2. Ask the CEO to hire or assign the analytics owner
 
-Before you install anything, decide who will actually use the skill.
+Before you set anything up, decide who will actually use the skill.
 
 In most companies this should be an analyst-style employee or agent that owns:
 
@@ -78,43 +78,33 @@ If you are hiring or creating that role in Paperclip now, include the Agent Anal
 
 If the company already has the skill installed, skip this step.
 
-```bash
-curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/skills/import" \
-  -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "source": "https://github.com/Agent-Analytics/agent-analytics-skill"
-  }'
-```
+Ask the CEO or Paperclip operator to install or approve the Agent Analytics skill in the Paperclip company library.
 
-That adds the published Agent Analytics skill to the Paperclip company library.
+Keep the public flow simple:
+
+- open the company skills library in Paperclip
+- install or approve the Agent Analytics skill
+- confirm the skill key `agent-analytics/agent-analytics-skill/agent-analytics` is available to assign
+
+If your company already manages skills centrally, use the same normal Paperclip admin flow here instead of creating a separate setup path just for Agent Analytics.
 
 ## 4. Assign the skill to the right agent
 
-Attach the skill to the analyst or other agent that should create projects, inspect traffic, and answer analytics questions:
+Attach the skill to the analyst or other agent that should create projects, inspect traffic, and answer analytics questions.
 
-```bash
-curl -sS -X POST "$PAPERCLIP_API_URL/api/agents/<agent-id>/skills/sync" \
-  -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "desiredSkills": [
-      "agent-analytics/agent-analytics-skill/agent-analytics"
-    ]
-  }'
-```
+In practice that means:
 
-If you are hiring or creating a new Paperclip agent, include the same skill key in `desiredSkills` so it is available on day one.
+- the CEO or operator assigns `agent-analytics/agent-analytics-skill/agent-analytics` to the analytics owner inside Paperclip
+- if you are creating a new Paperclip agent for analytics work, include the same skill during that setup so it is available on day one
+- start with one owner instead of attaching the skill to every agent immediately
 
 ## 5. Expose `AGENT_ANALYTICS_API_KEY` to the agent environment
 
 The skill reads `AGENT_ANALYTICS_API_KEY` from the environment that the Paperclip agent actually runs in.
 
 - Keep the key in the agent environment instead of pasting it into chat
-- Keep `npx` available in that same environment
 - Use your normal Paperclip environment or secret path so the agent sees the key at runtime
-
-Under the hood, the skill launches the official Agent Analytics CLI through `npx @agent-analytics/cli@0.5.2`. That CLI wraps the same documented HTTP API shown in these docs.
+- If the skill does not launch correctly, ask the operator to confirm that runtime can execute the published Agent Analytics skill package
 
 ## 6. Verify the install from Paperclip
 
@@ -130,7 +120,7 @@ Good follow-up checks:
 - `How is docs.my-company.com doing this week?`
 - `Show the top pages for docs.my-company.com this week.`
 
-If those fail, stop and fix the skill assignment, `AGENT_ANALYTICS_API_KEY`, or `npx` path before you continue.
+If those fail, stop and fix the skill assignment or `AGENT_ANALYTICS_API_KEY` path before you continue.
 
 ## 7. Create the first project for one real company surface
 
