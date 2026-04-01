@@ -3,7 +3,7 @@ title: Set up Agent Analytics for your Paperclip company
 description: Create a task for your CEO in Paperclip, install the Agent Analytics company skill, assign it to the analytics owner, expose AGENT_ANALYTICS_API_KEY, and verify the first analytics read.
 ---
 
-[Paperclip 📎](https://paperclip.ing/) is a company operating system for delegating work through agents, and this guide shows how to set up Agent Analytics for that workflow.
+[Paperclip 📎](https://paperclip.ing/) is a company operating system for delegating work through agents, and Agent Analytics gives those agents a queryable end-user analytics layer.
 
 In Paperclip, the setup should start with one explicit task for the CEO. That task should ask the CEO to assign an analytics owner, install the Agent Analytics company skill, expose `AGENT_ANALYTICS_API_KEY` in the right runtime, and have the owner verify the first analytics read.
 
