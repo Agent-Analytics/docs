@@ -14,7 +14,7 @@ API base URL: https://api.agentanalytics.sh
 ### Guides
 - [Guides](https://docs.agentanalytics.sh/guides/): Task-oriented guides for setting up Agent Analytics and running experiments through AI agents such as Claude Code, Cursor, Codex, and OpenClaw.
 - [Getting Started](https://docs.agentanalytics.sh/getting-started/): Create a project, install Agent Analytics in your AI agent, and verify the first query.
-- [Set up Agent Analytics for your Paperclip company](https://docs.agentanalytics.sh/guides/paperclip/): Create a task for your CEO in Paperclip, install the Agent Analytics company skill, assign it to the analytics owner, expose AGENT_ANALYTICS_API_KEY, and verify the first analytics read.
+- [Set up Agent Analytics for your Paperclip company](https://docs.agentanalytics.sh/guides/paperclip/): Ask the user to create one CEO task, then review the blocked task when login approval is needed, and finally query the live project.
 - [First Project in 5 Minutes](https://docs.agentanalytics.sh/guides/first-project-in-5-minutes/): Go from installed agent to a live Agent Analytics project with the tracker placed, the first page view verified, and one real analytics question answered.
 - [AI Agent Experiment Tracking](https://docs.agentanalytics.sh/guides/ai-agent-experiment-tracking/): Run website and app A/B tests through your AI agent with prompt-first experiment setup, declarative variants, QA, and results review.
 
@@ -23,8 +23,8 @@ API base URL: https://api.agentanalytics.sh
 - [Claude Code](https://docs.agentanalytics.sh/installation/claude-code/): Install Agent Analytics in Claude Code with the hosted plugin first, then use the skill path before dropping to raw MCP setup.
 - [Claude Desktop / Cowork](https://docs.agentanalytics.sh/installation/claude-desktop-cowork/): Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
 - [Cursor](https://docs.agentanalytics.sh/installation/cursor/): Install the Agent Analytics skill in Cursor and use CLI-style workflows first. Use MCP only when you specifically want connector-style tool calls.
-- [OpenClaw](https://docs.agentanalytics.sh/installation/openclaw/): Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and use the official CLI from chat.
-- [OpenAI Codex](https://docs.agentanalytics.sh/installation/openai-codex/): Install the Agent Analytics skill for OpenAI Codex, set the API key once, and use direct queries or guided workflows from there.
+- [OpenClaw](https://docs.agentanalytics.sh/installation/openclaw/): Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval when login is needed, and keep the workflow inside chat.
+- [OpenAI Codex](https://docs.agentanalytics.sh/installation/openai-codex/): Install the Agent Analytics skill for OpenAI Codex, use browser approval when login is needed, and keep project setup in the same agent flow.
 
 ### Reference
 - [Tracker.js](https://docs.agentanalytics.sh/reference/tracker-js/): Add Agent Analytics to any site with one script tag, then turn on declarative events, consent, performance tracking, and other browser-side features.

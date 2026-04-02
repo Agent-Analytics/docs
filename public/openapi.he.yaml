@@ -2136,6 +2136,10 @@ paths:
 
         **Filterable fields:** `event`, `user_id`, `date`, `country`, `session_id`, `timestamp`, and any `properties.*` field (e.g. `properties.path`, `properties.browser`, `properties.first_utm_source`)
 
+        Built-in fields are a closed list. Common analytics properties such as `referrer`, `utm_source`, `path`, `browser`, and `hostname` must be queried as `properties.referrer`, `properties.utm_source`, `properties.path`, `properties.browser`, and `properties.hostname`.
+
+        Invalid filter fields fail the query with `400` and include `/properties`-style discovery guidance instead of being silently ignored.
+
         **Count modes:** `session_then_user` (default for `event_count`) or `raw`
 
         `/events` remains lossless and returns every ingested row. `/query` uses `session_then_user` as the default for `event_count`: session-backed rows count by session, no-session rows fall back to `user_id` only when that user has no session-backed row in the same filtered/grouped result set, and fully anonymous rows fall back to event `id`. `count_mode` is ignored for queries without `event_count`. Use `count_mode: raw` when the question is about ingestion volume or debugging raw writes.

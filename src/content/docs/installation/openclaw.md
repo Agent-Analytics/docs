@@ -1,6 +1,6 @@
 ---
 title: OpenClaw
-description: Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key once, and use the official CLI from chat.
+description: Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval when login is needed, and keep the workflow inside chat.
 ---
 
 For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native while using the same underlying analytics surface the CLI and API expose.
@@ -12,20 +12,29 @@ The important detail: `npx` is only the launcher. The skill is using the officia
 ## Prerequisites
 
 - An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
-- A valid Agent Analytics API key stored as `AGENT_ANALYTICS_API_KEY`
 - Access to the OpenClaw environment where you want the skill installed
+- `npx` available in that runtime
 
 ## Recommended: install from ClawHub
 
 Tell OpenClaw:
 
-> Install the Agent Analytics skill from ClawHub. My API key is available in `AGENT_ANALYTICS_API_KEY`. Use the official Agent Analytics CLI.
+> Install the Agent Analytics skill from ClawHub. Use the official Agent Analytics CLI. If login approval is needed, send me the approval link and wait. I will sign in with Google or GitHub, and if needed I will paste back the finish code.
 
 The hosted listing is here:
 
 - [Agent Analytics on ClawHub](https://clawhub.ai/dannyshmueli/agent-analytics)
 
 Once installed, OpenClaw can create projects, generate tracking snippets, query stats, inspect funnels, and manage experiments from the same conversation loop.
+
+The normal OpenClaw path is now:
+
+1. install the skill
+2. ask OpenClaw to set up the project
+3. if approval is needed, let OpenClaw send the browser link
+4. sign in in the browser
+5. paste back the finish code if OpenClaw asks for it
+6. let OpenClaw continue into project setup and first-event verification
 
 The public docs still matter because they show exactly what the skill is wrapping:
 
@@ -38,7 +47,7 @@ That is the right explanation if a security review asks what the `npx` command i
 
 Ask OpenClaw:
 
-- `List my Agent Analytics projects`
+- `Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the approval link and wait. I will sign in with Google or GitHub, and if needed I will paste back the finish code. Then create the project, add tracking and key events, and verify the first event.`
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 
@@ -47,8 +56,9 @@ If you have not created your first real project yet, continue with [First Projec
 ## Troubleshooting
 
 - If ClawHub flags the skill because of `npx`, point reviewers to [CLI vs MCP vs API](/reference/cli-mcp-api/) and [API Reference](/api/). The CLI is the official wrapper around those documented endpoints.
-- If the skill installs but cannot query data, confirm `AGENT_ANALYTICS_API_KEY` is available in the OpenClaw environment instead of pasted into chat.
-- If OpenClaw can create projects but not read analytics, verify the key belongs to the same Agent Analytics account you expect.
+- If OpenClaw sends you an approval link but never resumes, paste the finish code back into the same thread.
+- If the skill installs but cannot query data after login, confirm the browser approval completed with the same Agent Analytics account you expect to use.
+- If you intentionally choose the advanced/manual API-key path, keep `AGENT_ANALYTICS_API_KEY` in the OpenClaw runtime instead of pasting it into chat.
 - If you need endpoint-level debugging, use the [API reference](/api/) with `curl` before returning to the skill flow.
 
 ## Related

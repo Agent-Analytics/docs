@@ -17,13 +17,17 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 - An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Cursor installed
 - `npx` available in the environment Cursor uses
-- A valid Agent Analytics API key available as `AGENT_ANALYTICS_API_KEY`
 
 ## Recommended: install the agent skill
 
 ```bash
 npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
-export AGENT_ANALYTICS_API_KEY=aak_...
+```
+
+Then ask Cursor:
+
+```text
+Set up Agent Analytics for this project. Install it here if needed. If browser approval is needed, open it and wait for me. I will sign in with Google or GitHub and approve it. Then create the project, add tracking and key events, and verify the first event.
 ```
 
 This gives Cursor the Agent Analytics workflow layer plus CLI-oriented execution in the same environment. That is usually the best tradeoff when you want lower latency and less token overhead than MCP tool calls.
@@ -73,7 +77,8 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 
 ## Troubleshooting
 
-- If the skill installs but queries fail, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
+- If the skill installs but the setup pauses on approval, complete the browser sign-in and let Cursor continue.
+- If you intentionally use the advanced/manual API-key path, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
 - Confirm the `mcp.json` entry is valid JSON if you choose the MCP path.
 - Reload Cursor after adding the custom MCP server if the tools panel still shows the old state.
 - If Cursor can see the MCP server but not your projects, verify the hosted sign-in completed with the correct account.

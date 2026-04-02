@@ -14,7 +14,7 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components';
     先走 Claude Code 的插件路径，只有在插件不可用时再退回到 MCP 或手动方式。
   </LinkCard>
   <LinkCard title="OpenClaw 🦞" href="/zh/installation/openclaw/">
-    从 ClawHub 安装 skill，一次性把 API 密钥交给 OpenClaw，然后直接在聊天里使用定时分析工作流。
+    从 ClawHub 安装 skill，需要时让 OpenClaw 发出浏览器审批链接，然后继续在聊天里运行定时分析 workflow。
   </LinkCard>
   <LinkCard title="<span class='aa-install-logo aa-install-logo--plain'><img src='/logos/claude-code-logo.png' alt='' /></span> Claude Desktop / Cowork" href="/zh/installation/claude-desktop-cowork/">
     通过 connector 流程接入托管 MCP 服务器，并在聊天中验证更丰富的分析工具。
@@ -23,6 +23,6 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components';
     先用 Agent Analytics skill 加 CLI 工作流。只有当你明确需要 connector 风格的工具调用时再用 MCP。
   </LinkCard>
   <LinkCard title="<span class='aa-install-logo aa-install-logo--inverse'><img src='/logos/openai-white.png' alt='' /></span> OpenAI Codex" href="/zh/installation/openai-codex/">
-    安装 Agent Analytics skill，一次提供 API 密钥，然后让 Codex 直接查询数据。
+    安装 Agent Analytics skill，如有需要就在浏览器里批准，然后让 Codex 从同一个项目 workflow 继续执行。
   </LinkCard>
 </CardGrid>

@@ -1,6 +1,6 @@
 ---
 title: OpenClaw
-description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub, חשפו את מפתח ה-API פעם אחת, והשתמשו ב-CLI הרשמי מתוך הצ'אט.
+description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub, השתמשו באישור בדפדפן כשצריך, והמשיכו את ה-workflow מתוך הצ'אט.
 ---
 
 ל-OpenClaw, המסלול הנקי ביותר הוא ה-skill המארח דרך ClawHub. הוא שומר על ההגדרה agent-native ועובד היטב עם workflow מוכוון CLI.
@@ -10,14 +10,14 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 ## דרישות מקדימות
 
 - חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
-- מפתח API תקין של Agent Analytics שמאוחסן כ-`AGENT_ANALYTICS_API_KEY`
 - גישה לסביבת OpenClaw שבה אתם רוצים להתקין את ה-skill
+- `npx` זמין באותה סביבת runtime
 
 ## מומלץ: התקנה מתוך ClawHub
 
 אמרו ל-OpenClaw:
 
-> Install the Agent Analytics skill from ClawHub. My API key is available in `AGENT_ANALYTICS_API_KEY`. Use the official Agent Analytics CLI.
+> Install the Agent Analytics skill from ClawHub. Use the official Agent Analytics CLI. If login approval is needed, send me the approval link and wait. I will sign in with Google or GitHub, and if needed I will paste back the finish code.
 
 הרישום המארח נמצא כאן:
 
@@ -37,6 +37,7 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 בקשו מ-OpenClaw:
 
 - `List my Agent Analytics projects`
+- `Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the approval link and wait. I will sign in with Google or GitHub, and if needed I will paste back the finish code. Then create the project, add tracking and key events, and verify the first event.`
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 
@@ -45,8 +46,9 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 ## פתרון תקלות
 
 - אם ClawHub מסמן את ה-skill בגלל `npx`, הפנו את הסוקרים אל [CLI vs MCP vs API](/he/reference/cli-mcp-api/) ו-[API Reference](/he/api/). ה-CLI הוא ה-wrapper הרשמי סביב אותן נקודות קצה מתועדות.
-- אם ה-skill מותקן אבל לא מצליח לשאול נתונים, ודאו ש-`AGENT_ANALYTICS_API_KEY` זמין בסביבת OpenClaw ולא מודבק בצ'אט.
-- אם OpenClaw מצליח ליצור פרויקטים אבל לא לקרוא אנליטיקה, ודאו שהמפתח שייך לאותו חשבון Agent Analytics שבו אתם מצפים להשתמש.
+- אם OpenClaw שולח קישור אישור אבל לא ממשיך, הדביקו חזרה את קוד הסיום באותו thread.
+- אם ה-skill מותקן אבל לא מצליח לשאול נתונים אחרי ההתחברות, ודאו שהאישור בדפדפן הושלם עם אותו חשבון Agent Analytics שבו אתם מצפים להשתמש.
+- אם בחרתם במפורש במסלול המתקדם/ידני של API key, ודאו ש-`AGENT_ANALYTICS_API_KEY` זמין בסביבת OpenClaw ולא מודבק בצ'אט.
 - אם צריך דיבוג ברמת endpoint, השתמשו ב-[API reference](/he/api/) עם `curl` לפני שחוזרים ל-flow של ה-skill.
 
 ## קשור
