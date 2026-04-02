@@ -25,6 +25,10 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 
 אחרי ההתקנה, OpenClaw יכול ליצור פרויקטים, לייצר סניפטי מעקב, לשאול סטטיסטיקות, לבדוק funnels ולנהל ניסויים מתוך אותו לולאת שיחה.
 
+אם OpenClaw נתקע בהתחברות ומבקש את קוד הסיום, מסך הדפדפן אמור להיראות כך:
+
+![Agent Analytics finish-code handoff screen](../../../../assets/finishcode.jpg)
+
 התיעוד הציבורי עדיין חשוב כי הוא מראה בדיוק מה ה-CLI עוטף:
 
 - [CLI vs MCP vs API](/he/reference/cli-mcp-api/)

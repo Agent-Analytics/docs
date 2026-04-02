@@ -36,6 +36,10 @@ The normal OpenClaw path is now:
 5. paste back the finish code if OpenClaw asks for it
 6. let OpenClaw continue into project setup and first-event verification
 
+If OpenClaw blocks on login and asks for the finish code, the browser page should look like this:
+
+![Agent Analytics finish-code handoff screen](../../../assets/finishcode.jpg)
+
 The public docs still matter because they show exactly what the skill is wrapping:
 
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)

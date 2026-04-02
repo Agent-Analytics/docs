@@ -53,6 +53,8 @@ When that happens:
 3. copy the finish code from the browser
 4. paste that finish code back into the blocked Paperclip task
 
+![Agent Analytics finish-code handoff screen](../../../assets/finishcode.jpg)
+
 That lets the working setup agent continue:
 
 - finish login
