@@ -22,20 +22,13 @@ Create a project, install Agent Analytics in your AI agent, and verify the first
 
 This is the shortest path from zero to a working Agent Analytics setup.
 
-Use the hosted app for account setup and key creation. Use your AI agent, terminal, or code for the day-to-day analytics loop.
+The main flow is agent-first: install Agent Analytics into the AI agent you already use, let that agent open browser approval if it needs account access, then have it create the project and wire tracking for you.
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 If you are here from a Paperclip workflow, start by creating a task for your CEO in Paperclip, then follow [Set up Agent Analytics for your Paperclip company](/guides/paperclip/).
 
-## 1. Get your API key
-
-Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and create an API key there.
-
-- Use the API key (`aak_*`) for reads, project management, and agent setup across CLI, MCP, or skill workflows.
-- Use the project token (`aat_*`) in the tracking snippet that goes on your site.
-
-## 2. Pick and complete an install path
+## 1. Pick and complete an install path
 
 If you are using Paperclip, stop here first and create the CEO task from [Set up Agent Analytics for your Paperclip company](/guides/paperclip/). That guide is the Paperclip help path.
 
@@ -48,6 +41,16 @@ Go to the [installation hub](/installation/) and complete the setup for the envi
 - [OpenAI Codex](/installation/openai-codex/)
 
 If none of those are a fit, the [API reference](/api/) stays available for direct integration into your own runtime.
+
+## 2. Open your AI agent in the project directory
+
+Start from the codebase or site you actually want to track.
+
+Then ask your AI agent for the full setup flow:
+
+- `Set up Agent Analytics for this project. If browser approval is needed, open it and wait for me. Then create the project, add tracking, and verify the first event.`
+
+If the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. That approval creates or connects your account and gives the agent the session it needs.
 
 ## 3. Create your first project
 
@@ -96,6 +99,10 @@ Once the install is working and the tracker is live, ask your AI agent one of th
 
 If the setup is correct, the agent should answer without you hand-writing requests or opening a reporting UI.
 
+## Advanced fallback: API key
+
+If you need direct HTTP access for your own runtime, you can still generate an API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). That is the advanced/manual path. CLI, MCP, and agent onboarding should use browser approval and agent sessions instead.
+
 ## Next
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
@@ -114,7 +121,7 @@ URL: https://docs.agentanalytics.sh/guides/paperclip/
 
 Create a task for your CEO in Paperclip, install the Agent Analytics company skill, assign it to the analytics owner, expose AGENT_ANALYTICS_API_KEY, and verify the first analytics read.
 
-[Paperclip 📎](https://paperclip.ing/) is a company operating system for delegating work through agents, and Agent Analytics gives those agents a queryable end-user analytics layer.
+[Paperclip 📎](https://paperclip.ing/) is a company operating system for delegating work through agents, and this guide shows how to set up Agent Analytics for that workflow.
 
 In Paperclip, the setup should start with one explicit task for the CEO. That task should ask the CEO to assign an analytics owner, install the Agent Analytics company skill, expose `AGENT_ANALYTICS_API_KEY` in the right runtime, and have the owner verify the first analytics read.
 
@@ -331,10 +338,10 @@ If you still need to connect your AI agent first, go back to the [installation h
 Ask your AI agent:
 
 ```text
-List my Agent Analytics projects and confirm you can reach my account.
+List my Agent Analytics projects and confirm you can reach my account. If browser approval is needed, open it and wait for me.
 ```
 
-If the agent cannot see your account yet, stop here and finish the right [installation path](/installation/).
+If the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. If the agent still cannot see your account after that, stop here and finish the right [installation path](/installation/).
 
 ## 2. Create the first project and get the tracker snippet
 
@@ -794,7 +801,7 @@ Install the Agent Analytics skill in OpenClaw from ClawHub, expose your API key 
 
 For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native while using the same underlying analytics surface the CLI and API expose.
 
-If you are setting this up from a Paperclip company, use [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) for the company-skill path. Use this page when you need the raw OpenClaw install flow itself.
+If you are setting this up from a Paperclip company, use [Set up Agent Analytics for your Paperclip📎 company](/guides/paperclip/) for the company-skill path. Use this page when you need the raw OpenClaw install flow itself.
 
 The important detail: `npx` is only the launcher. The skill is using the official Agent Analytics CLI, and that CLI wraps the same documented HTTP API shown in the docs.
 
@@ -843,7 +850,7 @@ If you have not created your first real project yet, continue with [First Projec
 ## Related
 
 - [Getting Started](/getting-started/)
-- [Set up Agent Analytics for your Paperclip company](/guides/paperclip/)
+- [Set up Agent Analytics for your Paperclip📎 company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [OpenAI Codex](/installation/openai-codex/)
@@ -1484,14 +1491,15 @@ Web analytics platform with an HTTP API that AI agents can query.
 
 **Quick start:**
 
-1. Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and get an API key.
+1. Start an agent session with `POST /agent-sessions/start` or sign in on the dashboard.
 2. Create a project with `POST /projects`.
 3. Add the returned tracker snippet to your site.
 4. Query analytics with `GET /stats`.
 
 **Authentication:**
 
-- `aak_*` API keys are secret and used for reads plus project management.
+- `aas_*` agent sessions are the primary machine-auth mechanism for CLI, MCP, and managed runtimes.
+- `aak_*` API keys are an advanced/manual fallback for direct HTTP users.
 - `aat_*` project tokens are public and used for ingestion only.
 
 Installation guides for Claude Code, Claude Desktop / Cowork, Cursor, and OpenAI Codex now live in the docs site instead of this OpenAPI intro block.
@@ -1502,6 +1510,774 @@ Installation guides for Claude Code, Claude Desktop / Cowork, Cursor, and OpenAI
   - **Description:** Production (hosted)
 
 ## Operations
+
+### Start an agent-session signup/login flow
+
+- **Method:** `POST`
+- **Path:** `/agent-sessions/start`
+- **Tags:** Agent Sessions
+
+Creates a pending auth request for a CLI, MCP client, or managed runtime.
+
+Use `mode=interactive` when the runtime can receive a localhost/browser callback. Use `mode=detached` when the runtime must wait for approval by polling or manual exchange.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`client_type` (required)**
+
+  `string` — Runtime type such as \`cli\`, \`mcp\`, \`paperclip\`, or \`openclaw\`.
+
+- **`callback_url`**
+
+  `string | null` — Required for interactive mode. Local loopback callback URL.
+
+- **`client_instance_id`**
+
+  `string | null`
+
+- **`client_name`**
+
+  `string | null`
+
+- **`code_challenge`**
+
+  `string | null` — Optional PKCE-style challenge for interactive runtimes.
+
+- **`label`**
+
+  `string | null`
+
+- **`metadata`**
+
+  `object | null`
+
+- **`mode`**
+
+  `string`, possible values: `"interactive", "detached"`, default: `"interactive"`
+
+- **`scopes`**
+
+  `array`
+
+  **Items:**
+
+  `string`, possible values: `"account:read", "projects:write", "analytics:read", "experiments:write", "feedback:write", "live:read"`
+
+**Example:**
+
+```json
+{
+  "mode": "interactive",
+  "client_type": "cli",
+  "client_name": "Agent Analytics CLI",
+  "client_instance_id": "pid:12345",
+  "label": "Paperclip Workspace",
+  "callback_url": "http://127.0.0.1:43123/callback",
+  "scopes": [
+    "account:read"
+  ],
+  "code_challenge": null,
+  "metadata": null
+}
+```
+
+#### Responses
+
+##### Status: 201 Auth request created
+
+###### Content-Type: application/json
+
+- **`approval_code`**
+
+  `string`
+
+- **`auth_request_id`**
+
+  `string`
+
+- **`authorize_url`**
+
+  `string`
+
+- **`expires_at`**
+
+  `integer`
+
+- **`mode`**
+
+  `string`, possible values: `"interactive", "detached"`
+
+- **`ok`**
+
+  `boolean`
+
+- **`poll_token`**
+
+  `string`
+
+- **`scopes`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "auth_request_id": "req_agent123",
+  "authorize_url": "https://api.agentanalytics.sh/agent-sessions/authorize/req_agent123",
+  "approval_code": "ABCD2345",
+  "poll_token": "aap_polltoken",
+  "mode": "interactive",
+  "expires_at": 1775079600000,
+  "scopes": [
+    ""
+  ]
+}
+```
+
+##### Status: 400 Invalid request payload
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Browser approval page for an auth request
+
+- **Method:** `GET`
+- **Path:** `/agent-sessions/authorize/{id}`
+- **Tags:** Agent Sessions
+
+Human-facing browser entry for agent signup/login approval.
+
+The response is HTML and lets the user continue with Google or GitHub OAuth. This endpoint is usually opened from the `authorize_url` returned by `POST /agent-sessions/start`.
+
+#### Responses
+
+##### Status: 200 HTML approval page
+
+###### Content-Type: text/html
+
+`string`
+
+**Example:**
+
+```json
+true
+```
+
+##### Status: 404 Auth request not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 410 Auth request expired
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Poll detached auth status
+
+- **Method:** `POST`
+- **Path:** `/agent-sessions/poll`
+- **Tags:** Agent Sessions
+
+Checks whether a detached auth request has been approved, exchanged, revoked, or expired.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`auth_request_id` (required)**
+
+  `string`
+
+- **`poll_token` (required)**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "auth_request_id": "",
+  "poll_token": ""
+}
+```
+
+#### Responses
+
+##### Status: 200 Auth request status
+
+###### Content-Type: application/json
+
+- **`account_id`**
+
+  `object`
+
+- **`approved_email`**
+
+  `object`
+
+- **`exchange_code`**
+
+  `object`
+
+- **`status`**
+
+  `string`, possible values: `"pending", "approved", "exchanged", "revoked", "expired"`
+
+**Example:**
+
+```json
+{
+  "status": "pending",
+  "exchange_code": "",
+  "account_id": "",
+  "approved_email": ""
+}
+```
+
+##### Status: 401 Invalid poll token or auth request
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 410 Auth request revoked or expired
+
+###### Content-Type: application/json
+
+- **`account_id`**
+
+  `object`
+
+- **`approved_email`**
+
+  `object`
+
+- **`exchange_code`**
+
+  `object`
+
+- **`status`**
+
+  `string`, possible values: `"pending", "approved", "exchanged", "revoked", "expired"`
+
+**Example:**
+
+```json
+{
+  "status": "pending",
+  "exchange_code": "",
+  "account_id": "",
+  "approved_email": ""
+}
+```
+
+### Exchange an approved auth request for an agent session
+
+- **Method:** `POST`
+- **Path:** `/agent-sessions/exchange`
+- **Tags:** Agent Sessions
+
+Redeems an approved auth request into a renewable agent session.
+
+Interactive runtimes should send the matching `code_verifier` when the start request included a `code_challenge`.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`auth_request_id` (required)**
+
+  `string`
+
+- **`exchange_code` (required)**
+
+  `string`
+
+- **`code_verifier`**
+
+  `string | null` — Required when the auth request was started with a code challenge.
+
+**Example:**
+
+```json
+{
+  "auth_request_id": "",
+  "exchange_code": "",
+  "code_verifier": null
+}
+```
+
+#### Responses
+
+##### Status: 200 Agent session issued
+
+###### Content-Type: application/json
+
+- **`account`**
+
+  `object`
+
+  - **`email`**
+
+    `string`
+
+  - **`github_login`**
+
+    `object`
+
+  - **`google_name`**
+
+    `object`
+
+  - **`id`**
+
+    `string`
+
+  - **`tier`**
+
+    `string`, possible values: `"free", "pro"`
+
+- **`agent_session`**
+
+  `object`
+
+  - **`access_expires_at`**
+
+    `integer`
+
+  - **`access_token`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`refresh_expires_at`**
+
+    `integer`
+
+  - **`refresh_token`**
+
+    `string`
+
+  - **`scopes`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+- **`ok`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "agent_session": {
+    "id": "",
+    "access_token": "aas_123",
+    "refresh_token": "aar_123",
+    "access_expires_at": 1,
+    "refresh_expires_at": 1,
+    "scopes": [
+      ""
+    ]
+  },
+  "account": {
+    "id": "",
+    "email": "",
+    "github_login": "",
+    "google_name": "",
+    "tier": "free"
+  }
+}
+```
+
+##### Status: 400 Auth request is not ready or has already been exchanged
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Invalid exchange code or code verifier
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 410 Auth request expired
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Refresh an agent session access token
+
+- **Method:** `POST`
+- **Path:** `/agent-sessions/refresh`
+- **Tags:** Agent Sessions
+
+Exchanges a valid refresh token for a new access token while keeping the same logical agent session.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`refresh_token` (required)**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "refresh_token": ""
+}
+```
+
+#### Responses
+
+##### Status: 200 Session refreshed
+
+###### Content-Type: application/json
+
+- **`agent_session`**
+
+  `object`
+
+  - **`access_expires_at`**
+
+    `integer`
+
+  - **`access_token`**
+
+    `string`
+
+  - **`account`**
+
+    `object`
+
+    - **`email`**
+
+      `string`
+
+    - **`github_login`**
+
+      `object`
+
+    - **`google_name`**
+
+      `object`
+
+    - **`id`**
+
+      `string`
+
+    - **`tier`**
+
+      `string`, possible values: `"free", "pro"`
+
+  - **`refresh_expires_at`**
+
+    `integer`
+
+  - **`refresh_token`**
+
+    `string`
+
+  - **`scopes`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`session_id`**
+
+    `string`
+
+- **`ok`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "agent_session": {
+    "session_id": "",
+    "access_token": "",
+    "refresh_token": "",
+    "access_expires_at": 1,
+    "refresh_expires_at": 1,
+    "account": {
+      "id": "",
+      "email": "",
+      "github_login": "",
+      "google_name": "",
+      "tier": "free"
+    },
+    "scopes": [
+      ""
+    ]
+  }
+}
+```
+
+##### Status: 400 Missing refresh token
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Invalid or expired refresh token
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Revoke an agent session
+
+- **Method:** `POST`
+- **Path:** `/agent-sessions/revoke`
+- **Tags:** Agent Sessions
+
+Revokes one active agent session owned by the authenticated account.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`session_id` (required)**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "session_id": ""
+}
+```
+
+#### Responses
+
+##### Status: 200 Session revoked
+
+###### Content-Type: application/json
+
+- **`ok`**
+
+  `boolean`
+
+- **`session_id`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "session_id": ""
+}
+```
+
+##### Status: 401 Missing or invalid account auth
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Session not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
 
 ### Track a single event
 
@@ -5677,6 +6453,124 @@ Deleted projects are excluded from the totals and rankings.
 }
 ```
 
+### List active and historical agent sessions for the account
+
+- **Method:** `GET`
+- **Path:** `/account/agent-sessions`
+- **Tags:** Agent Sessions
+
+Returns agent sessions created for CLI, MCP, and managed runtimes under the authenticated account.
+
+#### Responses
+
+##### Status: 200 Agent sessions for the account
+
+###### Content-Type: application/json
+
+- **`sessions`**
+
+  `array`
+
+  **Items:**
+
+  - **`access_expires_at`**
+
+    `integer`
+
+  - **`client_instance_id`**
+
+    `object`
+
+  - **`client_name`**
+
+    `object`
+
+  - **`client_type`**
+
+    `string`
+
+  - **`created_at`**
+
+    `integer`
+
+  - **`id`**
+
+    `string`
+
+  - **`label`**
+
+    `object`
+
+  - **`last_used_at`**
+
+    `integer`
+
+  - **`refresh_expires_at`**
+
+    `integer`
+
+  - **`revoked_at`**
+
+    `object`
+
+  - **`scopes`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`status`**
+
+    `string`, possible values: `"active", "revoked"`
+
+**Example:**
+
+```json
+{
+  "sessions": [
+    {
+      "id": "",
+      "client_type": "",
+      "client_name": "",
+      "client_instance_id": "",
+      "label": "",
+      "scopes": [
+        ""
+      ],
+      "status": "active",
+      "created_at": 1,
+      "last_used_at": 1,
+      "access_expires_at": 1,
+      "refresh_expires_at": 1,
+      "revoked_at": 1
+    }
+  ]
+}
+```
+
+##### Status: 401 Missing or invalid account auth
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
 ### Revoke and regenerate API key
 
 - **Method:** `POST`
@@ -9570,6 +10464,521 @@ true
     "rate_limit_rpm": 10
   },
   "monthly_spend_cap_dollars": null
+}
+```
+
+### AgentSessionStartRequest
+
+- **Type:**`object`
+
+* **`client_type` (required)**
+
+  `string` — Runtime type such as \`cli\`, \`mcp\`, \`paperclip\`, or \`openclaw\`.
+
+* **`callback_url`**
+
+  `string | null` — Required for interactive mode. Local loopback callback URL.
+
+* **`client_instance_id`**
+
+  `string | null`
+
+* **`client_name`**
+
+  `string | null`
+
+* **`code_challenge`**
+
+  `string | null` — Optional PKCE-style challenge for interactive runtimes.
+
+* **`label`**
+
+  `string | null`
+
+* **`metadata`**
+
+  `object | null`
+
+* **`mode`**
+
+  `string`, possible values: `"interactive", "detached"`, default: `"interactive"`
+
+* **`scopes`**
+
+  `array`
+
+  **Items:**
+
+  `string`, possible values: `"account:read", "projects:write", "analytics:read", "experiments:write", "feedback:write", "live:read"`
+
+**Example:**
+
+```json
+{
+  "mode": "interactive",
+  "client_type": "cli",
+  "client_name": "Agent Analytics CLI",
+  "client_instance_id": "pid:12345",
+  "label": "Paperclip Workspace",
+  "callback_url": "http://127.0.0.1:43123/callback",
+  "scopes": [
+    "account:read"
+  ],
+  "code_challenge": null,
+  "metadata": null
+}
+```
+
+### AgentSessionStartResponse
+
+- **Type:**`object`
+
+* **`approval_code`**
+
+  `string`
+
+* **`auth_request_id`**
+
+  `string`
+
+* **`authorize_url`**
+
+  `string`
+
+* **`expires_at`**
+
+  `integer`
+
+* **`mode`**
+
+  `string`, possible values: `"interactive", "detached"`
+
+* **`ok`**
+
+  `boolean`
+
+* **`poll_token`**
+
+  `string`
+
+* **`scopes`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "auth_request_id": "req_agent123",
+  "authorize_url": "https://api.agentanalytics.sh/agent-sessions/authorize/req_agent123",
+  "approval_code": "ABCD2345",
+  "poll_token": "aap_polltoken",
+  "mode": "interactive",
+  "expires_at": 1775079600000,
+  "scopes": [
+    ""
+  ]
+}
+```
+
+### AgentSessionPollRequest
+
+- **Type:**`object`
+
+* **`auth_request_id` (required)**
+
+  `string`
+
+* **`poll_token` (required)**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "auth_request_id": "",
+  "poll_token": ""
+}
+```
+
+### AgentSessionPollResponse
+
+- **Type:**`object`
+
+* **`account_id`**
+
+  `object`
+
+* **`approved_email`**
+
+  `object`
+
+* **`exchange_code`**
+
+  `object`
+
+* **`status`**
+
+  `string`, possible values: `"pending", "approved", "exchanged", "revoked", "expired"`
+
+**Example:**
+
+```json
+{
+  "status": "pending",
+  "exchange_code": "",
+  "account_id": "",
+  "approved_email": ""
+}
+```
+
+### AgentSessionExchangeRequest
+
+- **Type:**`object`
+
+* **`auth_request_id` (required)**
+
+  `string`
+
+* **`exchange_code` (required)**
+
+  `string`
+
+* **`code_verifier`**
+
+  `string | null` — Required when the auth request was started with a code challenge.
+
+**Example:**
+
+```json
+{
+  "auth_request_id": "",
+  "exchange_code": "",
+  "code_verifier": null
+}
+```
+
+### AgentSessionIssued
+
+- **Type:**`object`
+
+* **`access_expires_at`**
+
+  `integer`
+
+* **`access_token`**
+
+  `string`
+
+* **`id`**
+
+  `string`
+
+* **`refresh_expires_at`**
+
+  `integer`
+
+* **`refresh_token`**
+
+  `string`
+
+* **`scopes`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "access_token": "aas_123",
+  "refresh_token": "aar_123",
+  "access_expires_at": 1,
+  "refresh_expires_at": 1,
+  "scopes": [
+    ""
+  ]
+}
+```
+
+### AgentSessionExchangeResponse
+
+- **Type:**`object`
+
+* **`account`**
+
+  `object`
+
+  - **`email`**
+
+    `string`
+
+  - **`github_login`**
+
+    `object`
+
+  - **`google_name`**
+
+    `object`
+
+  - **`id`**
+
+    `string`
+
+  - **`tier`**
+
+    `string`, possible values: `"free", "pro"`
+
+* **`agent_session`**
+
+  `object`
+
+  - **`access_expires_at`**
+
+    `integer`
+
+  - **`access_token`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`refresh_expires_at`**
+
+    `integer`
+
+  - **`refresh_token`**
+
+    `string`
+
+  - **`scopes`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+* **`ok`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "agent_session": {
+    "id": "",
+    "access_token": "aas_123",
+    "refresh_token": "aar_123",
+    "access_expires_at": 1,
+    "refresh_expires_at": 1,
+    "scopes": [
+      ""
+    ]
+  },
+  "account": {
+    "id": "",
+    "email": "",
+    "github_login": "",
+    "google_name": "",
+    "tier": "free"
+  }
+}
+```
+
+### AgentSessionRefreshRequest
+
+- **Type:**`object`
+
+* **`refresh_token` (required)**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "refresh_token": ""
+}
+```
+
+### AgentSessionRefreshResponse
+
+- **Type:**`object`
+
+* **`agent_session`**
+
+  `object`
+
+  - **`access_expires_at`**
+
+    `integer`
+
+  - **`access_token`**
+
+    `string`
+
+  - **`account`**
+
+    `object`
+
+    - **`email`**
+
+      `string`
+
+    - **`github_login`**
+
+      `object`
+
+    - **`google_name`**
+
+      `object`
+
+    - **`id`**
+
+      `string`
+
+    - **`tier`**
+
+      `string`, possible values: `"free", "pro"`
+
+  - **`refresh_expires_at`**
+
+    `integer`
+
+  - **`refresh_token`**
+
+    `string`
+
+  - **`scopes`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`session_id`**
+
+    `string`
+
+* **`ok`**
+
+  `boolean`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "agent_session": {
+    "session_id": "",
+    "access_token": "",
+    "refresh_token": "",
+    "access_expires_at": 1,
+    "refresh_expires_at": 1,
+    "account": {
+      "id": "",
+      "email": "",
+      "github_login": "",
+      "google_name": "",
+      "tier": "free"
+    },
+    "scopes": [
+      ""
+    ]
+  }
+}
+```
+
+### AgentSessionSummary
+
+- **Type:**`object`
+
+* **`access_expires_at`**
+
+  `integer`
+
+* **`client_instance_id`**
+
+  `object`
+
+* **`client_name`**
+
+  `object`
+
+* **`client_type`**
+
+  `string`
+
+* **`created_at`**
+
+  `integer`
+
+* **`id`**
+
+  `string`
+
+* **`label`**
+
+  `object`
+
+* **`last_used_at`**
+
+  `integer`
+
+* **`refresh_expires_at`**
+
+  `integer`
+
+* **`revoked_at`**
+
+  `object`
+
+* **`scopes`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+* **`status`**
+
+  `string`, possible values: `"active", "revoked"`
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "client_type": "",
+  "client_name": "",
+  "client_instance_id": "",
+  "label": "",
+  "scopes": [
+    ""
+  ],
+  "status": "active",
+  "created_at": 1,
+  "last_used_at": 1,
+  "access_expires_at": 1,
+  "refresh_expires_at": 1,
+  "revoked_at": 1
 }
 ```
 

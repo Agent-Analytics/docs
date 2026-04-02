@@ -5,20 +5,13 @@ description: Create a project, install Agent Analytics in your AI agent, and ver
 
 This is the shortest path from zero to a working Agent Analytics setup.
 
-Use the hosted app for account setup and key creation. Use your AI agent, terminal, or code for the day-to-day analytics loop.
+The main flow is agent-first: install Agent Analytics into the AI agent you already use, let that agent open browser approval if it needs account access, then have it create the project and wire tracking for you.
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 If you are here from a Paperclip workflow, start by creating a task for your CEO in Paperclip, then follow [Set up Agent Analytics for your Paperclip company](/guides/paperclip/).
 
-## 1. Get your API key
-
-Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and create an API key there.
-
-- Use the API key (`aak_*`) for reads, project management, and agent setup across CLI, MCP, or skill workflows.
-- Use the project token (`aat_*`) in the tracking snippet that goes on your site.
-
-## 2. Pick and complete an install path
+## 1. Pick and complete an install path
 
 If you are using Paperclip, stop here first and create the CEO task from [Set up Agent Analytics for your Paperclip company](/guides/paperclip/). That guide is the Paperclip help path.
 
@@ -31,6 +24,16 @@ Go to the [installation hub](/installation/) and complete the setup for the envi
 - [OpenAI Codex](/installation/openai-codex/)
 
 If none of those are a fit, the [API reference](/api/) stays available for direct integration into your own runtime.
+
+## 2. Open your AI agent in the project directory
+
+Start from the codebase or site you actually want to track.
+
+Then ask your AI agent for the full setup flow:
+
+- `Set up Agent Analytics for this project. If browser approval is needed, open it and wait for me. Then create the project, add tracking, and verify the first event.`
+
+If the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. That approval creates or connects your account and gives the agent the session it needs.
 
 ## 3. Create your first project
 
@@ -78,6 +81,10 @@ Once the install is working and the tracker is live, ask your AI agent one of th
 - `Show bot traffic for my-site this week`
 
 If the setup is correct, the agent should answer without you hand-writing requests or opening a reporting UI.
+
+## Advanced fallback: API key
+
+If you need direct HTTP access for your own runtime, you can still generate an API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). That is the advanced/manual path. CLI, MCP, and agent onboarding should use browser approval and agent sessions instead.
 
 ## Next
 

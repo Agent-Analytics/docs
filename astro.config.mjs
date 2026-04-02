@@ -43,6 +43,7 @@ export default defineConfig({
           items: [
             { slug: 'guides' },
             { slug: 'getting-started' },
+            { slug: 'guides/paperclip' },
             { slug: 'guides/first-project-in-5-minutes' },
             { slug: 'guides/ai-agent-experiment-tracking' },
           ],

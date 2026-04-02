@@ -9,14 +9,15 @@ info:
 
     **Quick start:**
 
-    1. Sign up at [app.agentanalytics.sh](https://app.agentanalytics.sh) and get an API key.
+    1. Start an agent session with `POST /agent-sessions/start` or sign in on the dashboard.
     2. Create a project with `POST /projects`.
     3. Add the returned tracker snippet to your site.
     4. Query analytics with `GET /stats`.
 
     **Authentication:**
 
-    - `aak_*` API keys are secret and used for reads plus project management.
+    - `aas_*` agent sessions are the primary machine-auth mechanism for CLI, MCP, and managed runtimes.
+    - `aak_*` API keys are an advanced/manual fallback for direct HTTP users.
     - `aat_*` project tokens are public and used for ingestion only.
 
     Installation guides for Claude Code, Claude Desktop / Cowork, Cursor, and OpenAI Codex now live in the docs site instead of this OpenAPI intro block.
@@ -36,11 +37,13 @@ tags:
   - name: Ingestion
     description: Event tracking endpoints called by the browser `tracker.js` script. These use a public project token (`aat_*`) — not your API key. You don't call these directly; the tracker handles it.
   - name: Analytics
-    description: Query analytics data. Requires an API key (`aak_*`) via `X-API-Key` header or `?key=` param.
+    description: Query analytics data. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
   - name: Projects
-    description: Manage projects programmatically. Requires an API key.
+    description: Manage projects programmatically. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
   - name: Account
-    description: Account information and key management. Requires an API key.
+    description: Account information, feedback, and key management. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
+  - name: Agent Sessions
+    description: Agent-session signup/login, detached approval, refresh, revocation, and account-side session management.
   - name: Experiments
     description: |
       A/B testing experiments. Create experiments, assign variants client-side via tracker.js, and query results with Bayesian significance. Pro tier only.
@@ -122,6 +125,12 @@ tags:
 
 components:
   securitySchemes:
+    AgentSessionBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Agent Session
+      description: |
+        Agent session bearer token (`aas_*`). Primary auth for CLI, MCP, and managed runtimes.
     ApiKey:
       type: apiKey
       in: header
@@ -1212,6 +1221,247 @@ components:
           rate_limit_rpm: 10
         monthly_spend_cap_dollars: null
 
+    AgentSessionStartRequest:
+      type: object
+      required: [client_type]
+      properties:
+        mode:
+          type: string
+          enum: [interactive, detached]
+          default: interactive
+        client_type:
+          type: string
+          description: Runtime type such as `cli`, `mcp`, `paperclip`, or `openclaw`.
+          example: cli
+        client_name:
+          type: ['string', 'null']
+          example: Agent Analytics CLI
+        client_instance_id:
+          type: ['string', 'null']
+          example: pid:12345
+        label:
+          type: ['string', 'null']
+          example: Paperclip Workspace
+        callback_url:
+          type: ['string', 'null']
+          description: Required for interactive mode. Local loopback callback URL.
+          example: http://127.0.0.1:43123/callback
+        scopes:
+          type: array
+          items:
+            type: string
+            enum: [account:read, projects:write, analytics:read, experiments:write, feedback:write, live:read]
+        code_challenge:
+          type: ['string', 'null']
+          description: Optional PKCE-style challenge for interactive runtimes.
+        metadata:
+          type: ['object', 'null']
+          additionalProperties: true
+
+    AgentSessionStartResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        auth_request_id:
+          type: string
+          example: req_agent123
+        authorize_url:
+          type: string
+          example: https://api.agentanalytics.sh/agent-sessions/authorize/req_agent123
+        approval_code:
+          type: string
+          example: ABCD2345
+        poll_token:
+          type: string
+          example: aap_polltoken
+        mode:
+          type: string
+          enum: [interactive, detached]
+        expires_at:
+          type: integer
+          example: 1775079600000
+        scopes:
+          type: array
+          items:
+            type: string
+
+    AgentSessionPollRequest:
+      type: object
+      required: [auth_request_id, poll_token]
+      properties:
+        auth_request_id:
+          type: string
+        poll_token:
+          type: string
+
+    AgentSessionPollResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, exchanged, revoked, expired]
+        exchange_code:
+          oneOf:
+            - type: string
+            - type: 'null'
+        account_id:
+          oneOf:
+            - type: string
+            - type: 'null'
+        approved_email:
+          oneOf:
+            - type: string
+            - type: 'null'
+
+    AgentSessionExchangeRequest:
+      type: object
+      required: [auth_request_id, exchange_code]
+      properties:
+        auth_request_id:
+          type: string
+        exchange_code:
+          type: string
+        code_verifier:
+          type: ['string', 'null']
+          description: Required when the auth request was started with a code challenge.
+
+    AgentSessionIssued:
+      type: object
+      properties:
+        id:
+          type: string
+        access_token:
+          type: string
+          example: aas_123
+        refresh_token:
+          type: string
+          example: aar_123
+        access_expires_at:
+          type: integer
+        refresh_expires_at:
+          type: integer
+        scopes:
+          type: array
+          items:
+            type: string
+
+    AgentSessionExchangeResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        agent_session:
+          $ref: '#/components/schemas/AgentSessionIssued'
+        account:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            github_login:
+              oneOf:
+                - type: string
+                - type: 'null'
+            google_name:
+              oneOf:
+                - type: string
+                - type: 'null'
+            tier:
+              type: string
+              enum: [free, pro]
+
+    AgentSessionRefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+
+    AgentSessionRefreshResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        agent_session:
+          type: object
+          properties:
+            session_id:
+              type: string
+            access_token:
+              type: string
+            refresh_token:
+              type: string
+            access_expires_at:
+              type: integer
+            refresh_expires_at:
+              type: integer
+            account:
+              type: object
+              properties:
+                id:
+                  type: string
+                email:
+                  type: string
+                github_login:
+                  oneOf:
+                    - type: string
+                    - type: 'null'
+                google_name:
+                  oneOf:
+                    - type: string
+                    - type: 'null'
+                tier:
+                  type: string
+                  enum: [free, pro]
+            scopes:
+              type: array
+              items:
+                type: string
+
+    AgentSessionSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        client_type:
+          type: string
+        client_name:
+          oneOf:
+            - type: string
+            - type: 'null'
+        client_instance_id:
+          oneOf:
+            - type: string
+            - type: 'null'
+        label:
+          oneOf:
+            - type: string
+            - type: 'null'
+        scopes:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, revoked]
+        created_at:
+          type: integer
+        last_used_at:
+          type: integer
+        access_expires_at:
+          type: integer
+        refresh_expires_at:
+          type: integer
+        revoked_at:
+          oneOf:
+            - type: integer
+            - type: 'null'
+
     FeedbackRequest:
       type: object
       required: [message]
@@ -1347,6 +1597,229 @@ components:
         maximum: 1000
 
 paths:
+  /agent-sessions/start:
+    post:
+      operationId: startAgentSession
+      summary: Start an agent-session signup/login flow
+      description: |
+        Creates a pending auth request for a CLI, MCP client, or managed runtime.
+
+        Use `mode=interactive` when the runtime can receive a localhost/browser callback.
+        Use `mode=detached` when the runtime must wait for approval by polling or manual exchange.
+      tags: [Agent Sessions]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentSessionStartRequest'
+      responses:
+        '201':
+          description: Auth request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSessionStartResponse'
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /agent-sessions/authorize/{id}:
+    get:
+      operationId: authorizeAgentSession
+      summary: Browser approval page for an auth request
+      description: |
+        Human-facing browser entry for agent signup/login approval.
+
+        The response is HTML and lets the user continue with Google or GitHub OAuth. This endpoint is usually opened from the `authorize_url` returned by `POST /agent-sessions/start`.
+      tags: [Agent Sessions]
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: HTML approval page
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          description: Auth request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: Auth request expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /agent-sessions/poll:
+    post:
+      operationId: pollAgentSession
+      summary: Poll detached auth status
+      description: |
+        Checks whether a detached auth request has been approved, exchanged, revoked, or expired.
+      tags: [Agent Sessions]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentSessionPollRequest'
+      responses:
+        '200':
+          description: Auth request status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSessionPollResponse'
+        '401':
+          description: Invalid poll token or auth request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: Auth request revoked or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSessionPollResponse'
+
+  /agent-sessions/exchange:
+    post:
+      operationId: exchangeAgentSession
+      summary: Exchange an approved auth request for an agent session
+      description: |
+        Redeems an approved auth request into a renewable agent session.
+
+        Interactive runtimes should send the matching `code_verifier` when the start request included a `code_challenge`.
+      tags: [Agent Sessions]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentSessionExchangeRequest'
+      responses:
+        '200':
+          description: Agent session issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSessionExchangeResponse'
+        '400':
+          description: Auth request is not ready or has already been exchanged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid exchange code or code verifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: Auth request expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /agent-sessions/refresh:
+    post:
+      operationId: refreshAgentSession
+      summary: Refresh an agent session access token
+      description: |
+        Exchanges a valid refresh token for a new access token while keeping the same logical agent session.
+      tags: [Agent Sessions]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentSessionRefreshRequest'
+      responses:
+        '200':
+          description: Session refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSessionRefreshResponse'
+        '400':
+          description: Missing refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /agent-sessions/revoke:
+    post:
+      operationId: revokeAgentSession
+      summary: Revoke an agent session
+      description: |
+        Revokes one active agent session owned by the authenticated account.
+      tags: [Agent Sessions]
+      security:
+        - AgentSessionBearer: []
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id]
+              properties:
+                session_id:
+                  type: string
+      responses:
+        '200':
+          description: Session revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  session_id:
+                    type: string
+        '401':
+          description: Missing or invalid account auth
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /track:
     post:
       operationId: trackEvent
@@ -3087,6 +3560,35 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /account/agent-sessions:
+    get:
+      operationId: listAgentSessions
+      summary: List active and historical agent sessions for the account
+      description: |
+        Returns agent sessions created for CLI, MCP, and managed runtimes under the authenticated account.
+      tags: [Agent Sessions]
+      security:
+        - AgentSessionBearer: []
+        - ApiKey: []
+      responses:
+        '200':
+          description: Agent sessions for the account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgentSessionSummary'
+        '401':
+          description: Missing or invalid account auth
           content:
             application/json:
               schema:

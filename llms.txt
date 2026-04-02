@@ -104,6 +104,15 @@ npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 - `POST /account/revoke-key` — Revoke and regenerate API key
 - `POST /account/feedback` — Submit product or workflow feedback
 
+### Agent Sessions
+- `POST /agent-sessions/start` — Start an agent-session signup/login flow
+- `GET /agent-sessions/authorize/{id}` — Browser approval page for an auth request
+- `POST /agent-sessions/poll` — Poll detached auth status
+- `POST /agent-sessions/exchange` — Exchange an approved auth request for an agent session
+- `POST /agent-sessions/refresh` — Refresh an agent session access token
+- `POST /agent-sessions/revoke` — Revoke an agent session
+- `GET /account/agent-sessions` — List active and historical agent sessions for the account
+
 ### Experiments
 - `GET /experiments/config` — Get experiment config for tracker.js
 - `POST /experiments` — Create an A/B experiment

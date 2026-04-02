@@ -5,16 +5,11 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 
 这是从零到可用 Agent Analytics 配置的最短路径。
 
+主路径现在是 agent-first：先把 Agent Analytics 安装到你已经在用的代理里，如果代理需要账户访问，就让它打开浏览器审批；审批完成后，再让代理创建项目并接入跟踪。
+
 如果你的代理已经安装好了，而且你想要一条最明确的创建项目、放入代码片段并验证第一个 page view 的完整引导，请使用 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)。
 
-## 1. 获取你的 API 密钥
-
-在 [app.agentanalytics.sh](https://app.agentanalytics.sh) 注册，然后在仪表盘中生成 API 密钥。
-
-- API 密钥（`aak_*`）用于读取分析数据、管理项目，以及配置 agent skill。
-- 项目令牌（`aat_*`）用于放进你网站上的跟踪代码片段。
-
-## 2. 选择并完成一条安装路径
+## 1. 选择并完成一条安装路径
 
 前往 [安装中心](/zh/installation/)，完成你实际使用环境对应的配置：
 
@@ -25,6 +20,16 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 - [OpenAI Codex](/zh/installation/openai-codex/)
 
 如果这些都不适合你，也可以直接使用 [API 参考](/zh/api/) 进行集成。
+
+## 2. 在项目目录里打开你的代理
+
+从你真正想跟踪的代码库或站点开始。
+
+然后把下面这类请求交给代理：
+
+- `Set up Agent Analytics for this project. If browser approval is needed, open it and wait for me. Then create the project, add tracking, and verify the first event.`
+
+如果打开了浏览器审批页，就用 Google 或 GitHub 登录并批准，然后让代理继续。这个审批会创建或连接你的账户，并把代理所需的 session 交给它。
 
 ## 3. 创建你的第一个项目
 
@@ -72,6 +77,10 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 - `Show bot traffic for my-site this week`
 
 如果配置正确，代理应该能直接回答，而不需要你手写 HTTP 请求。
+
+## 高级 fallback：API 密钥
+
+如果你需要为自己的运行时直接走 HTTP，也仍然可以在 [app.agentanalytics.sh](https://app.agentanalytics.sh) 里生成 API 密钥。这是高级/手动路径。CLI、MCP 和代理 onboarding 应该优先使用浏览器审批和 agent session。
 
 ## 下一步
 
