@@ -111,6 +111,9 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 - `/events` remains the raw lossless log. `/query` uses `session_then_user` as the default for `event_count`: session-backed rows count by session, no-session rows fall back to `user_id` only when that user has no session-backed row in the same filtered/grouped result set, and fully anonymous rows fall back to event `id`.
 - Use `--count-mode raw` when the question is about ingestion volume or debugging duplicate writes rather than activation-safe counts.
 - `filters[].field` can target built-in fields or any `properties.*` key, including first-touch attribution fields such as `properties.first_utm_source`.
+- Built-in query fields are a closed list: `event`, `user_id`, `date`, `country`, `session_id`, and `timestamp`.
+- Non-built-in fields such as `referrer`, `utm_source`, `path`, `browser`, and `hostname` must be written as `properties.<key>`.
+- Invalid filter fields now fail the query and return `/properties`-style guidance instead of being silently ignored.
 - `group_by` is limited to built-in fields only: `event`, `date`, `user_id`, `session_id`, and `country`.
 - Example attribution filter: `--filter '[{"field":"properties.first_utm_source","op":"eq","value":"reddit"}]'`
 
