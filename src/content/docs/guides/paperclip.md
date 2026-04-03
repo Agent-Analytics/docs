@@ -34,7 +34,8 @@ Hire an analyst to use AgentAnalytics
 And this task body:
 
 ```text
-Hire the analyst, have the engineer set up tracking, and handle approval if needed.
+Hire the analyst; we will use Agent Analytics to measure users' activity throughout our company. Install this skill: agent-analytics/agent-analytics-skill. Have the engineer new AA project for our company set up tracking on the landing page.
+The analyst you hire will monitor our numbers and prepare a growth plan. 
 ```
 
 Why this is the right Paperclip path:
