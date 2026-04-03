@@ -24,6 +24,8 @@ This is the shortest path from zero to a working Agent Analytics setup.
 
 The main flow is agent-first: install Agent Analytics into the AI agent you already use, let that agent open browser approval if it needs account access, then have it create the project and wire tracking for you.
 
+Choose `Agent end-to-end` if you want the agent to own the work from A to Z. Choose `I want to help` if you want to stay involved. In both cases, a blocked login can still turn into a browser approval and finish-code handoff.
+
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 If you are here from a Paperclip workflow, start by creating a task for your CEO in Paperclip, then follow [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) for the one-task delegation and finish-code handoff path.
@@ -121,11 +123,13 @@ URL: https://docs.agentanalytics.sh/guides/paperclip/
 
 Ask the user to create one CEO task, then review the blocked task when login approval is needed, and finally query the live project.
 
-[📎Paperclip](https://paperclip.ing/) is a company operating system for delegating work through agents. The clean Agent Analytics path in 📎Paperclip is now:
+[📎Paperclip](https://paperclip.ing/) is open-source orchestration for zero-human companies. The clean Agent Analytics path in 📎Paperclip is now:
 
 1. ask the user to create one task for the CEO
 2. review the blocked task when login approval is needed
 3. ask the analyst the first real traffic or signup question
+
+Use `Agent end-to-end` if you want the agent to own that blocked-login handoff from start to finish. Use `I want to help` if you want to stay involved while the agent still owns the actual setup.
 
 For normal Paperclip setup, keep browser approval and finish-code handoff as the default path. Raw API keys are only there as an advanced fallback for custom runtimes.
 
@@ -565,18 +569,18 @@ Use `--transport http`. The hosted MCP server is not configured for legacy SSE t
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)
 
-## Claude Desktop / Cowork
+## Web Analytics MCP for Claude Desktop / Cowork
 
 URL: https://docs.agentanalytics.sh/installation/claude-desktop-cowork/
 
-Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
+Connect the Agent Analytics web analytics MCP server in Claude Desktop or Cowork and query analytics directly in chat.
 
 <div class="aa-agent-badge aa-agent-badge--plain">
   <img src="/logos/claude-code-logo.png" alt="" />
   <span>Claude Desktop / Cowork</span>
 </div>
 
-Claude Desktop and Cowork both fit the hosted MCP flow. Use the connector UI instead of manually managing API keys in prompts.
+Claude Desktop and Cowork both fit the hosted web analytics MCP flow. Use the connector UI instead of manually managing API keys in prompts.
 
 ## Prerequisites
 

@@ -7,6 +7,8 @@ This is the shortest path from zero to a working Agent Analytics setup.
 
 The main flow is agent-first: install Agent Analytics into the AI agent you already use, let that agent open browser approval if it needs account access, then have it create the project and wire tracking for you.
 
+Choose `Agent end-to-end` if you want the agent to own the work from A to Z. Choose `I want to help` if you want to stay involved. In both cases, a blocked login can still turn into a browser approval and finish-code handoff.
+
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
 If you are here from a Paperclip workflow, start by creating a task for your CEO in Paperclip, then follow [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) for the one-task delegation and finish-code handoff path.
