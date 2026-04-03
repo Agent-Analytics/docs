@@ -3,7 +3,7 @@ title: Set up Agent Analytics for your Paperclip company
 description: Ask the user to create one CEO task, then review the blocked task when login approval is needed, and finally query the live project.
 ---
 
-[📎Paperclip](https://paperclip.ing/) is a company operating system for delegating work through agents. The clean Agent Analytics path in 📎Paperclip is now:
+[📎Paperclip](https://paperclip.ing/) is open-source orchestration for zero-human companies. The clean Agent Analytics path in 📎Paperclip is now:
 
 1. ask the user to create one task for the CEO
 2. review the blocked task when login approval is needed
