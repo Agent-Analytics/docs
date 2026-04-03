@@ -1,6 +1,6 @@
 ---
-title: Claude Desktop / Cowork
-description: Connect the hosted MCP server in Claude Desktop or Cowork and verify analytics tools directly in chat.
+title: Web Analytics MCP for Claude Desktop / Cowork
+description: Connect the Agent Analytics web analytics MCP server in Claude Desktop or Cowork and query analytics directly in chat.
 ---
 
 <div class="aa-agent-badge aa-agent-badge--plain">
@@ -8,7 +8,7 @@ description: Connect the hosted MCP server in Claude Desktop or Cowork and verif
   <span>Claude Desktop / Cowork</span>
 </div>
 
-Claude Desktop and Cowork both fit the hosted MCP flow. Use the connector UI instead of manually managing API keys in prompts.
+Claude Desktop and Cowork both fit the hosted web analytics MCP flow. Use the connector UI instead of manually managing API keys in prompts.
 
 ## Prerequisites
 
