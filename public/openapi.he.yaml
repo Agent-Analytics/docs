@@ -113,9 +113,9 @@ tags:
       No saved funnels — agents query in one shot via `POST /funnel`.
   - name: Streaming
     description: |
-      Real-time event streaming. Available on all tiers.
+      Real-time event streaming.
 
-      Two endpoints: `/stream` for continuous SSE event delivery, and `/live` for a point-in-time snapshot of active visitors and recent events. Both read from an in-memory ring buffer — no D1 query.
+      `/stream` and `/live` are Pro-only on hosted cloud. Both read from an in-memory ring buffer — no D1 query.
   - name: Tracking
     description: |
       Browser tracker delivery endpoint.
@@ -2809,13 +2809,16 @@ paths:
 
         The stream sends a `:heartbeat` comment every 30 seconds as a keepalive. Auto-disconnects after 30 minutes of no matching events.
 
+        Supports agent-session bearer auth (`Authorization: Bearer aas_...`) or API key auth (`X-API-Key: aak_...`).
+
         **curl example:**
         ```bash
         curl -N "https://api.agentanalytics.sh/stream?project=my-site&events=page_view,signup" \
-          -H "X-API-Key: aak_..."
+          -H "Authorization: Bearer aas_..."
         ```
       tags: [Streaming]
       security:
+        - AgentSessionBearer: []
         - ApiKey: []
       parameters:
         - name: project
@@ -2852,7 +2855,7 @@ paths:
                   - `event: track` — each matching event with `id` for reconnection
                   - `:heartbeat` — keepalive comment every 30s
         '401':
-          description: Missing or invalid API key
+          description: Missing or invalid account auth
           content:
             application/json:
               schema:
@@ -2879,19 +2882,22 @@ paths:
 
         Reads from an in-memory ring buffer — no D1 query. Data is available only while events are being streamed (the ring buffer evicts events older than 5 minutes).
 
+        Supports agent-session bearer auth (`Authorization: Bearer aas_...`) or API key auth (`X-API-Key: aak_...`).
+
         **curl example:**
         ```bash
         curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
-          -H "X-API-Key: aak_..."
+          -H "Authorization: Bearer aas_..."
         ```
       tags: [Streaming]
       security:
+        - AgentSessionBearer: []
         - ApiKey: []
       parameters:
         - name: project
           in: query
           required: false
-          description: Optional project name. Omit for an account-wide real-time snapshot across all projects.
+          description: Project name. Defaults to the first project you own.
           schema:
             type: string
           example: my-site
@@ -2912,7 +2918,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LiveSnapshotResponse'
         '401':
-          description: Missing or invalid API key
+          description: Missing or invalid account auth
           content:
             application/json:
               schema:
@@ -3418,7 +3424,7 @@ paths:
 
         This endpoint is optimized for a single account-level dashboard view: total event trend, active project count, daily event time series, and a top-project list.
 
-        Use `/live` for real-time account-wide activity. Use project-scoped endpoints like `/stats` and `/insights` when you want deeper analysis for one project.
+        Use `/live` for a real-time snapshot of one project. Use project-scoped endpoints like `/stats` and `/insights` when you want deeper analysis for one project.
 
         **CLI:** `npx @agent-analytics/cli all-sites --period 7d`
       tags: [Account]
