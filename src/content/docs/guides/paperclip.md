@@ -34,7 +34,7 @@ Hire an analyst to use AgentAnalytics
 And this task body:
 
 ```text
-Ask the CEO to hire the analyst, have the engineer set up tracking, and handle approval if needed.
+Hire the analyst, have the engineer set up tracking, and handle approval if needed.
 ```
 
 Why this is the right Paperclip path:
