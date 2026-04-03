@@ -121,7 +121,7 @@ URL: https://docs.agentanalytics.sh/guides/paperclip/
 
 Ask the user to create one CEO task, then review the blocked task when login approval is needed, and finally query the live project.
 
-[Paperclip 📎](https://paperclip.ing/) is a company operating system for delegating work through agents. The clean Agent Analytics path in Paperclip is now:
+[📎Paperclip](https://paperclip.ing/) is a company operating system for delegating work through agents. The clean Agent Analytics path in 📎Paperclip is now:
 
 1. ask the user to create one task for the CEO
 2. review the blocked task when login approval is needed
@@ -733,7 +733,7 @@ Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval
 
 For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native while using the same underlying analytics surface the CLI and API expose.
 
-If you are setting this up from a Paperclip company, use [Set up Agent Analytics for your Paperclip📎 company](/guides/paperclip/) for the company-skill path. Use this page when you need the raw OpenClaw install flow itself.
+If you are setting this up from a 📎Paperclip company, use [Set up Agent Analytics for your 📎Paperclip company](/guides/paperclip/) for the company-skill path. Use this page when you need the raw OpenClaw install flow itself.
 
 The important detail: `npx` is only the launcher. The skill is using the official Agent Analytics CLI, and that CLI wraps the same documented HTTP API shown in the docs.
 
@@ -801,7 +801,7 @@ If you have not created your first real project yet, continue with [First Projec
 ## Related
 
 - [Getting Started](/getting-started/)
-- [Set up Agent Analytics for your Paperclip📎 company](/guides/paperclip/)
+- [Set up Agent Analytics for your 📎Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
 - [OpenAI Codex](/installation/openai-codex/)
