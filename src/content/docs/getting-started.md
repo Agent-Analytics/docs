@@ -5,9 +5,9 @@ description: Create a project, install Agent Analytics in your AI agent, and ver
 
 This is the shortest path from zero to a working Agent Analytics setup.
 
-The main flow is agent-first: install Agent Analytics into the AI agent you already use, let that agent open browser approval if it needs account access, then have it create the project and wire tracking for you.
+The main flow is agent-first: choose `Connect as agent`, start in the AI agent you already use, let that agent open the browser for you or give you a login link, then have it create the project and wire tracking for you.
 
-Choose `Agent end-to-end` if you want the agent to own the work from A to Z. Choose `I want to help` if you want to stay involved. In both cases, a blocked login can still turn into a browser approval and finish-code handoff.
+Use `Connect as human` only when you need direct account access yourself, such as billing, cancellation, or manual review. Browser approval and finish-code handoff still belong to the normal agent-owned setup flow.
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
@@ -33,9 +33,9 @@ Start from the codebase or site you actually want to track.
 
 Then ask your AI agent for the full setup flow:
 
-- `Set up Agent Analytics for this project. If browser approval is needed, open it and wait for me. Then create the project, add tracking, and verify the first event.`
+- `Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or send me the login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking, and verify the first event.`
 
-If the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. That approval creates or connects your account and gives the agent the session it needs.
+When the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. That approval creates or connects your account and gives the agent the session it needs.
 
 ## 3. Create your first project
 

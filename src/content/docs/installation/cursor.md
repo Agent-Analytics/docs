@@ -14,9 +14,9 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 
 ## Prerequisites
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Cursor installed
 - `npx` available in the environment Cursor uses
+- Access to the Google or GitHub sign-in you want to connect when Cursor opens browser approval
 
 ## Recommended: install the agent skill
 
@@ -27,10 +27,10 @@ npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 Then ask Cursor:
 
 ```text
-Set up Agent Analytics for this project. Install it here if needed. If browser approval is needed, open it and wait for me. I will sign in with Google or GitHub and approve it. Then create the project, add tracking and key events, and verify the first event.
+Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.
 ```
 
-This gives Cursor the Agent Analytics workflow layer plus CLI-oriented execution in the same environment. That is usually the best tradeoff when you want lower latency and less token overhead than MCP tool calls.
+This gives Cursor the Agent Analytics workflow layer plus CLI-oriented execution in the same environment. That is usually the best tradeoff when you want lower latency and less token overhead than MCP tool calls. The browser approval step creates or connects the account during setup, so you do not need to prepare an API key first.
 
 ## Verify the install
 
@@ -77,7 +77,7 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 
 ## Troubleshooting
 
-- If the skill installs but the setup pauses on approval, complete the browser sign-in and let Cursor continue.
+- If the skill installs but the setup pauses on approval, complete the browser sign-in and paste back any finish code if Cursor asks for it.
 - If you intentionally use the advanced/manual API-key path, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
 - Confirm the `mcp.json` entry is valid JSON if you choose the MCP path.
 - Reload Cursor after adding the custom MCP server if the tools panel still shows the old state.

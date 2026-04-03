@@ -12,9 +12,8 @@ Use the plugin path first. It gives Claude Code both the MCP server connection a
 
 ## Prerequisites
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Claude Code installed locally
-- Access to the same GitHub or Google identity you use for Agent Analytics
+- Access to the Google or GitHub sign-in you want to connect when Claude Code opens browser approval
 
 ## Recommended: install the plugin
 
@@ -29,6 +28,7 @@ This is the shortest hosted path for Claude Code because it packages the MCP con
 
 Ask Claude Code:
 
+- `Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.`
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
@@ -45,7 +45,7 @@ If you do not want the full plugin, use the skill path before raw MCP:
 npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ```
 
-This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It still requires a valid Agent Analytics API key in the environment used by Claude Code.
+This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It uses browser approval and agent sessions by default. Use a raw API key only as the advanced/manual fallback.
 
 ## Lower-level fallback: add only the MCP server
 
@@ -59,8 +59,9 @@ Use `--transport http`. The hosted MCP server is not configured for legacy SSE t
 
 ## Troubleshooting
 
-- Make sure Claude Code is using the same GitHub or Google account as your Agent Analytics account.
-- If the skill installs but Claude Code cannot query data, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
+- Make sure Claude Code completes browser approval with the same GitHub or Google account you want connected to Agent Analytics.
+- If the skill or plugin pauses on approval, complete the browser sign-in and let Claude Code continue.
+- If you intentionally use the advanced/manual API-key path, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
 - If the MCP command fails, verify you used `--transport http`.
 
 ## Related

@@ -5,7 +5,7 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 
 这是从零到可用 Agent Analytics 配置的最短路径。
 
-主路径现在是 agent-first：先把 Agent Analytics 安装到你已经在用的代理里，如果代理需要账户访问，就让它打开浏览器审批；审批完成后，再让代理创建项目并接入跟踪。
+主路径现在是 agent-first：先把 Agent Analytics 安装到你已经在用的代理里，让代理为你打开浏览器或给你一个登录链接，然后再让代理创建项目并接入跟踪。
 
 如果你的代理已经安装好了，而且你想要一条最明确的创建项目、放入代码片段并验证第一个 page view 的完整引导，请使用 [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)。
 
@@ -27,9 +27,9 @@ description: 创建项目，在代理中安装 Agent Analytics，并验证第一
 
 然后把下面这类请求交给代理：
 
-- `Set up Agent Analytics for this project. If browser approval is needed, open it and wait for me. Then create the project, add tracking, and verify the first event.`
+- `Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or send me the login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking, and verify the first event.`
 
-如果打开了浏览器审批页，就用 Google 或 GitHub 登录并批准，然后让代理继续。这个审批会创建或连接你的账户，并把代理所需的 session 交给它。
+当浏览器审批页打开时，就用 Google 或 GitHub 登录并批准，然后让代理继续。这个审批会创建或连接你的账户，并把代理所需的 session 交给它。
 
 ## 3. 创建你的第一个项目
 

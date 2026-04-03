@@ -23,13 +23,13 @@ API base URL: https://api.agentanalytics.sh
 - [Claude Code](https://docs.agentanalytics.sh/installation/claude-code/): Install Agent Analytics in Claude Code with the hosted plugin first, then use the skill path before dropping to raw MCP setup.
 - [Web Analytics MCP for Claude Desktop / Cowork](https://docs.agentanalytics.sh/installation/claude-desktop-cowork/): Connect the Agent Analytics web analytics MCP server in Claude Desktop or Cowork and query analytics directly in chat.
 - [Cursor](https://docs.agentanalytics.sh/installation/cursor/): Install the Agent Analytics skill in Cursor and use CLI-style workflows first. Use MCP only when you specifically want connector-style tool calls.
-- [OpenClaw](https://docs.agentanalytics.sh/installation/openclaw/): Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval when login is needed, and keep the workflow inside chat.
+- [OpenClaw](https://docs.agentanalytics.sh/installation/openclaw/): Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval plus finish-code handoff as the normal login path, and keep the workflow inside chat.
 - [OpenAI Codex](https://docs.agentanalytics.sh/installation/openai-codex/): Install the Agent Analytics skill for OpenAI Codex, use browser approval when login is needed, and keep project setup in the same agent flow.
 
 ### Reference
 - [Tracker.js](https://docs.agentanalytics.sh/reference/tracker-js/): Add Agent Analytics to any site with one script tag, then turn on declarative events, consent, performance tracking, and other browser-side features.
 - [Bot Traffic](https://docs.agentanalytics.sh/reference/bot-traffic/): See which automated callers hit your tracker, how many events were filtered, and which actors generated that traffic.
-- [Authentication](https://docs.agentanalytics.sh/reference/authentication/): Understand the difference between API keys and project tokens before you wire an agent or a tracker.
+- [Authentication](https://docs.agentanalytics.sh/reference/authentication/): Understand the difference between agent sessions, API keys, and project tokens before you wire an agent or a tracker.
 - [Plugin vs Skill vs MCP vs CLI vs API](https://docs.agentanalytics.sh/reference/cli-mcp-api/): Agent Analytics exposes one analytics surface through plugin, skill, MCP, CLI, and raw HTTP. Choose the native path that fits the environment your AI agent already uses.
 - [Rate Limits](https://docs.agentanalytics.sh/reference/rate-limits/): Hosted Agent Analytics uses account-level API limits and event-volume limits that vary by plan.
 - [Error Format](https://docs.agentanalytics.sh/reference/error-format/): All API errors return a machine-readable code plus a human-readable message.
@@ -56,16 +56,17 @@ npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 
 ## Quick Start
 
-1. Sign up at https://app.agentanalytics.sh and get your API key
-2. Pick an install path from https://docs.agentanalytics.sh/installation/
-3. Create a project: `POST /projects` with `X-API-Key` header
-4. Add the tracking snippet (returned in project creation response)
+1. Pick an install path from https://docs.agentanalytics.sh/installation/
+2. Ask your AI agent to set up Agent Analytics, open the browser for you or send you a login link, and wait
+3. Sign in with Google or GitHub, approve it, and paste back any finish code if the agent asks
+4. Let the agent create the project and either add the tracker or return the snippet for you to paste
    - If using Astro, add `is:inline` to the tracker `<script>` tag.
-5. Query stats: `GET /stats?project=my-site` with `X-API-Key` header
+5. Query stats by asking your agent something like `How is my-site doing this week?`
 
 ## Authentication
 
-- **API Key** (`aak_*`): Secret key for reading data and project management. Pass via `X-API-Key` header or `?key=` query param.
+- **Agent Session** (`aas_*`): Browser-approved session used by the official CLI and agent-first onboarding flows.
+- **API Key** (`aak_*`): Secret key for direct API access and advanced/manual runtimes. Pass via `X-API-Key` header or `?key=` query param.
 - **Project Token** (`aat_*`): Public token for event ingestion. Passed in request body.
 
 ## Endpoints

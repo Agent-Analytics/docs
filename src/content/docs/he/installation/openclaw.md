@@ -1,6 +1,6 @@
 ---
 title: OpenClaw
-description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub, השתמשו באישור בדפדפן כשצריך, והמשיכו את ה-workflow מתוך הצ'אט.
+description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub, השתמשו באישור בדפדפן וב-finish code בתור מסלול ההתחברות הרגיל, והמשיכו את ה-workflow מתוך הצ'אט.
 ---
 
 ל-OpenClaw, המסלול הנקי ביותר הוא ה-skill המארח דרך ClawHub. הוא שומר על ההגדרה agent-native ועובד היטב עם workflow מוכוון CLI.
@@ -9,15 +9,15 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 
 ## דרישות מקדימות
 
-- חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
 - גישה לסביבת OpenClaw שבה אתם רוצים להתקין את ה-skill
 - `npx` זמין באותה סביבת runtime
+- גישה להתחברות עם Google או GitHub שתרצו לחבר כאשר OpenClaw שולח את קישור האישור
 
 ## מומלץ: התקנה מתוך ClawHub
 
 אמרו ל-OpenClaw:
 
-> Install the Agent Analytics skill from ClawHub. Use the official Agent Analytics CLI. If login approval is needed, send me the approval link and wait. I will sign in with Google or GitHub, and if needed I will paste back the finish code.
+> Install the Agent Analytics skill from ClawHub. Use the official Agent Analytics CLI. Send me the login link and wait. I will sign in with Google or GitHub, approve it, and paste back the finish code if you need it.
 
 הרישום המארח נמצא כאן:
 
@@ -41,7 +41,7 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 בקשו מ-OpenClaw:
 
 - `List my Agent Analytics projects`
-- `Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the approval link and wait. I will sign in with Google or GitHub, and if needed I will paste back the finish code. Then create the project, add tracking and key events, and verify the first event.`
+- `Set up Agent Analytics for this project. Install it here if needed. Send me the login link and wait. I will sign in with Google or GitHub, approve it, and paste back the finish code if you need it. Then create the project, add tracking and key events, and verify the first event.`
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 

@@ -9,7 +9,7 @@ description: Ask the user to create one CEO task, then review the blocked task w
 2. review the blocked task when login approval is needed
 3. ask the analyst the first real traffic or signup question
 
-Use `Agent end-to-end` if you want the agent to own that blocked-login handoff from start to finish. Use `I want to help` if you want to stay involved while the agent still owns the actual setup.
+Use `Connect as agent` if you want the agent to own that blocked-login handoff from start to finish. Use `Connect as human` only when you need direct account access yourself, not because the setup flow has changed.
 
 For normal Paperclip setup, keep browser approval and finish-code handoff as the default path. Raw API keys are only there as an advanced fallback for custom runtimes.
 

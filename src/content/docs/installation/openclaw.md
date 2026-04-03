@@ -1,6 +1,6 @@
 ---
 title: OpenClaw
-description: Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval when login is needed, and keep the workflow inside chat.
+description: Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval plus finish-code handoff as the normal login path, and keep the workflow inside chat.
 ---
 
 For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native while using the same underlying analytics surface the CLI and API expose.
@@ -11,9 +11,9 @@ The important detail: `npx` is only the launcher. The skill is using the officia
 
 ## Prerequisites
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Access to the OpenClaw environment where you want the skill installed
 - `npx` available in that runtime
+- Access to the Google or GitHub sign-in you want to connect when OpenClaw sends the approval link
 
 ## Recommended: install from ClawHub
 
@@ -30,7 +30,7 @@ Once installed, OpenClaw can create projects, generate tracking snippets, query 
 
 Then ask OpenClaw:
 
-> Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the link and wait. I will sign in with Google or GitHub, and if needed I will paste back any finish code. Then create the project, add tracking and key events, and verify the first event.
+> Set up Agent Analytics for this project. Install it here if needed. Send me the login link and wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.
 
 The normal OpenClaw path is:
 
@@ -56,7 +56,7 @@ That is the right explanation if a security review asks what the `npx` command i
 
 Ask OpenClaw:
 
-- `Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the link and wait. I will sign in with Google or GitHub, and if needed I will paste back any finish code. Then create the project, add tracking and key events, and verify the first event.`
+- `Set up Agent Analytics for this project. Install it here if needed. Send me the login link and wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.`
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 

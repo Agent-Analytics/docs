@@ -22,9 +22,9 @@ Create a project, install Agent Analytics in your AI agent, and verify the first
 
 This is the shortest path from zero to a working Agent Analytics setup.
 
-The main flow is agent-first: install Agent Analytics into the AI agent you already use, let that agent open browser approval if it needs account access, then have it create the project and wire tracking for you.
+The main flow is agent-first: choose `Connect as agent`, start in the AI agent you already use, let that agent open the browser for you or give you a login link, then have it create the project and wire tracking for you.
 
-Choose `Agent end-to-end` if you want the agent to own the work from A to Z. Choose `I want to help` if you want to stay involved. In both cases, a blocked login can still turn into a browser approval and finish-code handoff.
+Use `Connect as human` only when you need direct account access yourself, such as billing, cancellation, or manual review. Browser approval and finish-code handoff still belong to the normal agent-owned setup flow.
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
@@ -50,9 +50,9 @@ Start from the codebase or site you actually want to track.
 
 Then ask your AI agent for the full setup flow:
 
-- `Set up Agent Analytics for this project. If browser approval is needed, open it and wait for me. Then create the project, add tracking, and verify the first event.`
+- `Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or send me the login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking, and verify the first event.`
 
-If the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. That approval creates or connects your account and gives the agent the session it needs.
+When the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. That approval creates or connects your account and gives the agent the session it needs.
 
 ## 3. Create your first project
 
@@ -129,7 +129,7 @@ Ask the user to create one CEO task, then review the blocked task when login app
 2. review the blocked task when login approval is needed
 3. ask the analyst the first real traffic or signup question
 
-Use `Agent end-to-end` if you want the agent to own that blocked-login handoff from start to finish. Use `I want to help` if you want to stay involved while the agent still owns the actual setup.
+Use `Connect as agent` if you want the agent to own that blocked-login handoff from start to finish. Use `Connect as human` only when you need direct account access yourself, not because the setup flow has changed.
 
 For normal Paperclip setup, keep browser approval and finish-code handoff as the default path. Raw API keys are only there as an advanced fallback for custom runtimes.
 
@@ -269,10 +269,10 @@ If you still need to connect your AI agent first, go back to the [installation h
 Ask your AI agent:
 
 ```text
-List my Agent Analytics projects and confirm you can reach my account. If browser approval is needed, open it and wait for me.
+List my Agent Analytics projects and confirm you can reach my account. Open the browser for me or send me the login link, then wait for me.
 ```
 
-If the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. If the agent still cannot see your account after that, stop here and finish the right [installation path](/installation/).
+When the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. If the agent still cannot see your account after that, stop here and finish the right [installation path](/installation/).
 
 ## 2. Create the first project and get the tracker snippet
 
@@ -510,9 +510,8 @@ Use the plugin path first. It gives Claude Code both the MCP server connection a
 
 ## Prerequisites
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Claude Code installed locally
-- Access to the same GitHub or Google identity you use for Agent Analytics
+- Access to the Google or GitHub sign-in you want to connect when Claude Code opens browser approval
 
 ## Recommended: install the plugin
 
@@ -527,6 +526,7 @@ This is the shortest hosted path for Claude Code because it packages the MCP con
 
 Ask Claude Code:
 
+- `Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.`
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
@@ -543,7 +543,7 @@ If you do not want the full plugin, use the skill path before raw MCP:
 npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ```
 
-This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It still requires a valid Agent Analytics API key in the environment used by Claude Code.
+This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It uses browser approval and agent sessions by default. Use a raw API key only as the advanced/manual fallback.
 
 ## Lower-level fallback: add only the MCP server
 
@@ -557,8 +557,9 @@ Use `--transport http`. The hosted MCP server is not configured for legacy SSE t
 
 ## Troubleshooting
 
-- Make sure Claude Code is using the same GitHub or Google account as your Agent Analytics account.
-- If the skill installs but Claude Code cannot query data, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
+- Make sure Claude Code completes browser approval with the same GitHub or Google account you want connected to Agent Analytics.
+- If the skill or plugin pauses on approval, complete the browser sign-in and let Claude Code continue.
+- If you intentionally use the advanced/manual API-key path, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
 - If the MCP command fails, verify you used `--transport http`.
 
 ## Related
@@ -650,9 +651,9 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 
 ## Prerequisites
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Cursor installed
 - `npx` available in the environment Cursor uses
+- Access to the Google or GitHub sign-in you want to connect when Cursor opens browser approval
 
 ## Recommended: install the agent skill
 
@@ -663,10 +664,10 @@ npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 Then ask Cursor:
 
 ```text
-Set up Agent Analytics for this project. Install it here if needed. If browser approval is needed, open it and wait for me. I will sign in with Google or GitHub and approve it. Then create the project, add tracking and key events, and verify the first event.
+Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.
 ```
 
-This gives Cursor the Agent Analytics workflow layer plus CLI-oriented execution in the same environment. That is usually the best tradeoff when you want lower latency and less token overhead than MCP tool calls.
+This gives Cursor the Agent Analytics workflow layer plus CLI-oriented execution in the same environment. That is usually the best tradeoff when you want lower latency and less token overhead than MCP tool calls. The browser approval step creates or connects the account during setup, so you do not need to prepare an API key first.
 
 ## Verify the install
 
@@ -713,7 +714,7 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 
 ## Troubleshooting
 
-- If the skill installs but the setup pauses on approval, complete the browser sign-in and let Cursor continue.
+- If the skill installs but the setup pauses on approval, complete the browser sign-in and paste back any finish code if Cursor asks for it.
 - If you intentionally use the advanced/manual API-key path, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
 - Confirm the `mcp.json` entry is valid JSON if you choose the MCP path.
 - Reload Cursor after adding the custom MCP server if the tools panel still shows the old state.
@@ -733,7 +734,7 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 
 URL: https://docs.agentanalytics.sh/installation/openclaw/
 
-Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval when login is needed, and keep the workflow inside chat.
+Install the Agent Analytics skill in OpenClaw from ClawHub, use browser approval plus finish-code handoff as the normal login path, and keep the workflow inside chat.
 
 For OpenClaw, the cleanest path is the hosted ClawHub skill. It keeps setup agent-native while using the same underlying analytics surface the CLI and API expose.
 
@@ -743,9 +744,9 @@ The important detail: `npx` is only the launcher. The skill is using the officia
 
 ## Prerequisites
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Access to the OpenClaw environment where you want the skill installed
 - `npx` available in that runtime
+- Access to the Google or GitHub sign-in you want to connect when OpenClaw sends the approval link
 
 ## Recommended: install from ClawHub
 
@@ -762,7 +763,7 @@ Once installed, OpenClaw can create projects, generate tracking snippets, query 
 
 Then ask OpenClaw:
 
-> Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the link and wait. I will sign in with Google or GitHub, and if needed I will paste back any finish code. Then create the project, add tracking and key events, and verify the first event.
+> Set up Agent Analytics for this project. Install it here if needed. Send me the login link and wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.
 
 The normal OpenClaw path is:
 
@@ -788,7 +789,7 @@ That is the right explanation if a security review asks what the `npx` command i
 
 Ask OpenClaw:
 
-- `Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the link and wait. I will sign in with Google or GitHub, and if needed I will paste back any finish code. Then create the project, add tracking and key events, and verify the first event.`
+- `Set up Agent Analytics for this project. Install it here if needed. Send me the login link and wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.`
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 
@@ -828,8 +829,8 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 
 ## Prerequisites
 
-- An Agent Analytics account at [app.agentanalytics.sh](https://app.agentanalytics.sh)
 - `npx` available in the environment Codex uses
+- Access to the Google or GitHub sign-in you want to connect when Codex opens browser approval
 
 ## Recommended: install the Agent Analytics skill
 
@@ -840,10 +841,10 @@ npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 Then ask Codex:
 
 ```text
-Set up Agent Analytics for this project. Install it here if needed. If browser approval is needed, open it and wait for me. I will sign in with Google or GitHub and approve it. Then create the project, add tracking and key events, and verify the first event.
+Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.
 ```
 
-The skill teaches Codex how to set up tracking, query analytics, inspect project health, and run experiments from the same conversation loop.
+The skill teaches Codex how to set up tracking, query analytics, inspect project health, and run experiments from the same conversation loop. Browser approval creates or connects the account during setup, so you do not need to prepare an API key first.
 
 ## Verify the install
 
@@ -857,7 +858,7 @@ If you have not created your first real project yet, continue with [First Projec
 
 ## Troubleshooting
 
-- If the skill installs but the setup pauses on approval, complete the browser sign-in and let Codex continue.
+- If the skill installs but the setup pauses on approval, complete the browser sign-in and paste back any finish code if Codex asks for it.
 - If you intentionally use the advanced/manual API-key path, check that `AGENT_ANALYTICS_API_KEY` is present in the environment the agent actually runs in.
 - If `npx` is unavailable, install the required Node.js runtime first or use the direct API route temporarily.
 - If you need endpoint-level debugging, use the [API reference](/api/) and test with `curl`.
@@ -1148,9 +1149,19 @@ Bot traffic overview is available on both hosted free and pro plans through API,
 
 URL: https://docs.agentanalytics.sh/reference/authentication/
 
-Understand the difference between API keys and project tokens before you wire an agent or a tracker.
+Understand the difference between agent sessions, API keys, and project tokens before you wire an agent or a tracker.
 
-Agent Analytics uses two different credentials. They serve different jobs and should not be swapped.
+Agent Analytics uses three different credentials. They serve different jobs and should not be swapped.
+
+## Agent session (`aas_*`)
+
+Use the agent session for:
+
+- official CLI login through browser approval
+- plugin and skill flows that authenticate through the hosted approval flow
+- agent-native setup where the agent should keep the connection after approval
+
+In the normal product flow, you do not paste this token around manually. The hosted approval flow creates it for the agent or CLI and stores it locally for later use.
 
 ## API key (`aak_*`)
 
@@ -1192,12 +1203,14 @@ Do not put the API key in the client-side tracker. The tracker uses the public p
 
 ## CLI auth helpers
 
-If you use the official CLI, it provides two local auth convenience commands around the API key:
+If you use the official CLI, it provides three local auth convenience commands:
 
-- `npx @agent-analytics/cli login --token aak_...` saves the API key locally for later CLI reads.
+- `npx @agent-analytics/cli login` starts browser approval and saves a local CLI session.
+- `npx @agent-analytics/cli login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
+- `npx @agent-analytics/cli login --token aak_...` saves an API key locally as the advanced/manual fallback.
 - `npx @agent-analytics/cli logout` clears the saved local CLI auth.
 
-`logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
+If you logged in with `--token`, `logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
 
 If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will continue to use that env var even after `logout` until you unset it.
 

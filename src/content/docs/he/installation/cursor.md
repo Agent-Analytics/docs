@@ -12,19 +12,23 @@ description: התקינו את Agent Analytics skill ב-Cursor והעדיפו wo
 
 ## דרישות מקדימות
 
-- חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Cursor מותקן
 - `npx` זמין בסביבה שבה Cursor משתמש
-- מפתח API תקין של Agent Analytics זמין כ-`AGENT_ANALYTICS_API_KEY`
+- גישה להתחברות עם Google או GitHub שתרצו לחבר כאשר Cursor פותח את אישור הדפדפן
 
 ## מומלץ: התקנת ה-Agent Skill
 
 ```bash
 npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
-export AGENT_ANALYTICS_API_KEY=aak_...
 ```
 
-כך Cursor מקבל גם את שכבת ה-workflow של Agent Analytics וגם הרצה מוכוונת CLI באותה סביבה. לרוב זהו ה-tradeoff הטוב ביותר כשאתם רוצים פחות latency ופחות overhead של טוקנים מאשר קריאות כלי דרך MCP.
+אחר כך בקשו מ-Cursor:
+
+```text
+Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.
+```
+
+כך Cursor מקבל גם את שכבת ה-workflow של Agent Analytics וגם הרצה מוכוונת CLI באותה סביבה. לרוב זהו ה-tradeoff הטוב ביותר כשאתם רוצים פחות latency ופחות overhead של טוקנים מאשר קריאות כלי דרך MCP. אישור הדפדפן יוצר או מחבר את החשבון במהלך ההגדרה, כך שאין צורך להכין מפתח API מראש.
 
 ## בדיקת ההתקנה
 
@@ -71,7 +75,8 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 
 ## פתרון תקלות
 
-- אם ה-skill מותקן אבל השאילתות נכשלות, ודאו ש-`AGENT_ANALYTICS_API_KEY` זמין בסביבה שבה Cursor באמת רץ.
+- אם ה-skill נעצר בשלב האישור, השלימו את ההתחברות בדפדפן והדביקו חזרה כל finish code אם Cursor מבקש אותו.
+- אם בחרתם במפורש במסלול הידני/המתקדם של API key, ודאו ש-`AGENT_ANALYTICS_API_KEY` זמין בסביבה שבה Cursor באמת רץ.
 - אם בחרתם במסלול MCP, ודאו שהערך ב-`mcp.json` הוא JSON תקין.
 - טענו מחדש את Cursor אחרי הוספת שרת MCP מותאם אם פאנל הכלים עדיין מציג את המצב הישן.
 - אם Cursor רואה את שרת ה-MCP אבל לא את הפרויקטים שלכם, ודאו שההתחברות המארחת הושלמה עם החשבון הנכון.

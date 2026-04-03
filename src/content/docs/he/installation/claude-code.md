@@ -12,9 +12,8 @@ description: התקינו את Agent Analytics ב-Claude Code דרך התוסף 
 
 ## דרישות מקדימות
 
-- חשבון Agent Analytics ב-[app.agentanalytics.sh](https://app.agentanalytics.sh)
 - Claude Code מותקן מקומית
-- גישה לאותה זהות GitHub או Google שבה אתם משתמשים ב-Agent Analytics
+- גישה להתחברות עם Google או GitHub שתרצו לחבר כאשר Claude Code פותח את אישור הדפדפן
 
 ## מומלץ: התקנת התוסף
 
@@ -29,6 +28,7 @@ description: התקינו את Agent Analytics ב-Claude Code דרך התוסף 
 
 בקשו מ-Claude Code:
 
+- `Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.`
 - `List my Agent Analytics projects`
 - `How is my-site doing this week?`
 - `What are the top pages for my-site this week?`
@@ -45,7 +45,7 @@ description: התקינו את Agent Analytics ב-Claude Code דרך התוסף 
 npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ```
 
-המסלול הזה מלמד את Claude Code איך להגדיר מעקב, לשאול אנליטיקה ולהריץ ניסויים. עדיין צריך מפתח API תקין של Agent Analytics בסביבת העבודה שבה Claude Code רץ.
+המסלול הזה מלמד את Claude Code איך להגדיר מעקב, לשאול אנליטיקה ולהריץ ניסויים. כברירת מחדל הוא משתמש באישור בדפדפן וב-agent sessions. השתמשו במפתח API גולמי רק במסלול הידני/המתקדם.
 
 ## חלופה ברמה נמוכה יותר: חיבור שרת MCP בלבד
 
@@ -59,8 +59,9 @@ claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mc
 
 ## פתרון תקלות
 
-- ודאו ש-Claude Code משתמש באותו חשבון GitHub או Google כמו חשבון הדשבורד שלכם ב-Agent Analytics.
-- אם ה-skill מותקן אבל Claude Code לא מצליח לשאול נתונים, ודאו שהסביבה חושפת את `AGENT_ANALYTICS_API_KEY`.
+- ודאו ש-Claude Code משלים את אישור הדפדפן עם אותו חשבון GitHub או Google שתרצו לחבר ל-Agent Analytics.
+- אם ה-plugin או ה-skill נעצרים בשלב האישור, השלימו את ההתחברות בדפדפן ותנו ל-Claude Code להמשיך.
+- אם בחרתם במפורש במסלול הידני/המתקדם של API key, ודאו שהסביבה חושפת את `AGENT_ANALYTICS_API_KEY`.
 - אם פקודת ה-MCP נכשלת, בדקו שהשתמשתם ב-`--transport http`.
 
 ## קשור

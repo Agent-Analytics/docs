@@ -1,9 +1,19 @@
 ---
 title: Authentication
-description: Understand the difference between API keys and project tokens before you wire an agent or a tracker.
+description: Understand the difference between agent sessions, API keys, and project tokens before you wire an agent or a tracker.
 ---
 
-Agent Analytics uses two different credentials. They serve different jobs and should not be swapped.
+Agent Analytics uses three different credentials. They serve different jobs and should not be swapped.
+
+## Agent session (`aas_*`)
+
+Use the agent session for:
+
+- official CLI login through browser approval
+- plugin and skill flows that authenticate through the hosted approval flow
+- agent-native setup where the agent should keep the connection after approval
+
+In the normal product flow, you do not paste this token around manually. The hosted approval flow creates it for the agent or CLI and stores it locally for later use.
 
 ## API key (`aak_*`)
 
@@ -45,12 +55,14 @@ Do not put the API key in the client-side tracker. The tracker uses the public p
 
 ## CLI auth helpers
 
-If you use the official CLI, it provides two local auth convenience commands around the API key:
+If you use the official CLI, it provides three local auth convenience commands:
 
-- `npx @agent-analytics/cli login --token aak_...` saves the API key locally for later CLI reads.
+- `npx @agent-analytics/cli login` starts browser approval and saves a local CLI session.
+- `npx @agent-analytics/cli login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
+- `npx @agent-analytics/cli login --token aak_...` saves an API key locally as the advanced/manual fallback.
 - `npx @agent-analytics/cli logout` clears the saved local CLI auth.
 
-`logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
+If you logged in with `--token`, `logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
 
 If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will continue to use that env var even after `logout` until you unset it.
 

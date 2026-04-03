@@ -271,16 +271,17 @@ npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 
 ## Quick Start
 
-1. Sign up at https://app.agentanalytics.sh and get your API key
-2. Pick an install path from https://docs.agentanalytics.sh/installation/
-3. Create a project: \`POST /projects\` with \`X-API-Key\` header
-4. Add the tracking snippet (returned in project creation response)
+1. Pick an install path from https://docs.agentanalytics.sh/installation/
+2. Ask your AI agent to set up Agent Analytics, open the browser for you or send you a login link, and wait
+3. Sign in with Google or GitHub, approve it, and paste back any finish code if the agent asks
+4. Let the agent create the project and either add the tracker or return the snippet for you to paste
    - If using Astro, add \`is:inline\` to the tracker \`<script>\` tag.
-5. Query stats: \`GET /stats?project=my-site\` with \`X-API-Key\` header
+5. Query stats by asking your agent something like \`How is my-site doing this week?\`
 
 ## Authentication
 
-- **API Key** (\`aak_*\`): Secret key for reading data and project management. Pass via \`X-API-Key\` header or \`?key=\` query param.
+- **Agent Session** (\`aas_*\`): Browser-approved session used by the official CLI and agent-first onboarding flows.
+- **API Key** (\`aak_*\`): Secret key for direct API access and advanced/manual runtimes. Pass via \`X-API-Key\` header or \`?key=\` query param.
 - **Project Token** (\`aat_*\`): Public token for event ingestion. Passed in request body.
 
 ## Endpoints

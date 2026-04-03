@@ -12,10 +12,10 @@ If you still need to connect your AI agent first, go back to the [installation h
 Ask your AI agent:
 
 ```text
-List my Agent Analytics projects and confirm you can reach my account. If browser approval is needed, open it and wait for me.
+List my Agent Analytics projects and confirm you can reach my account. Open the browser for me or send me the login link, then wait for me.
 ```
 
-If the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. If the agent still cannot see your account after that, stop here and finish the right [installation path](/installation/).
+When the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. If the agent still cannot see your account after that, stop here and finish the right [installation path](/installation/).
 
 ## 2. Create the first project and get the tracker snippet
 
