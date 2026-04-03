@@ -19,7 +19,8 @@ The important detail: `npx` is only the launcher. The skill is using the officia
 
 Tell OpenClaw:
 
-> Install the Agent Analytics skill from ClawHub. Use the official Agent Analytics CLI. If login approval is needed, send me the approval link and wait. I will sign in with Google or GitHub, and if needed I will paste back the finish code.
+> Please install Agent Analytics from ClawHub:
+> `npx clawhub@latest install agent-analytics`
 
 The hosted listing is here:
 
@@ -27,16 +28,20 @@ The hosted listing is here:
 
 Once installed, OpenClaw can create projects, generate tracking snippets, query stats, inspect funnels, and manage experiments from the same conversation loop.
 
-The normal OpenClaw path is now:
+Then ask OpenClaw:
+
+> Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the link and wait. I will sign in with Google or GitHub, and if needed I will paste back any finish code. Then create the project, add tracking and key events, and verify the first event.
+
+The normal OpenClaw path is:
 
 1. install the skill
 2. ask OpenClaw to set up the project
-3. if approval is needed, let OpenClaw send the browser link
+3. let OpenClaw send the browser approval link
 4. sign in in the browser
-5. paste back the finish code if OpenClaw asks for it
+5. paste back the finish code in the same thread
 6. let OpenClaw continue into project setup and first-event verification
 
-If OpenClaw blocks on login and asks for the finish code, the browser page should look like this:
+In headless OpenClaw environments, this finish-code handoff is the normal login path. The browser page should look like this:
 
 ![Agent Analytics finish-code handoff screen](../../../assets/finishcode.jpg)
 
@@ -51,7 +56,7 @@ That is the right explanation if a security review asks what the `npx` command i
 
 Ask OpenClaw:
 
-- `Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the approval link and wait. I will sign in with Google or GitHub, and if needed I will paste back the finish code. Then create the project, add tracking and key events, and verify the first event.`
+- `Set up Agent Analytics for this project. Install it here if needed. If approval is needed, send me the link and wait. I will sign in with Google or GitHub, and if needed I will paste back any finish code. Then create the project, add tracking and key events, and verify the first event.`
 - `How is my-site doing this week?`
 - `Send me a daily analytics summary every morning`
 
