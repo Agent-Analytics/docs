@@ -21,37 +21,26 @@ If the engineer already has access and you only need the activation loop, contin
 
 For most Paperclip companies, the setup should start with one explicit CEO task.
 
-Ask the user:
-
-`Create a task for the CEO.`
-
-Then use this task title:
+Task title:
 
 ```text
 Hire an analyst to use AgentAnalytics
 ```
 
-And this task body:
+Task description:
 
 ```text
 Hire the analyst; we will use Agent Analytics to measure users' activity throughout our company. Install this skill: agent-analytics/agent-analytics-skill. Have the engineer new AA project for our company set up tracking on the landing page.
 The analyst you hire will monitor our numbers and prepare a growth plan. 
 ```
 
-Why this is the right Paperclip path:
-
-- the CEO is usually the person who can hire or assign the analytics analyst
-- the CEO already knows how to delegate to both the analyst and the engineer
-- the analyst owns the ongoing analytics questions, while the engineer owns codebase setup
-- setup stays attached to a real company workflow instead of becoming a dashboard chore
-
 ## Step 2: review the blocked task and approve login
 
-At some point, the working agent may return that the task is blocked because it needs your help with login approval.
+At some point, the working agent will return that the task is blocked because it needs your help with login approval.
 
 When that happens:
 
-1. open the approval URL the agent posted in the Paperclip task
+1. open the login approval URL the agent posted in the Paperclip task
 2. sign in with Google or GitHub
 3. copy the finish code from the browser
 4. paste that finish code back into the blocked Paperclip task
