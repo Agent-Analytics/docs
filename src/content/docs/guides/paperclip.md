@@ -34,7 +34,7 @@ Hire an analyst; we will use Agent Analytics to measure users' activity througho
 The analyst you hire will monitor our numbers using the AA skill and also prepare a growth plan.
 ```
 
-![CEO task for hiring an analyst and setting up Agent Analytics in Paperclip](../../../assets/paperclip-ceo-issue-creation.png)
+![CEO task for hiring an analyst and setting up Agent Analytics in Paperclip](/paperclip-ceo-issue-creation.png)
 
 ## Step 2: review the blocked task and approve login
 
@@ -47,7 +47,7 @@ When that happens:
 3. copy the finish code from the browser
 4. paste that finish code back into the blocked Paperclip task
 
-![Agent Analytics finish-code handoff screen](../../../assets/finishcode.jpg)
+![Agent Analytics finish-code handoff screen](/finishcode.jpg)
 
 That lets the working setup agent continue:
 
