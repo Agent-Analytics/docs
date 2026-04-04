@@ -43,7 +43,7 @@ The normal OpenClaw path is:
 
 In headless OpenClaw environments, this finish-code handoff is the normal login path. The browser page should look like this:
 
-![Agent Analytics finish-code handoff screen](../../../assets/finishcode.jpg)
+![Agent Analytics finish-code handoff screen](/finishcode.jpg)
 
 The public docs still matter because they show exactly what the skill is wrapping:
 

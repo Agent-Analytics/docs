@@ -1,15 +1,112 @@
+import { readdirSync, statSync } from 'node:fs';
+import { dirname, join, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 
+const SITE_ORIGIN = 'https://docs.agentanalytics.sh';
+const LOCALE_PREFIXES = ['/he/', '/zh/'];
+const projectRoot = dirname(fileURLToPath(import.meta.url));
+const docsContentDir = join(projectRoot, 'src', 'content', 'docs');
+const docsPagesDir = join(projectRoot, 'src', 'pages');
+const sitemapLastmodByPath = buildSitemapLastmodByPath();
+
+function walkFiles(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const fullPath = join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      return walkFiles(fullPath);
+    }
+
+    return [fullPath];
+  });
+}
+
+function normalizeRoute(pathname) {
+  return pathname === '/' ? '/' : `${pathname.replace(/\/+$/, '')}/`;
+}
+
+function fallbackRouteForLocale(pathname) {
+  for (const prefix of LOCALE_PREFIXES) {
+    if (!pathname.startsWith(prefix)) {
+      continue;
+    }
+
+    const remainder = pathname.slice(prefix.length);
+
+    return normalizeRoute(remainder ? `/${remainder}` : '/');
+  }
+
+  return pathname;
+}
+
+function contentRouteForFile(filePath) {
+  const relativePath = relative(docsContentDir, filePath).split(sep).join('/');
+
+  if (!/\.(md|mdx|astro)$/.test(relativePath)) {
+    return null;
+  }
+
+  const slug = relativePath.replace(/\.(md|mdx|astro)$/, '');
+
+  if (slug === 'index') {
+    return '/';
+  }
+
+  return normalizeRoute(`/${slug.replace(/\/index$/, '')}`);
+}
+
+function pageRouteForFile(filePath) {
+  const relativePath = relative(docsPagesDir, filePath).split(sep).join('/');
+
+  if (!relativePath.endsWith('/index.astro')) {
+    return null;
+  }
+
+  return normalizeRoute(`/${relativePath.replace(/\/index\.astro$/, '')}`);
+}
+
+function buildSitemapLastmodByPath() {
+  const lastmodByPath = new Map();
+
+  for (const filePath of walkFiles(docsContentDir)) {
+    const route = contentRouteForFile(filePath);
+
+    if (route) {
+      lastmodByPath.set(route, statSync(filePath).mtime.toISOString());
+    }
+  }
+
+  for (const filePath of walkFiles(docsPagesDir)) {
+    const route = pageRouteForFile(filePath);
+
+    if (route) {
+      lastmodByPath.set(route, statSync(filePath).mtime.toISOString());
+    }
+  }
+
+  return lastmodByPath;
+}
+
 export default defineConfig({
-  site: 'https://docs.agentanalytics.sh',
+  site: SITE_ORIGIN,
   integrations: [
-    sitemap(),
+    sitemap({
+      serialize(item) {
+        const pathname = normalizeRoute(new URL(item.url, SITE_ORIGIN).pathname);
+        const lastmod =
+          sitemapLastmodByPath.get(pathname) ??
+          sitemapLastmodByPath.get(fallbackRouteForLocale(pathname));
+
+        return lastmod ? { ...item, lastmod } : item;
+      },
+    }),
     starlight({
       title: 'Agent Analytics',
-      description: 'Guides, installation paths, and API reference for Agent Analytics.',
-      tagline: 'Guide-first docs for agent-native analytics in Claude, Cursor, OpenClaw, Codex, and other AI tools.',
+      description: 'Guides, installation paths, and API reference for the web analytics MCP and analytics API your AI agent can run.',
+      tagline: 'Agent-first docs for the web analytics MCP and analytics API in Claude Code, Cursor, OpenClaw, Codex, and other AI tools.',
       locales: {
         root: { label: 'English', lang: 'en' },
         he: { label: 'עברית', lang: 'he', dir: 'rtl' },

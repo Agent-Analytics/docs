@@ -53,7 +53,30 @@ hero:
       variant: minimal
 ---
 
+import StructuredData from '../../../components/StructuredData.astro';
 import { CardGrid, Icon } from '@astrojs/starlight/components';
+
+<StructuredData
+  data={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Agent Analytics 文档',
+    description:
+      '以指南优先的方式使用你的 AI 代理可以运行的 Web Analytics 文档，覆盖 plugin、skill、MCP、CLI 和 API 路径。',
+    url: 'https://docs.agentanalytics.sh/zh/',
+    inLanguage: 'zh-CN',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Agent Analytics Docs',
+      url: 'https://docs.agentanalytics.sh/',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Agent Analytics',
+      url: 'https://agentanalytics.sh/',
+    },
+  }}
+/>
 
 Agent Analytics 是一套给代理使用的 Web Analytics，同一套分析界面通过 plugin、skill、MCP、CLI 和 HTTP API 暴露出来。
 这套文档现在把体验拆分得更清晰：

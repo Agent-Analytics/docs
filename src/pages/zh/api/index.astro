@@ -1,6 +1,30 @@
 ---
 import Footer from '../../../components/Footer.astro';
+import StructuredData from '../../../components/StructuredData.astro';
 import '../../../styles/site.css';
+
+const pageTitle = 'Agent Analytics 交互式 API 参考';
+const pageDescription = '基于标准 OpenAPI 规范生成的 Agent Analytics 交互式 API 参考。';
+const canonicalUrl = 'https://docs.agentanalytics.sh/zh/api/';
+const socialImage = 'https://docs.agentanalytics.sh/logo-v2.png';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: pageDescription,
+  url: canonicalUrl,
+  inLanguage: 'zh-CN',
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'Agent Analytics Docs',
+    url: 'https://docs.agentanalytics.sh/',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Agent Analytics',
+    url: 'https://agentanalytics.sh/',
+  },
+};
 
 const links = [
   { href: '/zh/', label: '文档', active: false },
@@ -17,14 +41,22 @@ const links = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Analytics 交互式 API 参考</title>
-    <meta
-      name="description"
-      content="基于标准 OpenAPI 规范生成的 Agent Analytics 交互式 API 参考。"
-    />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
-    <link rel="canonical" href="https://docs.agentanalytics.sh/zh/api/" />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Agent Analytics Docs" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={socialImage} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -36,6 +68,7 @@ const links = [
   </head>
   <body class="aa-page-theme">
     <div class="aa-site-shell aa-api-page">
+      <StructuredData data={structuredData} />
       <header class="aa-topbar">
         <div class="aa-topbar-inner">
           <a class="aa-brand" href="/zh/">

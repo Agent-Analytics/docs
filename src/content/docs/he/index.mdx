@@ -53,7 +53,30 @@ hero:
       variant: minimal
 ---
 
+import StructuredData from '../../../components/StructuredData.astro';
 import { CardGrid, Icon } from '@astrojs/starlight/components';
+
+<StructuredData
+  data={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'מסמכי Agent Analytics',
+    description:
+      'תיעוד בגישת guide-first עבור אנליטיקת ווב שסוכן ה-AI שלכם יכול להריץ דרך plugin, skill, MCP, CLI ו-API.',
+    url: 'https://docs.agentanalytics.sh/he/',
+    inLanguage: 'he',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Agent Analytics Docs',
+      url: 'https://docs.agentanalytics.sh/',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Agent Analytics',
+      url: 'https://agentanalytics.sh/',
+    },
+  }}
+/>
 
 Agent Analytics היא פלטפורמת אנליטיקת ווב עם משטח אחד לסוכנים, שנחשף דרך plugin, skill, MCP, CLI ו-HTTP API.
 התיעוד הזה מחלק עכשיו את החוויה בצורה נקייה:
