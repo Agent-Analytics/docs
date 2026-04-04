@@ -34,6 +34,8 @@ Hire an analyst; we will use Agent Analytics to measure users' activity througho
 The analyst you hire will monitor our numbers using the AA skill and also prepare a growth plan.
 ```
 
+![CEO task for hiring an analyst and setting up Agent Analytics in Paperclip](../../../assets/paperclip-ceo-issue-creation.png)
+
 ## Step 2: review the blocked task and approve login
 
 At some point, the working agent will return that the task is blocked because it needs your help with login approval.

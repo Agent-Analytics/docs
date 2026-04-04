@@ -70,6 +70,7 @@ export default defineConfig({
             'zh-CN': '参考',
           },
           items: [
+            { slug: 'reference/paperclip-live-plugin' },
             { slug: 'reference/tracker-js' },
             { slug: 'reference/bot-traffic' },
             { slug: 'reference/authentication' },
