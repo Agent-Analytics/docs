@@ -15,6 +15,19 @@ Use the agent session for:
 
 In the normal product flow, you do not paste this token around manually. The hosted approval flow creates it for the agent or CLI and stores it locally for later use.
 
+## Managing active agent sessions
+
+If you want to inspect or revoke agent-owned logins later, open [app.agentanalytics.sh](https://app.agentanalytics.sh) and go to `Account Settings` → `Agent Sessions`.
+
+That page shows active hosted agent sessions such as:
+
+- CLI logins
+- macOS Live app connections
+- Paperclip connections
+- MCP or other hosted agent-session clients
+
+Use `Disconnect` there when you want to revoke one specific session on the server.
+
 ## API key (`aak_*`)
 
 Use the API key for:
@@ -61,6 +74,8 @@ If you use the official CLI, it provides three local auth convenience commands:
 - `npx @agent-analytics/cli login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
 - `npx @agent-analytics/cli login --token aak_...` saves an API key locally as the advanced/manual fallback.
 - `npx @agent-analytics/cli logout` clears the saved local CLI auth.
+
+`logout` is local-only for CLI state. If you want to revoke the hosted session itself, disconnect that session from the web app's `Agent Sessions` section.
 
 If you logged in with `--token`, `logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
 

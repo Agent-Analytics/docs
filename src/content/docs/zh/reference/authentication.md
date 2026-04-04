@@ -1,13 +1,13 @@
 ---
-title: Authentication
+title: 认证
 description: 在接入代理或跟踪器之前，先理解 agent session、API key 和 project token 的区别。
 ---
 
 Agent Analytics 使用三种不同的凭证。它们承担不同职责，不能互换。
 
-## Agent session (`aas_*`)
+## 代理会话 (`aas_*`)
 
-agent session 用于：
+代理会话用于：
 
 - 官方 CLI 通过浏览器审批登录
 - 通过托管审批流程完成认证的 plugin 和 skill 流程
@@ -15,9 +15,22 @@ agent session 用于：
 
 在正常产品流程里，你通常不会手动粘贴这个令牌。托管审批流程会为代理或 CLI 创建它，并保存在本地供后续使用。
 
-## API key (`aak_*`)
+## 管理活动中的代理会话
 
-API key 用于：
+如果你之后想查看或撤销代理持有的登录，请打开 [app.agentanalytics.sh](https://app.agentanalytics.sh)，进入 `Account Settings` → `Agent Sessions`。
+
+这个页面会显示当前活动的托管代理会话，例如：
+
+- CLI 登录
+- macOS Live 应用连接
+- Paperclip 连接
+- MCP 或其他托管 agent-session 客户端
+
+当你想在服务器端撤销某一个会话时，就在这里点击 `Disconnect`。
+
+## API 密钥 (`aak_*`)
+
+API 密钥用于：
 
 - 读取分析数据
 - 创建或列出项目
@@ -33,9 +46,9 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 
 请把它当作密钥信息处理。
 
-## Project token (`aat_*`)
+## 项目令牌 (`aat_*`)
 
-Project token 用于：
+项目令牌用于：
 
 - `POST /track`
 - `POST /track/batch`
@@ -53,22 +66,24 @@ Project token 用于：
 
 不要把 API key 放进客户端 tracker 中。tracker 只使用公开的 project token。
 
-## CLI 的 auth 辅助命令
+## CLI 的认证辅助命令
 
 如果你使用官方 CLI，它提供了三个方便的 auth 命令：
 
 - `npx @agent-analytics/cli login`：启动浏览器审批，并保存本地 CLI session。
 - `npx @agent-analytics/cli login --detached`：为无界面或 issue/thread 风格的运行环境启动同样的流程，此时代理会把审批链接发给你，也可能要求你回贴 finish code。
-- `npx @agent-analytics/cli login --token aak_...`：把 API key 保存在本地，作为高级/手动 fallback。
+- `npx @agent-analytics/cli login --token aak_...`：把 API 密钥保存在本地，作为高级/手动 fallback。
 - `npx @agent-analytics/cli logout`：清除本地保存的 CLI auth。
 
-如果你是通过 `--token` 登录的，`logout` 不会在服务器端吊销 API key。当你想让旧 key 失效并签发新 key 时，请使用 `revoke-key`。
+`logout` 只会清除 CLI 本地状态。如果你还想撤销服务器端保存的托管 session，请到 Web 应用里的 `Agent Sessions` 区域断开对应连接。
+
+如果你是通过 `--token` 登录的，`logout` 不会在服务器端吊销 API 密钥。当你想让旧 key 失效并签发新 key 时，请使用 `revoke-key`。
 
 如果你在 shell 环境里设置了 `AGENT_ANALYTICS_API_KEY`，那么即使执行了 `logout`，CLI 仍会继续使用这个环境变量，直到你主动取消它。
 
 ## 相关内容
 
 - [快速开始](/zh/getting-started/)
-- [CLI vs MCP vs API](/zh/reference/cli-mcp-api/)
-- [Error Format](/zh/reference/error-format/)
-- [API Reference](/zh/api/)
+- [CLI、MCP 与 API](/zh/reference/cli-mcp-api/)
+- [错误格式](/zh/reference/error-format/)
+- [API 参考](/zh/api/)

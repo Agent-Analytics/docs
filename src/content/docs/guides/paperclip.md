@@ -75,6 +75,8 @@ In Paperclip, the detached login flow should look like this:
 
 The important product rule is simple: the user approves identity in the browser, but the working agent ends up holding the session and continues the setup.
 
+If you later want to review or revoke that Paperclip-owned session, open [app.agentanalytics.sh](https://app.agentanalytics.sh), go to `Account Settings`, and use the `Agent Sessions` section. That page now shows active Paperclip, CLI, macOS Live, and similar hosted agent logins.
+
 ## Step 3: ask the analyst real questions
 
 Once the engineer has the project live, ask the analyst real questions:
