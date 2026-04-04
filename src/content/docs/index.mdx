@@ -1,9 +1,9 @@
 ---
 title: Agent Analytics Docs
-description: Guide-first docs for the web analytics MCP your AI agent can run across plugin, skill, MCP, CLI, and API access paths.
+description: Guide-first docs for the web analytics MCP and analytics API your AI agent can run across plugin, skill, MCP, CLI, and API access paths.
 template: splash
 hero:
-  tagline: Guide-first docs for the web analytics MCP your AI agent can actually run.
+  tagline: Agent-first docs for the web analytics MCP and analytics API your AI agent can actually run.
   image:
     html: |
       <div class="aa-hero-visual" aria-hidden="true">
@@ -53,9 +53,34 @@ hero:
       variant: minimal
 ---
 
+import StructuredData from '../../components/StructuredData.astro';
 import { CardGrid, Icon } from '@astrojs/starlight/components';
 
-Agent Analytics gives AI agents such as Claude Code, Cursor, Codex, and OpenClaw one web analytics MCP surface, exposed through plugin, skill, MCP, CLI, and HTTP API access paths.
+<StructuredData
+  data={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Agent Analytics Docs',
+    description:
+      'Guide-first docs for the web analytics MCP and analytics API your AI agent can run across plugin, skill, MCP, CLI, and API access paths.',
+    url: 'https://docs.agentanalytics.sh/',
+    inLanguage: 'en',
+    keywords:
+      'web analytics MCP, analytics API for AI agents, Claude Code analytics, Cursor analytics, Codex analytics, OpenClaw analytics',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Agent Analytics Docs',
+      url: 'https://docs.agentanalytics.sh/',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Agent Analytics',
+      url: 'https://agentanalytics.sh/',
+    },
+  }}
+/>
+
+Agent Analytics gives AI agents such as Claude Code, Cursor, Codex, and OpenClaw one web analytics MCP and analytics API surface, exposed through plugin, skill, MCP, CLI, and HTTP API access paths.
 These docs now split the experience cleanly:
 
 - Use Getting Started when you want the shortest path from zero to a live project.
