@@ -30,8 +30,8 @@ Hire an analyst to use AgentAnalytics
 Task description:
 
 ```text
-Hire the analyst; we will use Agent Analytics to measure users' activity throughout our company. Install this skill: agent-analytics/agent-analytics-skill. Have the engineer new AA project for our company set up tracking on the landing page.
-The analyst you hire will monitor our numbers and prepare a growth plan. 
+Hire an analyst; we will use Agent Analytics to measure users' activity throughout our company. Install this skill: agent-analytics/agent-analytics-skill. Have the engineer create a new project on AA for our company and set up tracking on the landing page.
+The analyst you hire will monitor our numbers using the AA skill and also prepare a growth plan.
 ```
 
 ## Step 2: review the blocked task and approve login

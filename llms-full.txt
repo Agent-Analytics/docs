@@ -12,7 +12,7 @@ Use these guides when you want to tell an AI agent such as Claude Code, Cursor, 
 
 ## Start with the right guide
 
-If you are landing from a Paperclip company workflow, start with [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) and use the create-a-task-for-your-CEO flow first. If you need environment-specific setup outside Paperclip, use the [installation hub](/installation/). If you need low-level browser or endpoint details, continue to [Tracker.js](/reference/tracker-js/) or the [API reference](/api/).
+If you are landing from a Paperclip company workflow, start with [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) for onboarding and [Paperclip Live Plugin Preview](/guides/paperclip-live-plugin/) for the thin live-monitor surface. If you need environment-specific setup outside Paperclip, use the [installation hub](/installation/). If you need low-level browser or endpoint details, continue to [Tracker.js](/reference/tracker-js/) or the [API reference](/api/).
 
 ## Getting Started
 
@@ -141,36 +141,26 @@ If the engineer already has access and you only need the activation loop, contin
 
 For most Paperclip companies, the setup should start with one explicit CEO task.
 
-Ask the user:
-
-`Create a task for the CEO.`
-
-Then use this task title:
+Task title:
 
 ```text
 Hire an analyst to use AgentAnalytics
 ```
 
-And this task body:
+Task description:
 
 ```text
-Ask the CEO to hire the analyst, have the engineer set up tracking, and handle approval if needed.
+Hire the analyst; we will use Agent Analytics to measure users' activity throughout our company. Install this skill: agent-analytics/agent-analytics-skill. Have the engineer new AA project for our company set up tracking on the landing page.
+The analyst you hire will monitor our numbers and prepare a growth plan. 
 ```
-
-Why this is the right Paperclip path:
-
-- the CEO is usually the person who can hire or assign the analytics analyst
-- the CEO already knows how to delegate to both the analyst and the engineer
-- the analyst owns the ongoing analytics questions, while the engineer owns codebase setup
-- setup stays attached to a real company workflow instead of becoming a dashboard chore
 
 ## Step 2: review the blocked task and approve login
 
-At some point, the working agent may return that the task is blocked because it needs your help with login approval.
+At some point, the working agent will return that the task is blocked because it needs your help with login approval.
 
 When that happens:
 
-1. open the approval URL the agent posted in the Paperclip task
+1. open the login approval URL the agent posted in the Paperclip task
 2. sign in with Google or GitHub
 3. copy the finish code from the browser
 4. paste that finish code back into the blocked Paperclip task
@@ -204,6 +194,8 @@ In Paperclip, the detached login flow should look like this:
 6. the working setup agent uses that code to complete login and keep going
 
 The important product rule is simple: the user approves identity in the browser, but the working agent ends up holding the session and continues the setup.
+
+If you later want to review or revoke that Paperclip-owned session, open [app.agentanalytics.sh](https://app.agentanalytics.sh), go to `Account Settings`, and use the `Agent Sessions` section. That page now shows active Paperclip, CLI, macOS Live, and similar hosted agent logins.
 
 ## Step 3: ask the analyst real questions
 
@@ -1163,6 +1155,19 @@ Use the agent session for:
 
 In the normal product flow, you do not paste this token around manually. The hosted approval flow creates it for the agent or CLI and stores it locally for later use.
 
+## Managing active agent sessions
+
+If you want to inspect or revoke agent-owned logins later, open [app.agentanalytics.sh](https://app.agentanalytics.sh) and go to `Account Settings` → `Agent Sessions`.
+
+That page shows active hosted agent sessions such as:
+
+- CLI logins
+- macOS Live app connections
+- Paperclip connections
+- MCP or other hosted agent-session clients
+
+Use `Disconnect` there when you want to revoke one specific session on the server.
+
 ## API key (`aak_*`)
 
 Use the API key for:
@@ -1209,6 +1214,8 @@ If you use the official CLI, it provides three local auth convenience commands:
 - `npx @agent-analytics/cli login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
 - `npx @agent-analytics/cli login --token aak_...` saves an API key locally as the advanced/manual fallback.
 - `npx @agent-analytics/cli logout` clears the saved local CLI auth.
+
+`logout` is local-only for CLI state. If you want to revoke the hosted session itself, disconnect that session from the web app's `Agent Sessions` section.
 
 If you logged in with `--token`, `logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
 
@@ -4695,11 +4702,13 @@ Events are delivered as `event: track` SSE messages. Optionally filter by event 
 
 The stream sends a `:heartbeat` comment every 30 seconds as a keepalive. Auto-disconnects after 30 minutes of no matching events.
 
+Supports agent-session bearer auth (`Authorization: Bearer aas_...`) or API key auth (`X-API-Key: aak_...`).
+
 **curl example:**
 
 ```bash
 curl -N "https://api.agentanalytics.sh/stream?project=my-site&events=page_view,signup" \
-  -H "X-API-Key: aak_..."
+  -H "Authorization: Bearer aas_..."
 ```
 
 #### Responses
@@ -4716,7 +4725,7 @@ curl -N "https://api.agentanalytics.sh/stream?project=my-site&events=page_view,s
 true
 ```
 
-##### Status: 401 Missing or invalid API key
+##### Status: 401 Missing or invalid account auth
 
 ###### Content-Type: application/json
 
@@ -4789,11 +4798,13 @@ Returns a point-in-time snapshot of active visitors, sessions, events per minute
 
 Reads from an in-memory ring buffer — no D1 query. Data is available only while events are being streamed (the ring buffer evicts events older than 5 minutes).
 
+Supports agent-session bearer auth (`Authorization: Bearer aas_...`) or API key auth (`X-API-Key: aak_...`).
+
 **curl example:**
 
 ```bash
 curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
-  -H "X-API-Key: aak_..."
+  -H "Authorization: Bearer aas_..."
 ```
 
 #### Responses
@@ -4909,7 +4920,7 @@ curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
 }
 ```
 
-##### Status: 401 Missing or invalid API key
+##### Status: 401 Missing or invalid account auth
 
 ###### Content-Type: application/json
 
@@ -5951,7 +5962,7 @@ Returns a lightweight historical summary across all active projects in your acco
 
 This endpoint is optimized for a single account-level dashboard view: total event trend, active project count, daily event time series, and a top-project list.
 
-Use `/live` for real-time account-wide activity. Use project-scoped endpoints like `/stats` and `/insights` when you want deeper analysis for one project.
+Use `/live` for a real-time snapshot of one project. Use project-scoped endpoints like `/stats` and `/insights` when you want deeper analysis for one project.
 
 **CLI:** `npx @agent-analytics/cli all-sites --period 7d`
 
