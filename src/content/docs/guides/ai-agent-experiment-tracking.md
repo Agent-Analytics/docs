@@ -14,6 +14,8 @@ This guide is about page elements like headlines, CTAs, pricing copy, and signup
 - You are on a paid plan, because experiments are not available on the free tier.
 - You have one business goal event in mind, such as `signup`, `checkout`, or another real conversion event.
 
+If you are testing a signup CTA, keep one distinction clear: the CTA click is not automatically the canonical `signup`. In most products, `signup` should fire when the account is actually created, usually on the server. Use a separate browser event like `signup_started` or `signup_cta_clicked` for the earlier click if you want that step too.
+
 If you still need the initial setup, start with [Getting Started](/getting-started/).
 
 ## 1. Pick one goal and one UI element to test
@@ -35,7 +37,7 @@ Before the experiment exists, make sure the goal event is already tracked and na
 Copyable prompt:
 
 ```text
-Add a signup tracking event to this CTA and keep the event name consistent with the existing site naming. If a matching event already exists, reuse it instead of inventing a new one.
+Verify that completed signup is tracked when the account is actually created. If this CTA only starts the flow, add a separate signup_started or signup_cta_clicked event for the button click and keep the canonical signup event unchanged.
 ```
 
 If the event is simple, your agent should usually prefer declarative tracking in markup rather than extra JavaScript.
@@ -82,7 +84,7 @@ Before you trust the data, make sure both variants actually render and the goal 
 Copyable prompt:
 
 ```text
-Show me how to force each variant locally so I can QA both versions, then verify that the signup event still fires correctly for each one.
+Show me how to force each variant locally so I can QA both versions, then verify that the canonical signup event still lands correctly and that any intermediate CTA event still fires for each one.
 ```
 
 The forced-variant URLs look like this:
@@ -111,6 +113,7 @@ Make the decision on the business goal event, not on raw traffic. A variant with
 - Testing too many elements at once, which makes the result hard to interpret.
 - Using `page_view` as the goal instead of a conversion event.
 - Creating the experiment before the goal event is actually tracked.
+- Treating a pre-auth CTA click as `signup` when the real conversion happens later in the auth or account-creation flow.
 - Forgetting to QA forced variants before sending traffic through the test.
 - Packing layout, copy, and offer changes into one experiment when one focused change would be easier to learn from.
 - Leaving an experiment active after you already know the winner.

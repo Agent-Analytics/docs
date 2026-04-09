@@ -65,14 +65,16 @@ Example:
 For simple click tracking, you usually do not need custom JavaScript. Add `data-aa-event` directly in HTML:
 
 ```html
-<button data-aa-event="signup" data-aa-event-plan="pro">
+<button data-aa-event="signup_cta_clicked" data-aa-event-plan="pro">
   Sign up for Pro
 </button>
 ```
 
-That fires a `signup` event with `{ plan: "pro" }`.
+That fires a `signup_cta_clicked` event with `{ plan: "pro" }`.
 
 This is usually the easiest path for agents too. They can add attributes to existing markup instead of wiring `onclick` handlers or editing application code.
+
+Reserve `signup` for the durable moment when an account is actually created. If a button only starts the flow, use an intermediate event like `signup_started` or `signup_cta_clicked` instead of treating the click itself as the completed signup.
 
 ## Impressions
 
@@ -105,6 +107,25 @@ Useful methods:
 - `aa.set(properties)`: attach global properties to future events
 - `aa.experiment(name, variants)`: assign variants deterministically client-side
 - `aa.grantConsent()` / `aa.revokeConsent()`: manage consent mode
+
+## Authenticated apps: `signup`, `login`, and `identify`
+
+For apps with accounts, the cleanest post-auth browser step is:
+
+```js
+window.aa?.identify(account.id);
+window.aa?.set({ plan: account.plan, team: account.team });
+```
+
+Call `aa.identify(account.id)` immediately after auth succeeds and before `aa.set(...)` or any other post-auth browser events. That stitches the current browser activity onto the same canonical user ID that your server should use.
+
+Recommended event boundaries:
+
+- Fire `signup` exactly once when the account is created. Prefer the server-side account-creation path for this.
+- Fire `login` when an existing account finishes auth. Prefer the server-side auth callback or session-creation path for this too.
+- Use client-side events like `signup_started`, `signup_cta_clicked`, or `checkout_started` for earlier UI steps that happen before the account exists.
+
+That separation keeps funnels honest and makes browser events and server auth events land on the same `user_id`.
 
 ## SPA routing and virtual pages
 

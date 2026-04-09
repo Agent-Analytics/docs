@@ -67,6 +67,8 @@ If it only created the project and returned a snippet, add the script before `</
 
 Page views are tracked automatically. Add custom events later with `data-aa-event` attributes or `window.aa.track()`.
 
+If your product has login or signup, keep `signup` for the moment the account is actually created, preferably server-side. After auth succeeds in the browser, call `window.aa.identify(account.id)` before other post-auth browser events so client and server activity land on the same user.
+
 If your site uses Astro, add `is:inline` to that tracker tag.
 
 For advanced tracker options like declarative events, cross-domain identity, consent, scroll depth, vitals, and error tracking, use the [Tracker.js guide](/reference/tracker-js/).

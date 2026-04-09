@@ -65,14 +65,16 @@ description: הוסיפו את Agent Analytics לכל אתר עם תגית scrip
 למעקב קליקים פשוט, לרוב לא צריך JavaScript מותאם אישית. הוסיפו `data-aa-event` ישירות ל-HTML:
 
 ```html
-<button data-aa-event="signup" data-aa-event-plan="pro">
+<button data-aa-event="signup_cta_clicked" data-aa-event-plan="pro">
   Sign up for Pro
 </button>
 ```
 
-זה ישלח אירוע `signup` עם `{ plan: "pro" }`.
+זה ישלח אירוע `signup_cta_clicked` עם `{ plan: "pro" }`.
 
 ברוב המקרים זהו גם המסלול הקל ביותר לסוכנים. הם יכולים להוסיף מאפיינים ל-markup קיים במקום לחווט `onclick` handlers או לערוך קוד אפליקציה.
+
+שמרו את `signup` לרגע העמיד שבו החשבון באמת נוצר. אם הכפתור רק מתחיל את הזרימה, השתמשו באירוע ביניים כמו `signup_started` או `signup_cta_clicked` במקום להתייחס לקליק עצמו כ-signup שהושלם.
 
 ## חשיפות
 
@@ -105,6 +107,25 @@ window.aa?.set({ plan: 'pro', team: 'acme' });
 - `aa.set(properties)`: צירוף מאפיינים גלובליים לאירועים עתידיים
 - `aa.experiment(name, variants)`: שיוך וריאנטים בצד הלקוח בצורה דטרמיניסטית
 - `aa.grantConsent()` / `aa.revokeConsent()`: ניהול מצב consent
+
+## אפליקציות עם הזדהות: `signup`, `login` ו-`identify`
+
+באפליקציות עם חשבונות, הצעד הדפדפני הנכון אחרי auth הוא:
+
+```js
+window.aa?.identify(account.id);
+window.aa?.set({ plan: account.plan, team: account.team });
+```
+
+קראו ל-`aa.identify(account.id)` מיד אחרי שה-auth מצליח ולפני `aa.set(...)` או כל אירוע דפדפני אחר אחרי ההתחברות. כך הפעילות הנוכחית בדפדפן נתפרת לאותו מזהה משתמש קנוני שגם השרת צריך להשתמש בו.
+
+גבולות מומלצים לאירועים:
+
+- שלחו `signup` פעם אחת בדיוק, כשנוצר החשבון. עדיף בנתיב השרת שיוצר את החשבון.
+- שלחו `login` כשחשבון קיים מסיים auth. עדיף גם כאן ב-callback של auth או בנתיב שיוצר את הסשן.
+- השתמשו באירועים צד-לקוח כמו `signup_started`, `signup_cta_clicked` או `checkout_started` לשלבים מוקדמים יותר ב-UI, לפני שהחשבון בכלל קיים.
+
+ההפרדה הזאת שומרת על funnel אמין ודואגת לכך שאירועי הדפדפן ואירועי ה-auth מהשרת ינחתו על אותו `user_id`.
 
 ## ניתוב SPA ועמודים וירטואליים
 

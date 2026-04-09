@@ -65,14 +65,16 @@ API 参考现在把 `GET /tracker.js` 仅视为脚本端点。安装和功能指
 对于简单点击跟踪，通常不需要写自定义 JavaScript。你可以直接在 HTML 中加入 `data-aa-event`：
 
 ```html
-<button data-aa-event="signup" data-aa-event-plan="pro">
+<button data-aa-event="signup_cta_clicked" data-aa-event-plan="pro">
   Sign up for Pro
 </button>
 ```
 
-这会发送一个 `signup` 事件，并带上 `{ plan: "pro" }`。
+这会发送一个 `signup_cta_clicked` 事件，并带上 `{ plan: "pro" }`。
 
 这通常也是代理最容易处理的方式。它们可以给现有标记加属性，而不用去接 `onclick` handler 或修改应用代码。
+
+请把 `signup` 保留给账户真正创建完成的那个稳定时刻。如果按钮只是启动流程，请使用 `signup_started` 或 `signup_cta_clicked` 这样的中间事件，而不要把这次点击本身当成完成注册。
 
 ## 曝光跟踪
 
@@ -105,6 +107,25 @@ window.aa?.set({ plan: 'pro', team: 'acme' });
 - `aa.set(properties)`：为后续事件附加全局属性
 - `aa.experiment(name, variants)`：在客户端确定性分配实验版本
 - `aa.grantConsent()` / `aa.revokeConsent()`：管理 consent 模式
+
+## 有账户体系的应用：`signup`、`login` 和 `identify`
+
+对于有登录体系的应用，认证成功后的浏览器侧推荐写法是：
+
+```js
+window.aa?.identify(account.id);
+window.aa?.set({ plan: account.plan, team: account.team });
+```
+
+请在认证成功后立刻调用 `aa.identify(account.id)`，并且要早于 `aa.set(...)` 或任何其他登录后浏览器事件。这样当前浏览器中的匿名行为才能被提升到与你服务端一致的规范用户 ID 上。
+
+推荐的事件边界：
+
+- `signup` 只发送一次，并且发生在账户真正创建时。最佳位置通常是服务端的账户创建路径。
+- `login` 发生在已有账户完成认证时。这里也更适合放在服务端的认证回调或会话创建路径里。
+- 对于账户创建之前的前置 UI 步骤，请使用 `signup_started`、`signup_cta_clicked` 或 `checkout_started` 这样的客户端事件。
+
+这样分层之后，漏斗会更真实，浏览器事件和服务端认证事件也会落到同一个 `user_id` 上。
 
 ## SPA 路由与虚拟页面
 
