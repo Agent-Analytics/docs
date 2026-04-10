@@ -1,13 +1,13 @@
 ---
 title: Paperclip Live Plugin
-description: Install the Agent Analytics live-monitor plugin for Paperclip, connect an existing account, and map one project to a company workspace.
+description: Install the Agent Analytics live-monitor plugin for Paperclip, connect an existing account, and choose the company project from the live page.
 ---
 
 The Paperclip live plugin is the thin operator surface for one operator question:
 
 **What is moving right now inside this Paperclip company?**
 
-Use this page when you want the plugin itself: install, login, project selection, and the live surfaces it adds inside Paperclip.
+Use this page when you want the plugin itself: install, login, company project selection, and the live surfaces it adds inside Paperclip.
 
 If you need the broader Paperclip company onboarding flow first, start with [Set up Agent Analytics for your 📎Paperclip company](/guides/paperclip/).
 
@@ -17,13 +17,13 @@ The plugin adds three Paperclip surfaces:
 
 - a company-level live page
 - a compact dashboard widget
-- a settings page for existing-account login, Paperclip setup help, and explicit project selection
+- a settings page for existing-account login, Paperclip setup help, and advanced plugin settings
 
 This plugin is intentionally narrow:
 
 - it uses Agent Analytics `/stream` and `/live`
 - it keeps credentials in the worker
-- it maps company assets explicitly to Agent Analytics projects
+- it lets each Paperclip company choose one Agent Analytics project from the live page
 - it does not rebuild the full analytics product inside Paperclip
 
 ![Agent Analytics inside the Paperclip dashboard](/aa-in-dashboard.jpg)
@@ -47,7 +47,8 @@ Plugin repository: [Agent-Analytics/paperclip-live-analytics-plugin](https://git
 3. Open the plugin `Configure` page.
 4. If the Agent Analytics account is not ready yet, use the Paperclip setup task shown in the plugin help panel or follow [Set up Agent Analytics for your 📎Paperclip company](/guides/paperclip/).
 5. Log in with your existing Agent Analytics account.
-6. Select one Agent Analytics project for the current Paperclip company.
+6. Open the company live page from the sidebar.
+7. Choose the Agent Analytics project for the current Paperclip company.
 
 ## Important auth rule
 
@@ -61,6 +62,7 @@ Use the live plugin when you want:
 
 - a dashboard widget with live status
 - a live page for current visitors, countries, top pages, and recent events
+- a company-scoped project chooser that appears only when no Agent Analytics project is mapped or when you explicitly change it
 - a worker-owned Paperclip integration that keeps the auth session out of the browser UI
 
 Do not use it as the primary setup guide for the full Paperclip company flow. That belongs in [Set up Agent Analytics for your 📎Paperclip company](/guides/paperclip/).
