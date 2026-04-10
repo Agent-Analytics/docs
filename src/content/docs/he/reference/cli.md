@@ -8,7 +8,7 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 החבילה המתפרסמת היא `@agent-analytics/cli`. לשימוש חד-פעמי, הריצו אותה דרך `npx` עם גרסה מוצמדת:
 
 ```bash
-npx @agent-analytics/cli@0.5.5 --help
+npx @agent-analytics/cli@0.5.8 --help
 ```
 
 מאגר מקור: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)

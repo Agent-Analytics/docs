@@ -8,7 +8,7 @@ The Agent Analytics CLI is the official shell-first wrapper around the documente
 The published package is `@agent-analytics/cli`. For one-off use, run it through `npx` with a pinned version:
 
 ```bash
-npx @agent-analytics/cli@0.5.5 --help
+npx @agent-analytics/cli@0.5.8 --help
 ```
 
 Source repo: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
