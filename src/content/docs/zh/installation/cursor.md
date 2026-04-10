@@ -62,16 +62,17 @@ Set up Agent Analytics for this project. Install it here if needed. Open the bro
 
 保存文件后，如果工具列表没有自动刷新，请重新加载 Cursor。MCP 可以工作，但通常会比 skill 路径带来更高的延迟和 token 开销。
 
-## 更底层的替代：直接调用 API
+## 回退方案：直接使用 CLI
 
-如果你想绕过 skill 和 MCP，也可以直接调用托管 API：
+如果你不想要 skill 这一层，那么在降到原始 HTTP 之前，应该先回退到官方 CLI：
 
 ```bash
-curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
-  -H "X-API-Key: aak_..."
+npx @agent-analytics/cli@0.5.5 login
+npx @agent-analytics/cli@0.5.5 projects
+npx @agent-analytics/cli@0.5.5 stats my-site --days 7
 ```
 
-这种更底层的路径适合排查 auth 问题，但日常在 Cursor 中仍然推荐使用 skill + CLI。
+这样 Cursor 仍然停留在同一条 shell-first 路径上，不需要切换到手写 auth header 和原始请求 payload。关于登录行为、命令覆盖范围以及 CLI 到 API 的映射，请看独立的 [CLI 页面](/zh/reference/cli/)。
 
 ## 故障排查
 
@@ -85,6 +86,7 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 
 - [快速开始](/zh/getting-started/)
 - [5 分钟完成第一个项目](/zh/guides/first-project-in-5-minutes/)
+- [CLI](/zh/reference/cli/)
 - [CLI vs MCP vs API](/zh/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/zh/installation/claude-desktop-cowork/)
 - [OpenAI Codex](/zh/installation/openai-codex/)

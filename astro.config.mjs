@@ -180,6 +180,7 @@ export default defineConfig({
             { slug: 'reference/tracker-js' },
             { slug: 'reference/bot-traffic' },
             { slug: 'reference/authentication' },
+            { slug: 'reference/cli' },
             { slug: 'reference/cli-mcp-api' },
             { slug: 'reference/rate-limits' },
             { slug: 'reference/error-format' },

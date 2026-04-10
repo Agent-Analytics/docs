@@ -1,6 +1,6 @@
 ---
-title: Plugin מול Skill מול MCP מול CLI מול API
-description: Agent Analytics חושפת משטח אנליטיקה אחד דרך plugin, skill, MCP, CLI ו-HTTP גולמי. בחרו את המסלול הטבעי שמתאים לסביבה שבה הסוכן כבר עובד.
+title: Plugin מול Skill מול MCP מול API
+description: Agent Analytics חושפת משטח אנליטיקה אחד דרך plugin, skill, MCP, CLI ו-HTTP גולמי. השתמשו בעמוד הזה כדי לבחור את המסלול הטבעי שמתאים לסביבה שבה הסוכן כבר עובד.
 ---
 
 Agent Analytics חושפת משטח אנליטיקה אחד דרך חמישה מסלולי גישה אמיתיים:
@@ -72,6 +72,8 @@ CLI בדרך כלל מתאים במיוחד כש:
 - אתם רוצים פחות overhead מ-MCP בסוכנים בסגנון עורך כמו Cursor
 - אתם רוצים עזרי auth פשוטים כמו `login` ו-`logout` סביב אותו API
 
+להתקנה, login flow, פקודות נפוצות ומיפוי CLI ל-API, המשיכו לעמוד [CLI](/he/reference/cli/).
+
 ### API
 
 השתמשו ב-API כשאתם רוצים שליטה מלאה על הבקשות, ניסיונות חוזרים וניתוח התגובות.
@@ -82,34 +84,6 @@ API בדרך כלל מתאים במיוחד כש:
 - אתם צריכים התנהגות מדויקת ברמת HTTP
 - אתם מדבגים auth או מבנה payload ישירות
 
-## מיפוי CLI ל-API
-
-רוב ה-workflows של ה-CLI ממופים ישירות לנקודת קצה ב-HTTP. החריג המרכזי הוא פקודות נוחות של auth מקומי כמו `logout`, שמשנות רק מצב מקומי של ה-CLI:
-
-| CLI Command | API Endpoint |
-| --- | --- |
-| `npx @agent-analytics/cli stats my-site` | `GET /stats?project=my-site` |
-| `npx @agent-analytics/cli all-sites --period 7d` | `GET /account/all-sites?period=7d` |
-| `npx @agent-analytics/cli bot-traffic my-site --period 7d` | `GET /bot-traffic?project=my-site&period=7d` |
-| `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
-| `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
-| `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
-| `npx @agent-analytics/cli query my-site --metrics event_count --count-mode raw` | `POST /query` |
-| `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
-| `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
-| `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
-| `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
-| `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
-| `npx @agent-analytics/cli projects` | `GET /projects` |
-| `npx @agent-analytics/cli logout` | None. פקודה מקומית בלבד שמוחקת auth שמור של CLI ולא קוראת ל-API. |
-
-`logout` מוחק את ה-API key שנשמר על הדיסק על ידי ה-CLI. הוא לא מבטל את המפתח בשרת. אם ייצאתם את `AGENT_ANALYTICS_API_KEY` ב-shell, ה-CLI עדיין יתחבר עם משתנה הסביבה הזה עד שתבטלו אותו.
-
-## הערות על query
-
-- `/events` נשאר הלוג הגולמי וה-lossless. עבור `event_count`, ברירת המחדל של `/query` היא `session_then_user`: שורות עם `session_id` נספרות לפי session, שורות בלי session נופלות חזרה ל-`user_id` רק אם לאותו משתמש אין שורה עם session באותה קבוצה מסוננת, ושורות אנונימיות לגמרי נופלות חזרה למזהה האירוע (`id`).
-- השתמשו ב-`--count-mode raw` כשהשאלה היא על נפח ingestion או על דיבוג של כתיבות כפולות, ולא על ספירת activation בטוחה יותר.
-
 ## כלל אצבע מהיר
 
 - בחרו ב-`plugin` תחילה ב-Claude Code כשהמסלול דרך marketplace זמין.
@@ -119,6 +93,7 @@ API בדרך כלל מתאים במיוחד כש:
 
 ## קשור
 
+- [CLI](/he/reference/cli/)
 - [סקירת התקנה](/he/installation/)
 - [Authentication](/he/reference/authentication/)
 - [Bot Traffic](/he/reference/bot-traffic/)

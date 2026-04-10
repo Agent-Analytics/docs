@@ -53,6 +53,7 @@ If you have not created your first real project yet, continue with [First Projec
 - [Getting Started](/getting-started/)
 - [Set up Agent Analytics for your Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
+- [CLI](/reference/cli/)
 - [Claude Code](/installation/claude-code/)
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)

@@ -1,6 +1,6 @@
 ---
-title: Plugin vs Skill vs MCP vs CLI vs API
-description: Agent Analytics exposes one analytics surface through plugin, skill, MCP, CLI, and raw HTTP. Choose the native path that fits the environment your AI agent already uses.
+title: Plugin vs Skill vs MCP vs API
+description: Agent Analytics exposes one analytics surface through plugin, skill, MCP, CLI, and raw HTTP. Use this page to choose the native path that fits the environment your AI agent already uses.
 ---
 
 Agent Analytics exposes one analytics surface through five real access paths:
@@ -72,6 +72,8 @@ CLI is usually the best fit when:
 - you want lower overhead than MCP in editor-style agents like Cursor
 - you want simple local auth helpers like `login` and `logout` around the same API
 
+For install, login flow, common commands, and CLI-to-API mapping, continue to the dedicated [CLI page](/reference/cli/).
+
 ### API
 
 Use the API when you want strict control over requests, retries, and response parsing.
@@ -82,41 +84,6 @@ API is usually the best fit when:
 - you need exact HTTP-level behavior
 - you are debugging auth or payload shape directly
 
-## CLI to API mapping
-
-Most CLI workflows map directly to an HTTP endpoint. The main exception is local auth convenience commands such as `logout`, which only modify local CLI state:
-
-| CLI Command | API Endpoint |
-| --- | --- |
-| `npx @agent-analytics/cli stats my-site` | `GET /stats?project=my-site` |
-| `npx @agent-analytics/cli all-sites --period 7d` | `GET /account/all-sites?period=7d` |
-| `npx @agent-analytics/cli bot-traffic my-site --period 7d` | `GET /bot-traffic?project=my-site&period=7d` |
-| `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
-| `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
-| `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
-| `npx @agent-analytics/cli query my-site --metrics event_count --count-mode raw` | `POST /query` |
-| `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
-| `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
-| `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
-| `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
-| `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
-| `npx @agent-analytics/cli projects` | `GET /projects` |
-| `npx @agent-analytics/cli logout` | None. Local-only command that clears saved CLI auth and does not call the API. |
-
-`logout` clears the API key saved by the CLI on disk. It does not revoke the key on the server. If you exported `AGENT_ANALYTICS_API_KEY` in your shell, the CLI will still authenticate with that environment variable until you unset it.
-
-## Query caveats
-
-- The canonical CLI syntax is `npx @agent-analytics/cli query <project> ...`. Do not use `--project`.
-- `/events` remains the raw lossless log. `/query` uses `session_then_user` as the default for `event_count`: session-backed rows count by session, no-session rows fall back to `user_id` only when that user has no session-backed row in the same filtered/grouped result set, and fully anonymous rows fall back to event `id`.
-- Use `--count-mode raw` when the question is about ingestion volume or debugging duplicate writes rather than activation-safe counts.
-- `filters[].field` can target built-in fields or any `properties.*` key, including first-touch attribution fields such as `properties.first_utm_source`.
-- Built-in query fields are a closed list: `event`, `user_id`, `date`, `country`, `session_id`, and `timestamp`.
-- Non-built-in fields such as `referrer`, `utm_source`, `path`, `browser`, and `hostname` must be written as `properties.<key>`.
-- Invalid filter fields now fail the query and return `/properties`-style guidance instead of being silently ignored.
-- `group_by` is limited to built-in fields only: `event`, `date`, `user_id`, `session_id`, and `country`.
-- Example attribution filter: `--filter '[{"field":"properties.first_utm_source","op":"eq","value":"reddit"}]'`
-
 ## Quick rule of thumb
 
 - Choose `plugin` first in Claude Code when the marketplace path is available.
@@ -126,6 +93,7 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 
 ## Related
 
+- [CLI](/reference/cli/)
 - [Installation Overview](/installation/)
 - [Authentication](/reference/authentication/)
 - [Bot Traffic](/reference/bot-traffic/)

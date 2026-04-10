@@ -50,6 +50,7 @@ Set up Agent Analytics for this project. Install it here if needed. Open the bro
 
 - [התחלה מהירה](/he/getting-started/)
 - [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
+- [CLI](/he/reference/cli/)
 - [Claude Code](/he/installation/claude-code/)
 - [Authentication](/he/reference/authentication/)
 - [API Reference](/he/api/)

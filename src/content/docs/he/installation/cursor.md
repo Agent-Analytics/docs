@@ -62,16 +62,17 @@ Set up Agent Analytics for this project. Install it here if needed. Open the bro
 
 שמרו את הקובץ וטעינו מחדש את Cursor אם רשימת הכלים לא מתרעננת אוטומטית. MCP עובד, אבל בדרך כלל מוסיף יותר latency ו-overhead של טוקנים מאשר מסלול ה-skill.
 
-## חלופה ברמה נמוכה יותר: API ישיר
+## fallback: שימוש ישיר ב-CLI
 
-אם אתם רוצים לעקוף גם את ה-skill וגם את MCP, אפשר לקרוא ישירות ל-API המארח:
+אם אתם לא רוצים את שכבת ה-skill, עברו קודם ל-CLI הרשמי לפני שאתם יורדים ל-HTTP גולמי:
 
 ```bash
-curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
-  -H "X-API-Key: aak_..."
+npx @agent-analytics/cli@0.5.5 login
+npx @agent-analytics/cli@0.5.5 projects
+npx @agent-analytics/cli@0.5.5 stats my-site --days 7
 ```
 
-המסלול הזה שימושי לדיבוג auth, אבל ה-flow המומלץ לשימוש יומיומי ב-Cursor הוא skill + CLI.
+כך Cursor נשאר על אותו מסלול shell-first בלי לעבור ל-auth headers ידניים ול-payloads גולמיים. עבור התנהגות login, כיסוי פקודות ומיפוי CLI ל-API, השתמשו בעמוד [CLI](/he/reference/cli/).
 
 ## פתרון תקלות
 
@@ -85,6 +86,7 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 
 - [התחלה מהירה](/he/getting-started/)
 - [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
+- [CLI](/he/reference/cli/)
 - [CLI vs MCP vs API](/he/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/he/installation/claude-desktop-cowork/)
 - [OpenAI Codex](/he/installation/openai-codex/)

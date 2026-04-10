@@ -1,6 +1,6 @@
 ---
-title: Plugin、Skill、MCP、CLI 与 API
-description: Agent Analytics 通过 plugin、skill、MCP、CLI 和原始 HTTP 暴露同一套分析界面。请选择最适合你的代理现有运行环境的原生路径。
+title: Plugin、Skill、MCP 与 API
+description: Agent Analytics 通过 plugin、skill、MCP、CLI 和原始 HTTP 暴露同一套分析界面。使用本页来选择最适合你的代理现有运行环境的原生路径。
 ---
 
 Agent Analytics 通过五种真实访问路径暴露同一套分析界面：
@@ -72,6 +72,8 @@ CLI 通常最适合以下情况：
 - 你在像 Cursor 这样的编辑器代理里，希望获得比 MCP 更低的开销
 - 你想使用像 `login` 和 `logout` 这样的本地 auth 辅助命令
 
+如果你需要安装方式、登录流程、常见命令以及 CLI 到 API 的映射，请继续阅读独立的 [CLI 页面](/zh/reference/cli/)。
+
 ### API
 
 当你希望完全控制请求、重试策略和响应解析时，使用 API。
@@ -82,34 +84,6 @@ API 通常最适合以下情况：
 - 你需要精确的 HTTP 级行为
 - 你正在直接调试 auth 或 payload 结构
 
-## CLI 到 API 的映射
-
-大多数 CLI 工作流都直接映射到某个 HTTP 端点。主要例外是像 `logout` 这种本地 auth 便利命令，它只修改本地 CLI 状态：
-
-| CLI Command | API Endpoint |
-| --- | --- |
-| `npx @agent-analytics/cli stats my-site` | `GET /stats?project=my-site` |
-| `npx @agent-analytics/cli all-sites --period 7d` | `GET /account/all-sites?period=7d` |
-| `npx @agent-analytics/cli bot-traffic my-site --period 7d` | `GET /bot-traffic?project=my-site&period=7d` |
-| `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
-| `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
-| `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
-| `npx @agent-analytics/cli query my-site --metrics event_count --count-mode raw` | `POST /query` |
-| `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
-| `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
-| `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
-| `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
-| `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
-| `npx @agent-analytics/cli projects` | `GET /projects` |
-| `npx @agent-analytics/cli logout` | None. 仅本地命令，会清除已保存的 CLI auth，不会调用 API。 |
-
-`logout` 会清除 CLI 保存在磁盘上的 API key，但不会在服务器上吊销它。如果你曾在 shell 中导出 `AGENT_ANALYTICS_API_KEY`，CLI 仍会继续使用这个环境变量进行认证，直到你把它取消掉。
-
-## Query 注意事项
-
-- `/events` 仍然是原始且不丢失的日志。对于 `event_count`，`/query` 的默认模式是 `session_then_user`：带 `session_id` 的行按 session 计数；没有 session 的行只有在该用户在同一筛选/分组结果里没有任何 session 行时才回退到 `user_id`；完全匿名的行才回退到事件 `id`。
-- 当问题是摄取量、重复写入排查或原始行数调试时，请显式使用 `--count-mode raw`。
-
 ## 快速经验法则
 
 - 在 Claude Code 中，若 marketplace 路径可用，优先选择 `plugin`。
@@ -119,6 +93,7 @@ API 通常最适合以下情况：
 
 ## 相关内容
 
+- [CLI](/zh/reference/cli/)
 - [安装总览](/zh/installation/)
 - [Authentication](/zh/reference/authentication/)
 - [Bot Traffic](/zh/reference/bot-traffic/)

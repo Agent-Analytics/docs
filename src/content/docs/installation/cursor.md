@@ -64,16 +64,17 @@ Use MCP in Cursor if you specifically want connector-style tool calls instead of
 
 Save the file and reload Cursor if the tool list does not refresh automatically. MCP works, but it usually adds more latency and token overhead than the skill path.
 
-## Lower-level fallback: direct API
+## Fallback: use the CLI directly
 
-If you want to bypass both the skill and MCP, call the hosted API directly:
+If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
-  -H "X-API-Key: aak_..."
+npx @agent-analytics/cli@0.5.5 login
+npx @agent-analytics/cli@0.5.5 projects
+npx @agent-analytics/cli@0.5.5 stats my-site --days 7
 ```
 
-That lower-level path is useful for debugging auth, but the skill + CLI flow is the recommended installation for day-to-day Cursor usage.
+That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).
 
 ## Troubleshooting
 
@@ -88,6 +89,7 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 - [Getting Started](/getting-started/)
 - [Set up Agent Analytics for your Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
+- [CLI](/reference/cli/)
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
 - [OpenAI Codex](/installation/openai-codex/)

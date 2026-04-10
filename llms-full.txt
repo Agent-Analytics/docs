@@ -707,16 +707,17 @@ Use MCP in Cursor if you specifically want connector-style tool calls instead of
 
 Save the file and reload Cursor if the tool list does not refresh automatically. MCP works, but it usually adds more latency and token overhead than the skill path.
 
-## Lower-level fallback: direct API
+## Fallback: use the CLI directly
 
-If you want to bypass both the skill and MCP, call the hosted API directly:
+If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
-  -H "X-API-Key: aak_..."
+npx @agent-analytics/cli@0.5.5 login
+npx @agent-analytics/cli@0.5.5 projects
+npx @agent-analytics/cli@0.5.5 stats my-site --days 7
 ```
 
-That lower-level path is useful for debugging auth, but the skill + CLI flow is the recommended installation for day-to-day Cursor usage.
+That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).
 
 ## Troubleshooting
 
@@ -731,6 +732,7 @@ That lower-level path is useful for debugging auth, but the skill + CLI flow is 
 - [Getting Started](/getting-started/)
 - [Set up Agent Analytics for your Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
+- [CLI](/reference/cli/)
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
 - [Claude Desktop / Cowork](/installation/claude-desktop-cowork/)
 - [OpenAI Codex](/installation/openai-codex/)
@@ -874,6 +876,7 @@ If you have not created your first real project yet, continue with [First Projec
 - [Getting Started](/getting-started/)
 - [Set up Agent Analytics for your Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
+- [CLI](/reference/cli/)
 - [Claude Code](/installation/claude-code/)
 - [Authentication](/reference/authentication/)
 - [API Reference](/api/)
@@ -1263,11 +1266,11 @@ If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will con
 - [Error Format](/reference/error-format/)
 - [API Reference](/api/)
 
-## Plugin vs Skill vs MCP vs CLI vs API
+## Plugin vs Skill vs MCP vs API
 
 URL: https://docs.agentanalytics.sh/reference/cli-mcp-api/
 
-Agent Analytics exposes one analytics surface through plugin, skill, MCP, CLI, and raw HTTP. Choose the native path that fits the environment your AI agent already uses.
+Agent Analytics exposes one analytics surface through plugin, skill, MCP, CLI, and raw HTTP. Use this page to choose the native path that fits the environment your AI agent already uses.
 
 Agent Analytics exposes one analytics surface through five real access paths:
 
@@ -1338,6 +1341,8 @@ CLI is usually the best fit when:
 - you want lower overhead than MCP in editor-style agents like Cursor
 - you want simple local auth helpers like `login` and `logout` around the same API
 
+For install, login flow, common commands, and CLI-to-API mapping, continue to the dedicated [CLI page](/reference/cli/).
+
 ### API
 
 Use the API when you want strict control over requests, retries, and response parsing.
@@ -1348,41 +1353,6 @@ API is usually the best fit when:
 - you need exact HTTP-level behavior
 - you are debugging auth or payload shape directly
 
-## CLI to API mapping
-
-Most CLI workflows map directly to an HTTP endpoint. The main exception is local auth convenience commands such as `logout`, which only modify local CLI state:
-
-| CLI Command | API Endpoint |
-| --- | --- |
-| `npx @agent-analytics/cli stats my-site` | `GET /stats?project=my-site` |
-| `npx @agent-analytics/cli all-sites --period 7d` | `GET /account/all-sites?period=7d` |
-| `npx @agent-analytics/cli bot-traffic my-site --period 7d` | `GET /bot-traffic?project=my-site&period=7d` |
-| `npx @agent-analytics/cli bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
-| `npx @agent-analytics/cli events my-site` | `GET /events?project=my-site` |
-| `npx @agent-analytics/cli query my-site --metrics event_count` | `POST /query` |
-| `npx @agent-analytics/cli query my-site --metrics event_count --count-mode raw` | `POST /query` |
-| `npx @agent-analytics/cli funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
-| `npx @agent-analytics/cli retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
-| `npx @agent-analytics/cli experiments list my-site` | `GET /experiments?project=my-site` |
-| `npx @agent-analytics/cli experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
-| `npx @agent-analytics/cli experiments get exp_abc123` | `GET /experiments/{id}` |
-| `npx @agent-analytics/cli projects` | `GET /projects` |
-| `npx @agent-analytics/cli logout` | None. Local-only command that clears saved CLI auth and does not call the API. |
-
-`logout` clears the API key saved by the CLI on disk. It does not revoke the key on the server. If you exported `AGENT_ANALYTICS_API_KEY` in your shell, the CLI will still authenticate with that environment variable until you unset it.
-
-## Query caveats
-
-- The canonical CLI syntax is `npx @agent-analytics/cli query <project> ...`. Do not use `--project`.
-- `/events` remains the raw lossless log. `/query` uses `session_then_user` as the default for `event_count`: session-backed rows count by session, no-session rows fall back to `user_id` only when that user has no session-backed row in the same filtered/grouped result set, and fully anonymous rows fall back to event `id`.
-- Use `--count-mode raw` when the question is about ingestion volume or debugging duplicate writes rather than activation-safe counts.
-- `filters[].field` can target built-in fields or any `properties.*` key, including first-touch attribution fields such as `properties.first_utm_source`.
-- Built-in query fields are a closed list: `event`, `user_id`, `date`, `country`, `session_id`, and `timestamp`.
-- Non-built-in fields such as `referrer`, `utm_source`, `path`, `browser`, and `hostname` must be written as `properties.<key>`.
-- Invalid filter fields now fail the query and return `/properties`-style guidance instead of being silently ignored.
-- `group_by` is limited to built-in fields only: `event`, `date`, `user_id`, `session_id`, and `country`.
-- Example attribution filter: `--filter '[{"field":"properties.first_utm_source","op":"eq","value":"reddit"}]'`
-
 ## Quick rule of thumb
 
 - Choose `plugin` first in Claude Code when the marketplace path is available.
@@ -1392,6 +1362,7 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 
 ## Related
 
+- [CLI](/reference/cli/)
 - [Installation Overview](/installation/)
 - [Authentication](/reference/authentication/)
 - [Bot Traffic](/reference/bot-traffic/)
