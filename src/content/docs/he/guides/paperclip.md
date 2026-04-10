@@ -30,8 +30,14 @@ Hire an analyst to use AgentAnalytics
 תיאור המשימה:
 
 ```text
-Hire an analyst; we will use Agent Analytics to measure users' activity throughout our company. Install this skill: agent-analytics/agent-analytics-skill. Have the engineer create a new project on AA for our company and set up tracking on the landing page.
-The analyst you hire will monitor our numbers using the AA skill and also prepare a growth plan.
+Hire or assign the analytics analyst for our company.
+
+First install the Agent Analytics skill in Paperclip:
+npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+
+Make sure Agent Analytics is available to the analyst and the engineer working on the project. Ask the engineer on the relevant project to set up Agent Analytics tracking in the codebase.
+
+If approval is needed, send me the approval link, wait for me to sign in with Google or GitHub, accept the finish code I reply with, and then continue by creating the project, adding tracking and key events, and verifying the first event.
 ```
 
 ![משימת CEO לשכירת אנליסט ולהגדרת Agent Analytics ב-Paperclip](/paperclip-ceo-issue-creation.png)
@@ -122,6 +128,7 @@ agent-analytics/agent-analytics-skill/agent-analytics
 ## קשור
 
 - [If You Use Paperclip, You Need End-User Analytics](https://blog.agentanalytics.sh/blog/paperclip-companies-need-agent-readable-analytics/)
+- [Paperclip Live Plugin](/he/reference/paperclip-live-plugin/)
 - [התחלה מהירה](/he/getting-started/)
 - [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/)
 - [Tracker.js](/he/reference/tracker-js/)

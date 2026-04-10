@@ -140,7 +140,17 @@ export default defineConfig({
           items: [
             { slug: 'guides' },
             { slug: 'getting-started' },
-            { slug: 'guides/paperclip' },
+            {
+              label: 'Paperclip',
+              translations: {
+                he: 'Paperclip',
+                'zh-CN': 'Paperclip',
+              },
+              items: [
+                { slug: 'guides/paperclip' },
+                { slug: 'reference/paperclip-live-plugin' },
+              ],
+            },
             { slug: 'guides/first-project-in-5-minutes' },
             { slug: 'guides/ai-agent-experiment-tracking' },
           ],
@@ -167,7 +177,6 @@ export default defineConfig({
             'zh-CN': '参考',
           },
           items: [
-            { slug: 'reference/paperclip-live-plugin' },
             { slug: 'reference/tracker-js' },
             { slug: 'reference/bot-traffic' },
             { slug: 'reference/authentication' },
