@@ -38,6 +38,8 @@ Install this package in Paperclip:
 
 The package README lives in the plugin repo, and the operator/maintainer notes also ship with the package under its local `docs/` directory.
 
+Plugin repository: [Agent-Analytics/paperclip-live-analytics-plugin](https://github.com/Agent-Analytics/paperclip-live-analytics-plugin)
+
 ## Install and connect
 
 1. In Paperclip, open `Settings` -> `Plugins`.
