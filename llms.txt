@@ -125,6 +125,9 @@ npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
 ### Funnels
 - `POST /funnel` — Funnel analysis
 
+### Paths
+- `POST /paths` — Bounded session path analysis
+
 ### Streaming
 - `GET /stream` — Live event stream (SSE)
 - `GET /live` — Live snapshot (real-time)

@@ -111,6 +111,10 @@ tags:
     description: |
       Ad-hoc funnel analysis — track where users drop off across a sequence of events.
       No saved funnels — agents query in one shot via `POST /funnel`.
+  - name: Paths
+    description: |
+      Bounded session path analysis from entry pages to goal, drop-off, or truncation.
+      Built for agent workflows: pages → funnels → retention → experiments.
   - name: Streaming
     description: |
       Real-time event streaming.
@@ -532,6 +536,169 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PageRow'
+
+    PathsRequest:
+      type: object
+      required: [project, goal_event]
+      properties:
+        project:
+          type: string
+          description: Project name
+          example: my-site
+        goal_event:
+          type: string
+          description: Goal event that must occur in the same session
+          example: signup
+        since:
+          type: string
+          enum: [7d, 14d, 30d, 90d]
+          default: 30d
+          description: Fixed lookback window for bounded path analysis
+        max_steps:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 5
+          description: Max mixed page/event steps before the path is marked truncated
+        entry_limit:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 10
+          description: Max entry pages to include
+        path_limit:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 5
+          description: Max children kept per tree node after aggregation
+        candidate_session_cap:
+          type: integer
+          minimum: 100
+          maximum: 10000
+          default: 5000
+          description: Max sessions scanned before Worker-side path assembly
+
+    PathsBounds:
+      type: object
+      properties:
+        max_steps:
+          type: integer
+          example: 5
+        entry_limit:
+          type: integer
+          example: 10
+        path_limit:
+          type: integer
+          example: 5
+        candidate_session_cap:
+          type: integer
+          example: 5000
+
+    PathNode:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [page, event, goal, drop_off, truncated]
+          example: page
+        value:
+          type: string
+          example: /pricing
+          description: For `drop_off` and `truncated` terminal nodes, this is the exit page when known, otherwise `unknown`.
+        exit_page:
+          type: ['string', 'null']
+          example: /pricing
+          description: Present on `drop_off` and `truncated` terminal nodes to tie path drop-off behavior to the actual session exit page.
+        sessions:
+          type: integer
+          example: 42
+        conversions:
+          type: integer
+          example: 13
+        conversion_rate:
+          type: number
+          example: 0.31
+        children:
+          type: array
+          description: Child path nodes. The runtime shape matches `PathNode`; the schema avoids a circular `$ref` so generated docs can render reliably.
+          items:
+            type: object
+            additionalProperties: true
+
+    PathExitPage:
+      type: object
+      properties:
+        exit_page:
+          type: string
+          example: /pricing
+        sessions:
+          type: integer
+          example: 42
+        conversions:
+          type: integer
+          example: 13
+        conversion_rate:
+          type: number
+          example: 0.31
+        drop_offs:
+          type: integer
+          example: 29
+        drop_off_rate:
+          type: number
+          example: 0.69
+
+    PathEntry:
+      type: object
+      properties:
+        entry_page:
+          type: string
+          example: /landing
+        sessions:
+          type: integer
+          example: 120
+        conversions:
+          type: integer
+          example: 32
+        conversion_rate:
+          type: number
+          example: 0.267
+        exit_pages:
+          type: array
+          description: Exit pages reached by sessions that started on this entry page, with conversion and drop-off attribution.
+          items:
+            $ref: '#/components/schemas/PathExitPage'
+        tree:
+          type: array
+          items:
+            $ref: '#/components/schemas/PathNode'
+
+    PathsResponse:
+      type: object
+      properties:
+        project:
+          type: string
+          example: my-site
+        goal_event:
+          type: string
+          example: signup
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date
+              example: '2026-03-11'
+            to:
+              type: string
+              format: date
+              example: '2026-04-10'
+        bounds:
+          $ref: '#/components/schemas/PathsBounds'
+        entry_paths:
+          type: array
+          items:
+            $ref: '#/components/schemas/PathEntry'
 
     PageRow:
       type: object
@@ -2587,6 +2754,72 @@ paths:
                 $ref: '#/components/schemas/SessionDistributionResponse'
         '401':
           description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /paths:
+    post:
+      operationId: getPaths
+      summary: Bounded session path analysis
+      description: |
+        Analyze session-local journeys from entry pages through mixed page and event nodes, ending in `goal`, `drop_off`, or `truncated`.
+        Each entry page also includes an `exit_pages` attribution table so agents can connect landing-page behavior to the pages where sessions actually ended.
+
+        This endpoint is explicitly bounded:
+        - fixed `since` values only: `7d`, `14d`, `30d`, `90d`
+        - `max_steps` is capped at 5
+        - `entry_limit` is capped at 20
+        - `path_limit` is capped at 10
+        - `candidate_session_cap` is capped at 10,000
+        - implementation is limited to two D1 read queries, with Worker-side tree assembly
+
+        Session attribution is local to the session: the `goal_event` only counts if it occurs in the same session as the entry page.
+        Non-converting terminal nodes are split by `exit_page`, so a branch can show whether the drop-off happened on `/pricing`, `/checkout`, or another exit page.
+
+        **CLI:** `npx @agent-analytics/cli paths my-site --goal signup --since 30d --max-steps 5`
+      tags: [Paths]
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PathsRequest'
+            examples:
+              signupPaths:
+                summary: Find landing paths that lead to signup
+                value:
+                  project: my-site
+                  goal_event: signup
+                  since: 30d
+                  max_steps: 5
+                  entry_limit: 10
+                  path_limit: 5
+                  candidate_session_cap: 5000
+      responses:
+        '200':
+          description: Aggregated session path tree by entry page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathsResponse'
+        '400':
+          description: Validation error for out-of-range bounds or missing goal_event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
           content:
             application/json:
               schema:

@@ -4133,6 +4133,322 @@ Returns a histogram of session durations in predefined buckets, with the median 
 }
 ```
 
+### Bounded session path analysis
+
+- **Method:** `POST`
+- **Path:** `/paths`
+- **Tags:** Paths
+
+Analyze session-local journeys from entry pages through mixed page and event nodes, ending in `goal`, `drop_off`, or `truncated`. Each entry page also includes an `exit_pages` attribution table so agents can connect landing-page behavior to the pages where sessions actually ended.
+
+This endpoint is explicitly bounded:
+
+- fixed `since` values only: `7d`, `14d`, `30d`, `90d`
+- `max_steps` is capped at 5
+- `entry_limit` is capped at 20
+- `path_limit` is capped at 10
+- `candidate_session_cap` is capped at 10,000
+- implementation is limited to two D1 read queries, with Worker-side tree assembly
+
+Session attribution is local to the session: the `goal_event` only counts if it occurs in the same session as the entry page. Non-converting terminal nodes are split by `exit_page`, so a branch can show whether the drop-off happened on `/pricing`, `/checkout`, or another exit page.
+
+**CLI:** `npx @agent-analytics/cli paths my-site --goal signup --since 30d --max-steps 5`
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`goal_event` (required)**
+
+  `string` — Goal event that must occur in the same session
+
+- **`project` (required)**
+
+  `string` — Project name
+
+- **`candidate_session_cap`**
+
+  `integer`, default: `5000` — Max sessions scanned before Worker-side path assembly
+
+- **`entry_limit`**
+
+  `integer`, default: `10` — Max entry pages to include
+
+- **`max_steps`**
+
+  `integer`, default: `5` — Max mixed page/event steps before the path is marked truncated
+
+- **`path_limit`**
+
+  `integer`, default: `5` — Max children kept per tree node after aggregation
+
+- **`since`**
+
+  `string`, possible values: `"7d", "14d", "30d", "90d"`, default: `"30d"` — Fixed lookback window for bounded path analysis
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "goal_event": "signup",
+  "since": "30d",
+  "max_steps": 5,
+  "entry_limit": 10,
+  "path_limit": 5,
+  "candidate_session_cap": 5000
+}
+```
+
+#### Responses
+
+##### Status: 200 Aggregated session path tree by entry page
+
+###### Content-Type: application/json
+
+- **`bounds`**
+
+  `object`
+
+  - **`candidate_session_cap`**
+
+    `integer`
+
+  - **`entry_limit`**
+
+    `integer`
+
+  - **`max_steps`**
+
+    `integer`
+
+  - **`path_limit`**
+
+    `integer`
+
+- **`entry_paths`**
+
+  `array`
+
+  **Items:**
+
+  - **`conversion_rate`**
+
+    `number`
+
+  - **`conversions`**
+
+    `integer`
+
+  - **`entry_page`**
+
+    `string`
+
+  - **`exit_pages`**
+
+    `array` — Exit pages reached by sessions that started on this entry page, with conversion and drop-off attribution.
+
+    **Items:**
+
+    - **`conversion_rate`**
+
+      `number`
+
+    - **`conversions`**
+
+      `integer`
+
+    - **`drop_off_rate`**
+
+      `number`
+
+    - **`drop_offs`**
+
+      `integer`
+
+    - **`exit_page`**
+
+      `string`
+
+    - **`sessions`**
+
+      `integer`
+
+  - **`sessions`**
+
+    `integer`
+
+  - **`tree`**
+
+    `array`
+
+    **Items:**
+
+    - **`children`**
+
+      `array` — Child path nodes. The runtime shape matches \`PathNode\`; the schema avoids a circular \`$ref\` so generated docs can render reliably.
+
+      **Items:**
+
+    - **`conversion_rate`**
+
+      `number`
+
+    - **`conversions`**
+
+      `integer`
+
+    - **`exit_page`**
+
+      `string | null` — Present on \`drop\_off\` and \`truncated\` terminal nodes to tie path drop-off behavior to the actual session exit page.
+
+    - **`sessions`**
+
+      `integer`
+
+    - **`type`**
+
+      `string`, possible values: `"page", "event", "goal", "drop_off", "truncated"`
+
+    - **`value`**
+
+      `string` — For \`drop\_off\` and \`truncated\` terminal nodes, this is the exit page when known, otherwise \`unknown\`.
+
+- **`goal_event`**
+
+  `string`
+
+- **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`, format: `date`
+
+  - **`to`**
+
+    `string`, format: `date`
+
+- **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "goal_event": "signup",
+  "period": {
+    "from": "2026-03-11",
+    "to": "2026-04-10"
+  },
+  "bounds": {
+    "max_steps": 5,
+    "entry_limit": 10,
+    "path_limit": 5,
+    "candidate_session_cap": 5000
+  },
+  "entry_paths": [
+    {
+      "entry_page": "/landing",
+      "sessions": 120,
+      "conversions": 32,
+      "conversion_rate": 0.267,
+      "exit_pages": [
+        {
+          "exit_page": "/pricing",
+          "sessions": 42,
+          "conversions": 13,
+          "conversion_rate": 0.31,
+          "drop_offs": 29,
+          "drop_off_rate": 0.69
+        }
+      ],
+      "tree": [
+        {
+          "type": "page",
+          "value": "/pricing",
+          "exit_page": "/pricing",
+          "sessions": 42,
+          "conversions": 13,
+          "conversion_rate": 0.31,
+          "children": [
+            {
+              "additionalProperty": "anything"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+##### Status: 400 Validation error for out-of-range bounds or missing goal\_event
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Missing or invalid API key
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
 ### Day-of-week x hour traffic grid
 
 - **Method:** `GET`
@@ -8695,6 +9011,482 @@ true
       "bounce_rate": 0.45,
       "avg_duration": 1,
       "avg_events": 1
+    }
+  ]
+}
+```
+
+### PathsRequest
+
+- **Type:**`object`
+
+* **`goal_event` (required)**
+
+  `string` — Goal event that must occur in the same session
+
+* **`project` (required)**
+
+  `string` — Project name
+
+* **`candidate_session_cap`**
+
+  `integer`, default: `5000` — Max sessions scanned before Worker-side path assembly
+
+* **`entry_limit`**
+
+  `integer`, default: `10` — Max entry pages to include
+
+* **`max_steps`**
+
+  `integer`, default: `5` — Max mixed page/event steps before the path is marked truncated
+
+* **`path_limit`**
+
+  `integer`, default: `5` — Max children kept per tree node after aggregation
+
+* **`since`**
+
+  `string`, possible values: `"7d", "14d", "30d", "90d"`, default: `"30d"` — Fixed lookback window for bounded path analysis
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "goal_event": "signup",
+  "since": "30d",
+  "max_steps": 5,
+  "entry_limit": 10,
+  "path_limit": 5,
+  "candidate_session_cap": 5000
+}
+```
+
+### PathsBounds
+
+- **Type:**`object`
+
+* **`candidate_session_cap`**
+
+  `integer`
+
+* **`entry_limit`**
+
+  `integer`
+
+* **`max_steps`**
+
+  `integer`
+
+* **`path_limit`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "max_steps": 5,
+  "entry_limit": 10,
+  "path_limit": 5,
+  "candidate_session_cap": 5000
+}
+```
+
+### PathNode
+
+- **Type:**`object`
+
+* **`children`**
+
+  `array` — Child path nodes. The runtime shape matches \`PathNode\`; the schema avoids a circular \`$ref\` so generated docs can render reliably.
+
+  **Items:**
+
+* **`conversion_rate`**
+
+  `number`
+
+* **`conversions`**
+
+  `integer`
+
+* **`exit_page`**
+
+  `string | null` — Present on \`drop\_off\` and \`truncated\` terminal nodes to tie path drop-off behavior to the actual session exit page.
+
+* **`sessions`**
+
+  `integer`
+
+* **`type`**
+
+  `string`, possible values: `"page", "event", "goal", "drop_off", "truncated"`
+
+* **`value`**
+
+  `string` — For \`drop\_off\` and \`truncated\` terminal nodes, this is the exit page when known, otherwise \`unknown\`.
+
+**Example:**
+
+```json
+{
+  "type": "page",
+  "value": "/pricing",
+  "exit_page": "/pricing",
+  "sessions": 42,
+  "conversions": 13,
+  "conversion_rate": 0.31,
+  "children": [
+    {
+      "additionalProperty": "anything"
+    }
+  ]
+}
+```
+
+### PathExitPage
+
+- **Type:**`object`
+
+* **`conversion_rate`**
+
+  `number`
+
+* **`conversions`**
+
+  `integer`
+
+* **`drop_off_rate`**
+
+  `number`
+
+* **`drop_offs`**
+
+  `integer`
+
+* **`exit_page`**
+
+  `string`
+
+* **`sessions`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "exit_page": "/pricing",
+  "sessions": 42,
+  "conversions": 13,
+  "conversion_rate": 0.31,
+  "drop_offs": 29,
+  "drop_off_rate": 0.69
+}
+```
+
+### PathEntry
+
+- **Type:**`object`
+
+* **`conversion_rate`**
+
+  `number`
+
+* **`conversions`**
+
+  `integer`
+
+* **`entry_page`**
+
+  `string`
+
+* **`exit_pages`**
+
+  `array` — Exit pages reached by sessions that started on this entry page, with conversion and drop-off attribution.
+
+  **Items:**
+
+  - **`conversion_rate`**
+
+    `number`
+
+  - **`conversions`**
+
+    `integer`
+
+  - **`drop_off_rate`**
+
+    `number`
+
+  - **`drop_offs`**
+
+    `integer`
+
+  - **`exit_page`**
+
+    `string`
+
+  - **`sessions`**
+
+    `integer`
+
+* **`sessions`**
+
+  `integer`
+
+* **`tree`**
+
+  `array`
+
+  **Items:**
+
+  - **`children`**
+
+    `array` — Child path nodes. The runtime shape matches \`PathNode\`; the schema avoids a circular \`$ref\` so generated docs can render reliably.
+
+    **Items:**
+
+  - **`conversion_rate`**
+
+    `number`
+
+  - **`conversions`**
+
+    `integer`
+
+  - **`exit_page`**
+
+    `string | null` — Present on \`drop\_off\` and \`truncated\` terminal nodes to tie path drop-off behavior to the actual session exit page.
+
+  - **`sessions`**
+
+    `integer`
+
+  - **`type`**
+
+    `string`, possible values: `"page", "event", "goal", "drop_off", "truncated"`
+
+  - **`value`**
+
+    `string` — For \`drop\_off\` and \`truncated\` terminal nodes, this is the exit page when known, otherwise \`unknown\`.
+
+**Example:**
+
+```json
+{
+  "entry_page": "/landing",
+  "sessions": 120,
+  "conversions": 32,
+  "conversion_rate": 0.267,
+  "exit_pages": [
+    {
+      "exit_page": "/pricing",
+      "sessions": 42,
+      "conversions": 13,
+      "conversion_rate": 0.31,
+      "drop_offs": 29,
+      "drop_off_rate": 0.69
+    }
+  ],
+  "tree": [
+    {
+      "type": "page",
+      "value": "/pricing",
+      "exit_page": "/pricing",
+      "sessions": 42,
+      "conversions": 13,
+      "conversion_rate": 0.31,
+      "children": [
+        {
+          "additionalProperty": "anything"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### PathsResponse
+
+- **Type:**`object`
+
+* **`bounds`**
+
+  `object`
+
+  - **`candidate_session_cap`**
+
+    `integer`
+
+  - **`entry_limit`**
+
+    `integer`
+
+  - **`max_steps`**
+
+    `integer`
+
+  - **`path_limit`**
+
+    `integer`
+
+* **`entry_paths`**
+
+  `array`
+
+  **Items:**
+
+  - **`conversion_rate`**
+
+    `number`
+
+  - **`conversions`**
+
+    `integer`
+
+  - **`entry_page`**
+
+    `string`
+
+  - **`exit_pages`**
+
+    `array` — Exit pages reached by sessions that started on this entry page, with conversion and drop-off attribution.
+
+    **Items:**
+
+    - **`conversion_rate`**
+
+      `number`
+
+    - **`conversions`**
+
+      `integer`
+
+    - **`drop_off_rate`**
+
+      `number`
+
+    - **`drop_offs`**
+
+      `integer`
+
+    - **`exit_page`**
+
+      `string`
+
+    - **`sessions`**
+
+      `integer`
+
+  - **`sessions`**
+
+    `integer`
+
+  - **`tree`**
+
+    `array`
+
+    **Items:**
+
+    - **`children`**
+
+      `array` — Child path nodes. The runtime shape matches \`PathNode\`; the schema avoids a circular \`$ref\` so generated docs can render reliably.
+
+      **Items:**
+
+    - **`conversion_rate`**
+
+      `number`
+
+    - **`conversions`**
+
+      `integer`
+
+    - **`exit_page`**
+
+      `string | null` — Present on \`drop\_off\` and \`truncated\` terminal nodes to tie path drop-off behavior to the actual session exit page.
+
+    - **`sessions`**
+
+      `integer`
+
+    - **`type`**
+
+      `string`, possible values: `"page", "event", "goal", "drop_off", "truncated"`
+
+    - **`value`**
+
+      `string` — For \`drop\_off\` and \`truncated\` terminal nodes, this is the exit page when known, otherwise \`unknown\`.
+
+* **`goal_event`**
+
+  `string`
+
+* **`period`**
+
+  `object`
+
+  - **`from`**
+
+    `string`, format: `date`
+
+  - **`to`**
+
+    `string`, format: `date`
+
+* **`project`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "goal_event": "signup",
+  "period": {
+    "from": "2026-03-11",
+    "to": "2026-04-10"
+  },
+  "bounds": {
+    "max_steps": 5,
+    "entry_limit": 10,
+    "path_limit": 5,
+    "candidate_session_cap": 5000
+  },
+  "entry_paths": [
+    {
+      "entry_page": "/landing",
+      "sessions": 120,
+      "conversions": 32,
+      "conversion_rate": 0.267,
+      "exit_pages": [
+        {
+          "exit_page": "/pricing",
+          "sessions": 42,
+          "conversions": 13,
+          "conversion_rate": 0.31,
+          "drop_offs": 29,
+          "drop_off_rate": 0.69
+        }
+      ],
+      "tree": [
+        {
+          "type": "page",
+          "value": "/pricing",
+          "exit_page": "/pricing",
+          "sessions": 42,
+          "conversions": 13,
+          "conversion_rate": 0.31,
+          "children": [
+            {
+              "additionalProperty": "anything"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
