@@ -19,6 +19,7 @@ const docOrder = [
   'guides/paperclip',
   'guides/first-project-in-5-minutes',
   'guides/ai-agent-experiment-tracking',
+  'guides/session-paths',
   'installation',
   'installation/claude-code',
   'installation/claude-desktop-cowork',
@@ -36,7 +37,7 @@ const docOrder = [
 const docGroups = [
   {
     title: 'Guides',
-    slugs: ['guides', 'getting-started', 'guides/paperclip', 'guides/first-project-in-5-minutes', 'guides/ai-agent-experiment-tracking'],
+    slugs: ['guides', 'getting-started', 'guides/paperclip', 'guides/first-project-in-5-minutes', 'guides/ai-agent-experiment-tracking', 'guides/session-paths'],
   },
   {
     title: 'Installation',
@@ -258,7 +259,7 @@ Add to Claude Code:
 claude mcp add agent-analytics --transport http https://mcp.agentanalytics.sh/mcp
 \`\`\`
 
-Tools: \`list_projects\`, \`create_project\`, \`all_sites_overview\`, \`analytics_overview\`, \`bot_traffic_overview\`, \`all_sites_bot_traffic\`, \`analytics_insights\`, \`analytics_breakdown\`, \`analytics_pages\`, \`analytics_sessions\`, \`analytics_heatmap\`, \`analytics_funnel\`, \`analytics_retention\`, \`properties\`, \`properties_received\`, \`sessions\`, \`list_experiments\`, \`create_experiment\`, \`get_experiment\`, \`update_experiment\`, \`delete_experiment\`, \`live_now\`, \`query\`
+Tools: \`list_projects\`, \`create_project\`, \`all_sites_overview\`, \`analytics_overview\`, \`bot_traffic_overview\`, \`all_sites_bot_traffic\`, \`analytics_insights\`, \`analytics_breakdown\`, \`analytics_pages\`, \`analytics_paths\`, \`analytics_sessions\`, \`analytics_heatmap\`, \`analytics_funnel\`, \`analytics_retention\`, \`properties\`, \`properties_received\`, \`sessions\`, \`list_experiments\`, \`create_experiment\`, \`get_experiment\`, \`update_experiment\`, \`delete_experiment\`, \`live_now\`, \`query\`
 
 Hosted free accounts can use MCP for \`list_projects\`, \`create_project\`, \`all_sites_overview\`, \`analytics_overview\`, \`bot_traffic_overview\`, and \`all_sites_bot_traffic\`. The rest of the MCP tool surface requires a paid account.
 

@@ -69,9 +69,9 @@ Save the file and reload Cursor if the tool list does not refresh automatically.
 If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-npx @agent-analytics/cli@0.5.8 login
-npx @agent-analytics/cli@0.5.8 projects
-npx @agent-analytics/cli@0.5.8 stats my-site --days 7
+npx @agent-analytics/cli@0.5.9 login
+npx @agent-analytics/cli@0.5.9 projects
+npx @agent-analytics/cli@0.5.9 stats my-site --days 7
 ```
 
 That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).

@@ -8,7 +8,7 @@ The Agent Analytics CLI is the official shell-first wrapper around the documente
 The published package is `@agent-analytics/cli`. For one-off use, run it through `npx` with a pinned version:
 
 ```bash
-npx @agent-analytics/cli@0.5.8 --help
+npx @agent-analytics/cli@0.5.9 --help
 ```
 
 Source repo: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -50,6 +50,7 @@ agent-analytics stats my-site --days 7
 agent-analytics insights my-site --period 7d
 agent-analytics events my-site --days 7 --limit 20
 agent-analytics breakdown my-site --property path --event page_view --limit 10
+agent-analytics paths my-site --goal signup --since 30d --max-steps 5
 agent-analytics funnel my-site --steps "page_view,signup,purchase"
 agent-analytics retention my-site --period week --cohorts 8
 agent-analytics experiments list my-site
@@ -60,7 +61,7 @@ The main command families are:
 
 - account and auth: `login`, `logout`, `whoami`, `revoke-key`
 - project setup: `create`, `projects`
-- reporting: `stats`, `insights`, `breakdown`, `pages`, `sessions-dist`, `events`, `sessions`, `query`
+- reporting: `stats`, `insights`, `breakdown`, `pages`, `paths`, `sessions-dist`, `events`, `sessions`, `query`
 - live monitoring: `live`
 - schema discovery: `properties`, `properties-received`
 - analysis workflows: `funnel`, `retention`, `experiments`
@@ -79,6 +80,7 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 | `agent-analytics events my-site` | `GET /events?project=my-site` |
 | `agent-analytics query my-site --metrics event_count` | `POST /query` |
 | `agent-analytics query my-site --metrics event_count --count-mode raw` | `POST /query` |
+| `agent-analytics paths my-site --goal signup` | `POST /paths` |
 | `agent-analytics funnel my-site --steps "page_view,signup,purchase"` | `POST /funnel` |
 | `agent-analytics retention my-site --period week --cohorts 8` | `GET /retention?project=my-site&period=week&cohorts=8` |
 | `agent-analytics experiments list my-site` | `GET /experiments?project=my-site` |

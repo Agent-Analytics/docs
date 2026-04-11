@@ -153,6 +153,7 @@ export default defineConfig({
             },
             { slug: 'guides/first-project-in-5-minutes' },
             { slug: 'guides/ai-agent-experiment-tracking' },
+            { slug: 'guides/session-paths' },
           ],
         },
         {

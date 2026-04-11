@@ -55,6 +55,7 @@ MCP is usually the best fit when:
 - you want tool calls instead of shell commands
 - you do not want to hand-roll auth headers or request payloads
 - you want quick project or account summaries through structured tool responses
+- you want agent-readable reports such as `analytics_paths`, where the tool response includes both compact text and structured data
 
 Tradeoff:
 
@@ -71,6 +72,7 @@ CLI is usually the best fit when:
 - you prefer command composition over tool integration
 - you want lower overhead than MCP in editor-style agents like Cursor
 - you want simple local auth helpers like `login` and `logout` around the same API
+- you want shell-readable commands such as `paths` that summarize entry pages, exit pages, terminal labels, and next-step analysis
 
 For install, login flow, common commands, and CLI-to-API mapping, continue to the dedicated [CLI page](/reference/cli/).
 
@@ -91,9 +93,22 @@ API is usually the best fit when:
 - Choose `MCP` when the agent already lives in a connector-style chat environment and you want native tool calls.
 - Choose `API` when you need full control, custom integration, or lower-level debugging.
 
+## Paths Across Access Paths
+
+Session paths are available through the same product surface:
+
+- CLI: `agent-analytics paths <project> --goal <event>`
+- MCP: `analytics_paths`
+- API: `POST /paths`
+
+Use paths when the agent needs to connect entry pages and exit pages to goal behavior before deciding whether to run a funnel query, retention check, or experiment.
+
+The report is intentionally bounded and session-local. It is not a long-cycle identity-stitching report.
+
 ## Related
 
 - [CLI](/reference/cli/)
+- [Session Paths](/guides/session-paths/)
 - [Installation Overview](/installation/)
 - [Authentication](/reference/authentication/)
 - [Bot Traffic](/reference/bot-traffic/)
