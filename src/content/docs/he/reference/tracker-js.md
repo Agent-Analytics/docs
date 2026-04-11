@@ -181,6 +181,8 @@ window.aa?.grantConsent();
 window.aa?.revokeConsent();
 ```
 
+כאשר consent מאושר, אירועים שנאגרו נשלחים אוטומטית. אם המאגר כולל יותר מ-100 אירועים, ה-tracker מפצל אותו לכמה בקשות `/track/batch` של עד 100 אירועים בכל בקשה.
+
 ### ניסויים
 
 ```html

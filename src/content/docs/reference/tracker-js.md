@@ -181,6 +181,8 @@ window.aa?.grantConsent();
 window.aa?.revokeConsent();
 ```
 
+When consent is granted, buffered events are flushed automatically. If the buffer contains more than 100 events, the tracker splits it into multiple `/track/batch` requests of 100 events or fewer.
+
 ### Experiments
 
 ```html

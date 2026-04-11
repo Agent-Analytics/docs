@@ -20,6 +20,8 @@ Bot traffic overview stays available on both hosted tiers through API, CLI, and 
 
 Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO_REQUIRED` on query, funnels, retention, experiments, and the richer analytics endpoints.
 
+`POST /track/batch` accepts up to 100 events per request. If you buffer events for consent or offline delivery, split larger buffers into multiple batch requests. Request-per-minute limits apply per HTTP request; monthly event limits and spend caps apply per accepted event.
+
 ## Streaming limits
 
 | Limit | Value |

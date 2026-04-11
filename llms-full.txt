@@ -1224,6 +1224,8 @@ window.aa?.grantConsent();
 window.aa?.revokeConsent();
 ```
 
+When consent is granted, buffered events are flushed automatically. If the buffer contains more than 100 events, the tracker splits it into multiple `/track/batch` requests of 100 events or fewer.
+
 ### Experiments
 
 ```html
@@ -1564,6 +1566,8 @@ Free hosted accounts also get:
 Bot traffic overview stays available on both hosted tiers through API, CLI, and MCP.
 
 Paid plans unlock the full API, CLI, and MCP surface. Free accounts receive `PRO_REQUIRED` on query, funnels, retention, experiments, and the richer analytics endpoints.
+
+`POST /track/batch` accepts up to 100 events per request. If you buffer events for consent or offline delivery, split larger buffers into multiple batch requests. Request-per-minute limits apply per HTTP request; monthly event limits and spend caps apply per accepted event.
 
 ## Streaming limits
 
@@ -2601,7 +2605,7 @@ Automated traffic that reaches this endpoint is filtered out of normal analytics
 - **Path:** `/track/batch`
 - **Tags:** Ingestion
 
-Record up to 100 events in a single request. All events must use the same project token.
+Record up to 100 events in a single request. All events must use the same project token. If a client buffers more than 100 events, such as while waiting for tracking consent, split the buffer into multiple `/track/batch` requests.
 
 Like `/track`, this is called by the browser tracker — not by agents or CLI.
 

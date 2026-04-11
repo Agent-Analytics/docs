@@ -20,6 +20,8 @@ Bot traffic overview נשאר זמין בשתי התוכניות המארחות 
 
 תוכניות בתשלום פותחות את כל המשטח של API, CLI ו-MCP. חשבונות free יקבלו `PRO_REQUIRED` על query, funnels, retention, experiments ונקודות הקצה העשירות יותר של האנליטיקה.
 
+`POST /track/batch` מקבל עד 100 אירועים בכל בקשה. אם אתם שומרים אירועים עד consent או לשליחה מאוחרת, פצלו מאגרים גדולים לכמה בקשות batch. מגבלות requests per minute נספרות לפי בקשת HTTP; מגבלות חודשיות ו-spend caps נספרות לפי אירוע שהתקבל.
+
 ## מגבלות סטרימינג
 
 | Limit | Value |

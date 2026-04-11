@@ -181,6 +181,8 @@ window.aa?.grantConsent();
 window.aa?.revokeConsent();
 ```
 
+用户授予 consent 后，之前缓冲的事件会自动发送。如果缓冲区超过 100 个事件，tracker 会把它拆成多个 `/track/batch` 请求，每个请求最多 100 个事件。
+
 ### 实验
 
 ```html

@@ -20,6 +20,8 @@ Bot traffic overview 在托管 free 和 pro 两个套餐上都可通过 API、CL
 
 付费套餐会开放完整的 API、CLI 和 MCP 能力。免费账户在 query、funnels、retention、experiments 以及更丰富的分析端点上会收到 `PRO_REQUIRED`。
 
+`POST /track/batch` 每次请求最多接收 100 个事件。如果你为了 consent 或离线发送而先缓冲事件，请把更大的队列拆成多个 batch 请求。每分钟请求数按 HTTP 请求计数；月度事件限制和 spend cap 按已接收事件计数。
+
 ## 流式限制
 
 | Limit | Value |

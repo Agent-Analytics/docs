@@ -2063,6 +2063,7 @@ paths:
       summary: Track multiple events
       description: |
         Record up to 100 events in a single request. All events must use the same project token.
+        If a client buffers more than 100 events, such as while waiting for tracking consent, split the buffer into multiple `/track/batch` requests.
 
         Like `/track`, this is called by the browser tracker — not by agents or CLI.
 
@@ -2106,6 +2107,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              examples:
+                batchTooLarge:
+                  summary: Batch contains more than 100 events
+                  value:
+                    error: BATCH_TOO_LARGE
+                    message: max 100 events per batch; split larger buffers into multiple requests
         '401':
           description: Invalid or missing token
           content:
