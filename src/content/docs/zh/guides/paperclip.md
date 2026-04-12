@@ -33,7 +33,7 @@ Hire an analyst to use AgentAnalytics
 Hire or assign the analytics analyst for our company.
 
 First install the Agent Analytics skill in Paperclip:
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 
 Make sure Agent Analytics is available to the analyst and the engineer working on the project. Ask the engineer on the relevant project to set up Agent Analytics tracking in the codebase.
 

@@ -18,7 +18,7 @@ description: התקינו את Agent Analytics skill עבור OpenAI Codex, הש
 ## מומלץ: התקנת Agent Analytics skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
 אחר כך בקשו מ-Codex:

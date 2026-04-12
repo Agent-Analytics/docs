@@ -20,7 +20,7 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 ## Recommended: install the Agent Analytics skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
 Then ask Codex:

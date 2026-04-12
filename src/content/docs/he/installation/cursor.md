@@ -19,7 +19,7 @@ description: התקינו את Agent Analytics skill ב-Cursor והעדיפו wo
 ## מומלץ: התקנת ה-Agent Skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
 אחר כך בקשו מ-Cursor:

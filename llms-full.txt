@@ -155,7 +155,7 @@ Task description:
 Hire or assign the analytics analyst for our company.
 
 First install the Agent Analytics skill in Paperclip:
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 
 Make sure Agent Analytics is available to the analyst and the engineer working on the project. Ask the engineer on the relevant project to set up Agent Analytics tracking in the codebase.
 
@@ -705,7 +705,7 @@ If you have not created your first real project yet, continue with [First Projec
 If you do not want the full plugin, use the skill path before raw MCP:
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
 This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It uses browser approval and agent sessions by default. Use a raw API key only as the advanced/manual fallback.
@@ -823,7 +823,7 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 ## Recommended: install the agent skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
 Then ask Cursor:
@@ -1002,7 +1002,7 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 ## Recommended: install the Agent Analytics skill
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
 Then ask Codex:

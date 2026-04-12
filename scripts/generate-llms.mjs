@@ -267,7 +267,7 @@ Hosted free accounts can use MCP for \`list_projects\`, \`create_project\`, \`al
 
 Install as an agent skill (works with Claude Code, Codex, and other Agent Skills-compatible tools):
 \`\`\`
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 \`\`\`
 
 ## Quick Start

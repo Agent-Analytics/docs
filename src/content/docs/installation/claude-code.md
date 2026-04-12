@@ -42,7 +42,7 @@ If you have not created your first real project yet, continue with [First Projec
 If you do not want the full plugin, use the skill path before raw MCP:
 
 ```bash
-npx skills add Agent-Analytics/agent-analytics-skill@agent-analytics
+npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
 This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It uses browser approval and agent sessions by default. Use a raw API key only as the advanced/manual fallback.
