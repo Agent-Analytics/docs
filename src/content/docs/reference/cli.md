@@ -8,7 +8,7 @@ The Agent Analytics CLI is the official shell-first wrapper around the documente
 The published package is `@agent-analytics/cli`. For one-off use, run it through `npx` with a pinned version:
 
 ```bash
-npx @agent-analytics/cli@0.5.9 --help
+npx @agent-analytics/cli@0.5.10 --help
 ```
 
 Source repo: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -69,6 +69,16 @@ The main command families are:
 
 `revoke-key` only applies when the CLI is using a saved raw API key from `login --token`. Scoped agent sessions cannot rotate raw account API keys; manage those keys from the dashboard.
 
+## Project management
+
+`projects` prints each project's name, ID, project token, and allowed origins. `project`, `update`, and `delete` accept either the exact project name or the project ID.
+
+Use `update` to change allowed origins without leaving the CLI. For local browser QA, keep the production origin and add the temporary local origin:
+
+```bash
+agent-analytics update stylio --origins 'https://stylio.app,http://lvh.me:3101'
+```
+
 ## CLI to API mapping
 
 Most CLI workflows map directly to an HTTP endpoint. The main exception is local auth convenience commands such as `logout`, which only modify local CLI state.
@@ -89,6 +99,9 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 | `agent-analytics experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
 | `agent-analytics experiments get exp_abc123` | `GET /experiments/{id}` |
 | `agent-analytics projects` | `GET /projects` |
+| `agent-analytics project my-site` | `GET /projects/{id}` after resolving name or ID |
+| `agent-analytics update my-site --origins https://mysite.com` | `PATCH /projects/{id}` after resolving name or ID |
+| `agent-analytics delete my-site` | `DELETE /projects/{id}` after resolving name or ID |
 | `agent-analytics logout` | None. Local-only command that clears saved CLI auth and does not call the API. |
 
 `logout` clears the auth state saved by the CLI on disk. It does not revoke credentials on the server.

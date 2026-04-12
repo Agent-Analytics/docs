@@ -8,7 +8,7 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 החבילה המתפרסמת היא `@agent-analytics/cli`. לשימוש חד-פעמי, הריצו אותה דרך `npx` עם גרסה מוצמדת:
 
 ```bash
-npx @agent-analytics/cli@0.5.9 --help
+npx @agent-analytics/cli@0.5.10 --help
 ```
 
 מאגר מקור: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -66,6 +66,16 @@ agent-analytics logout
 - workflows אנליטיים: `funnel`, `retention`, `experiments`
 - משוב מוצר: `feedback`
 
+## ניהול פרויקטים
+
+`projects` מדפיסה לכל פרויקט את השם, ה-ID, ה-project token וה-origins המותרים. `project`, `update` ו-`delete` מקבלות שם פרויקט מדויק או ID.
+
+השתמשו ב-`update` כדי לשנות origins מותרים בלי לצאת מה-CLI. עבור QA בדפדפן מקומי, השאירו את ה-origin של ה-production והוסיפו את ה-origin המקומי הזמני:
+
+```bash
+agent-analytics update stylio --origins 'https://stylio.app,http://lvh.me:3101'
+```
+
 ## מיפוי CLI ל-API
 
 רוב ה-workflows של ה-CLI ממופים ישירות לנקודת קצה ב-HTTP. החריג המרכזי הוא פקודות נוחות של auth מקומי כמו `logout`, שמשנות רק מצב מקומי של ה-CLI.
@@ -85,6 +95,9 @@ agent-analytics logout
 | `agent-analytics experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
 | `agent-analytics experiments get exp_abc123` | `GET /experiments/{id}` |
 | `agent-analytics projects` | `GET /projects` |
+| `agent-analytics project my-site` | `GET /projects/{id}` אחרי פתרון שם או ID |
+| `agent-analytics update my-site --origins https://mysite.com` | `PATCH /projects/{id}` אחרי פתרון שם או ID |
+| `agent-analytics delete my-site` | `DELETE /projects/{id}` אחרי פתרון שם או ID |
 | `agent-analytics logout` | None. פקודה מקומית בלבד שמוחקת auth שמור של CLI ולא קוראת ל-API. |
 
 `logout` מוחק את מצב ה-auth שה-CLI שמר על הדיסק. הוא לא מבטל קרדנצ'לים בשרת.
