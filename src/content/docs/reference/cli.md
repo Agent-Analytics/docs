@@ -67,6 +67,8 @@ The main command families are:
 - analysis workflows: `funnel`, `retention`, `experiments`
 - product feedback: `feedback`
 
+`revoke-key` only applies when the CLI is using a saved raw API key from `login --token`. Scoped agent sessions cannot rotate raw account API keys; manage those keys from the dashboard.
+
 ## CLI to API mapping
 
 Most CLI workflows map directly to an HTTP endpoint. The main exception is local auth convenience commands such as `logout`, which only modify local CLI state.

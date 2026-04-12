@@ -77,7 +77,7 @@ If you use the official CLI, it provides three local auth convenience commands:
 
 `logout` is local-only for CLI state. If you want to revoke the hosted session itself, disconnect that session from the web app's `Agent Sessions` section.
 
-If you logged in with `--token`, `logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate the old key and issue a new one.
+If you logged in with `--token`, `logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate that saved raw API key and issue a new one. Scoped agent sessions cannot generate or rotate raw account API keys.
 
 If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will continue to use that env var even after `logout` until you unset it.
 
