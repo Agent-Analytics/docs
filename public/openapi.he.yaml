@@ -41,7 +41,7 @@ tags:
   - name: Projects
     description: Manage projects programmatically. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
   - name: Account
-    description: Account information, feedback, and key management. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
+    description: Account information and feedback. Agent-session bearer auth is preferred for scoped account reads and feedback; raw API-key management is dashboard-only or API-key fallback only.
   - name: Agent Sessions
     description: Agent-session signup/login, detached approval, refresh, revocation, and account-side session management.
   - name: Experiments
@@ -3851,6 +3851,7 @@ paths:
       description: |
         Revokes the current API key and generates a new one. The old key stops working immediately.
         The new key is returned in the response — this is the only time it's shown.
+        This route does not accept scoped agent-session bearer tokens.
       tags: [Account]
       security:
         - ApiKey: []
@@ -3871,6 +3872,12 @@ paths:
                     example: aak_...
         '401':
           description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Agent-session bearer auth is not allowed for raw API-key rotation
           content:
             application/json:
               schema:

@@ -110,6 +110,7 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 
 - The canonical CLI syntax is `agent-analytics query <project> ...`. Do not use `--project`.
 - `/events` stays raw and lossless. `/query` uses `session_then_user` as the default for `event_count`.
+- For recent signup or ingestion debugging, check `events <project> --event <actual_event_name>` first; use `query` after verifying the raw event names the project emits.
 - Use `--count-mode raw` when the question is about ingestion volume or duplicate-write debugging rather than activation-safe counts.
 - Built-in query fields are `event`, `user_id`, `date`, `country`, `session_id`, and `timestamp`.
 - Non-built-in fields such as `referrer`, `utm_source`, `path`, `browser`, and `hostname` must be written as `properties.<key>`.
