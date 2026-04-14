@@ -91,6 +91,7 @@ agent-analytics/agent-analytics-skill/agent-analytics
 
 - `给我看这个项目的流量、热门页面、最近事件、注册、购买和功能使用情况。`
 - `为这个项目设置一个 A/B 实验，并帮助我决定下一步该改什么。`
+- `Create a recurring 8:00 AM analyst job. Every morning, query Agent Analytics for the latest 24 hours across this company's projects and post a short brief with anomalies, winners, drop-offs, and one recommended action.`
 
 成功条件不只是登录成功。真正的成功条件是：
 
@@ -109,7 +110,7 @@ agent-analytics/agent-analytics-skill/agent-analytics
 4. 登录并回复 finish code
 5. 让正在工作的代理创建第一个项目并验证第一条事件
 6. 让分析师回答一个真实的流量或注册问题
-7. 之后再扩展到实验和周期性的分析工作
+7. 等第一个流量问题能跑通后，再加上每天 8:00 的分析师简报
 
 ## 高级/手动 fallback
 

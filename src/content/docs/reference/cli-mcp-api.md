@@ -21,7 +21,7 @@ The product model does not change between them. Projects, analytics reads, and e
 | Claude Desktop / Cowork | Hosted MCP | Best fit for connector-style chat tools with native tool calls |
 | Cursor | Skill + CLI first | Usually lower overhead than MCP when the agent can already run commands |
 | OpenAI Codex | Skill first | Keeps the workflow agent-native without requiring MCP |
-| OpenClaw | Skill first | Cleanest path for scheduled analytics workflows from chat |
+| OpenClaw | Skill first | Cleanest path when OpenClaw owns the scheduled analytics job from chat |
 | Custom runtime or internal agent | API | Best fit when you own retries, parsing, and orchestration |
 
 ## When to use each path

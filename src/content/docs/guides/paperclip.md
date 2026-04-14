@@ -91,6 +91,7 @@ Once the engineer has the project live, ask the analyst real questions:
 
 - `Show me traffic, top pages, recent events, signups, purchases, and feature usage for this project.`
 - `Set up an A/B experiment for this project and help me decide what to change next.`
+- `Create a recurring 8:00 AM analyst job. Every morning, query Agent Analytics for the latest 24 hours across this company's projects and post a short brief with anomalies, winners, drop-offs, and one recommended action.`
 
 The success condition is not just login. The success condition is:
 
@@ -109,7 +110,7 @@ Use this order if you want the shortest path to first value:
 4. sign in and reply with the finish code
 5. let the working agent create the first project and verify the first event
 6. ask the analyst one real traffic or signup question
-7. expand into experiments and recurring analytics work later
+7. add the recurring 8:00 AM analyst brief once the first traffic question works
 
 ## Advanced/manual fallback
 

@@ -91,6 +91,7 @@ agent-analytics/agent-analytics-skill/agent-analytics
 
 - `הראה לי תנועה, דפים מובילים, אירועים אחרונים, הרשמות, רכישות ושימוש בפיצ'רים עבור הפרויקט הזה.`
 - `הקם ניסוי A/B עבור הפרויקט הזה ועזור לי להחליט מה לשנות אחר כך.`
+- `Create a recurring 8:00 AM analyst job. Every morning, query Agent Analytics for the latest 24 hours across this company's projects and post a short brief with anomalies, winners, drop-offs, and one recommended action.`
 
 תנאי ההצלחה הוא לא רק התחברות. תנאי ההצלחה הוא:
 
@@ -109,7 +110,7 @@ agent-analytics/agent-analytics-skill/agent-analytics
 4. התחברו והשיבו עם ה-finish code
 5. תנו לסוכן שעובד ליצור את הפרויקט הראשון ולאמת את האירוע הראשון
 6. בקשו מהאנליסט שאלה אמיתית אחת על תנועה או הרשמה
-7. הרחיבו אחר כך לניסויים ולעבודת אנליטיקה מחזורית
+7. הוסיפו את תדריך האנליסט הקבוע של 8:00 בבוקר אחרי ששאלת התנועה הראשונה עובדת
 
 ## fallback מתקדם/ידני
 

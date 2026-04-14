@@ -43,7 +43,7 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 - `List my Agent Analytics projects`
 - `Set up Agent Analytics for this project. Install it here if needed. Send me the login link and wait. I will sign in with Google or GitHub, approve it, and paste back the finish code if you need it. Then create the project, add tracking and key events, and verify the first event.`
 - `How is my-site doing this week?`
-- `Send me a daily analytics summary every morning`
+- `Create a recurring 8:00 AM analytics job. Every morning, query Agent Analytics for the latest 24 hours across my projects and send me a short brief with anomalies, winners, drop-offs, and one recommended action.`
 
 אם עוד לא יצרתם את הפרויקט האמיתי הראשון, המשיכו אל [הפרויקט הראשון ב-5 דקות](/he/guides/first-project-in-5-minutes/).
 
