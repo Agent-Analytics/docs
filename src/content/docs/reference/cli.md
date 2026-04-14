@@ -8,7 +8,7 @@ The Agent Analytics CLI is the official shell-first wrapper around the documente
 The published package is `@agent-analytics/cli`. For one-off use, run it through `npx` with a pinned version:
 
 ```bash
-npx @agent-analytics/cli@0.5.10 --help
+npx @agent-analytics/cli@0.5.11 --help
 ```
 
 Source repo: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -49,7 +49,7 @@ agent-analytics create my-site --domain https://mysite.com
 agent-analytics stats my-site --days 7
 agent-analytics insights my-site --period 7d
 agent-analytics events my-site --days 7 --limit 20
-agent-analytics breakdown my-site --property path --event page_view --limit 10
+agent-analytics breakdown my-site --property path --event page_view --days 7 --limit 10
 agent-analytics paths my-site --goal signup --since 30d --max-steps 5
 agent-analytics funnel my-site --steps "page_view,signup,purchase"
 agent-analytics retention my-site --period week --cohorts 8

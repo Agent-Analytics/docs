@@ -8,7 +8,7 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 החבילה המתפרסמת היא `@agent-analytics/cli`. לשימוש חד-פעמי, הריצו אותה דרך `npx` עם גרסה מוצמדת:
 
 ```bash
-npx @agent-analytics/cli@0.5.10 --help
+npx @agent-analytics/cli@0.5.11 --help
 ```
 
 מאגר מקור: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -49,7 +49,7 @@ agent-analytics create my-site --domain https://mysite.com
 agent-analytics stats my-site --days 7
 agent-analytics insights my-site --period 7d
 agent-analytics events my-site --days 7 --limit 20
-agent-analytics breakdown my-site --property path --event page_view --limit 10
+agent-analytics breakdown my-site --property path --event page_view --days 7 --limit 10
 agent-analytics funnel my-site --steps "page_view,signup,purchase"
 agent-analytics retention my-site --period week --cohorts 8
 agent-analytics experiments list my-site

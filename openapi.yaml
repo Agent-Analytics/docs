@@ -2583,7 +2583,7 @@ paths:
 
         Use `property=country` to see visitor geography (ISO 3166-1 alpha-2 codes). Country is stored as a dedicated column for fast queries.
 
-        **CLI:** `npx @agent-analytics/cli breakdown my-site --property path --event page_view`
+        **CLI:** `npx @agent-analytics/cli breakdown my-site --property path --event page_view --days 7`
       tags: [Analytics]
       security:
         - ApiKey: []
