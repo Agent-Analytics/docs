@@ -872,9 +872,9 @@ Save the file and reload Cursor if the tool list does not refresh automatically.
 If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-npx @agent-analytics/cli@0.5.10 login
-npx @agent-analytics/cli@0.5.10 projects
-npx @agent-analytics/cli@0.5.10 stats my-site --days 7
+npx @agent-analytics/cli@0.5.12 login
+npx @agent-analytics/cli@0.5.12 projects
+npx @agent-analytics/cli@0.5.12 stats my-site --days 7
 ```
 
 That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).
@@ -3712,7 +3712,7 @@ Breaks down events by a specific property, showing the top values by count. Usef
 
 Use `property=country` to see visitor geography (ISO 3166-1 alpha-2 codes). Country is stored as a dedicated column for fast queries.
 
-**CLI:** `npx @agent-analytics/cli breakdown my-site --property path --event page_view`
+**CLI:** `npx @agent-analytics/cli breakdown my-site --property path --event page_view --days 7`
 
 #### Responses
 
