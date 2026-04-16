@@ -11,6 +11,8 @@ Use `Connect as human` only when you need direct account access yourself, such a
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
+If you want to understand the two public skills first, start with [Agent Analytics Skill](/guides/agent-analytics-skill/) for setup and reporting, then [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) for data-informed variant generation.
+
 If you are here from a Paperclip workflow, start by creating a task for your CEO in Paperclip, then follow [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) for the one-task delegation and finish-code handoff path.
 
 ## 1. Pick and complete an install path
@@ -94,6 +96,8 @@ If you need direct HTTP access for your own runtime, you can still generate an A
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
 - Use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) when you want the full activation walkthrough from installed agent to first live project.
+- Use [Agent Analytics Skill](/guides/agent-analytics-skill/) when you want the regular skill for setup, reporting, and experiments.
+- Use [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) when you want a loop that generates variants, tests approved experiments, and feeds the next run from measured behavior.
 - Use [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) when your company runs on Paperclip and you need the direct CEO-task and finish-code path.
 - Use [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/) when your app changes screens client-side and you need accurate page tracking without double-counting.
 - Use [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/) when you want your AI agent to launch and read browser-side experiments for you.

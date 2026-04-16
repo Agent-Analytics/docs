@@ -17,6 +17,8 @@ const docOrder = [
   'guides',
   'getting-started',
   'guides/paperclip',
+  'guides/agent-analytics-skill',
+  'guides/autoresearch-growth-skill',
   'guides/first-project-in-5-minutes',
   'guides/ai-agent-experiment-tracking',
   'guides/session-paths',
@@ -37,7 +39,16 @@ const docOrder = [
 const docGroups = [
   {
     title: 'Guides',
-    slugs: ['guides', 'getting-started', 'guides/paperclip', 'guides/first-project-in-5-minutes', 'guides/ai-agent-experiment-tracking', 'guides/session-paths'],
+    slugs: [
+      'guides',
+      'getting-started',
+      'guides/paperclip',
+      'guides/agent-analytics-skill',
+      'guides/autoresearch-growth-skill',
+      'guides/first-project-in-5-minutes',
+      'guides/ai-agent-experiment-tracking',
+      'guides/session-paths',
+    ],
   },
   {
     title: 'Installation',

@@ -28,6 +28,8 @@ Use `Connect as human` only when you need direct account access yourself, such a
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
+If you want to understand the two public skills first, start with [Agent Analytics Skill](/guides/agent-analytics-skill/) for setup and reporting, then [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) for data-informed variant generation.
+
 If you are here from a Paperclip workflow, start by creating a task for your CEO in Paperclip, then follow [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) for the one-task delegation and finish-code handoff path.
 
 ## 1. Pick and complete an install path
@@ -111,6 +113,8 @@ If you need direct HTTP access for your own runtime, you can still generate an A
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
 - Use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) when you want the full activation walkthrough from installed agent to first live project.
+- Use [Agent Analytics Skill](/guides/agent-analytics-skill/) when you want the regular skill for setup, reporting, and experiments.
+- Use [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) when you want a loop that generates variants, tests approved experiments, and feeds the next run from measured behavior.
 - Use [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) when your company runs on Paperclip and you need the direct CEO-task and finish-code path.
 - Use [SPA and Virtual Page Tracking](/guides/spa-and-virtual-page-tracking/) when your app changes screens client-side and you need accurate page tracking without double-counting.
 - Use [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/) when you want your AI agent to launch and read browser-side experiments for you.
@@ -257,6 +261,221 @@ For the normal Paperclip setup path, prefer browser approval plus finish code ha
 - [Tracker.js](/reference/tracker-js/)
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
 - [API Reference](/api/)
+
+## Agent Analytics Skill
+
+URL: https://docs.agentanalytics.sh/guides/agent-analytics-skill/
+
+Install the regular Agent Analytics skill and let your coding agent create projects, add tracking, query analytics, and run experiments from the same workflow.
+
+Use the regular Agent Analytics skill when you want your AI agent to operate Agent Analytics end-to-end from the project it is already editing.
+
+It is the right first skill for setup, tracking, reporting, funnels, session paths, and normal experiment work. If you want the agent to generate and judge growth variants before an A/B test, use the [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) after the basic analytics loop works.
+
+## Install
+
+Install from the public skill repo:
+
+```bash
+npx skills add Agent-Analytics/agent-analytics-skill
+```
+
+If the installer asks which skill to install, choose `agent-analytics`.
+
+You can also install it explicitly:
+
+```bash
+npx skills add Agent-Analytics/agent-analytics-skill --skill agent-analytics
+```
+
+The source is public:
+
+- [Agent Analytics skill repo](https://github.com/Agent-Analytics/agent-analytics-skill)
+- [Agent Analytics](https://agentanalytics.sh)
+
+## What To Ask Your Agent
+
+Start in the codebase or site you want to measure, then ask:
+
+```text
+Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.
+```
+
+After setup, ask normal analytics questions in plain English:
+
+```text
+How did this site perform in the last 7 days?
+```
+
+```text
+Show the funnel from page_view to signup_cta_click to signup.
+```
+
+```text
+Create an experiment for the signup CTA with control and a clearer variant, then show me how to QA both versions before it gets traffic.
+```
+
+## What The Skill Does
+
+The skill teaches the agent to use the official Agent Analytics CLI and API patterns without making you hand-write requests.
+
+Typical jobs:
+
+- create or find the right project
+- install `tracker.js`
+- add declarative events such as CTA clicks
+- verify the first page view or custom event
+- inspect pages, events, funnels, retention, and bot traffic
+- create, QA, measure, and complete experiments
+- explain gaps in the data before recommending action
+
+Browser approval is the normal login path. You do not need to create an API key first unless you are building a custom direct HTTP integration.
+
+## When To Use The Autoresearch Skill Instead
+
+Use [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) when the task is not just "read analytics" or "create an experiment," but:
+
+- generate landing-page, onboarding, pricing, or CTA variants
+- critique generic copy and product-truth drift
+- blind-rank multiple candidates
+- output two review-ready experiment variants
+- rerun the loop after experiment data comes back
+
+In practice, the regular skill gets the analytics foundation working. The autoresearch skill uses that foundation to run a structured growth loop.
+
+## Related
+
+- [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/)
+- [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
+- [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/)
+- [Session Paths](/guides/session-paths/)
+- [CLI](/reference/cli/)
+- [Plugin vs Skill vs MCP vs API](/reference/cli-mcp-api/)
+
+## Autoresearch Growth Skill
+
+URL: https://docs.agentanalytics.sh/guides/autoresearch-growth-skill/
+
+Use the Agent Analytics Autoresearch skill to run a loop on top of the loop: generate variants, judge them, ship approved experiments, measure real behavior, and feed the next run.
+
+Use the Autoresearch Growth skill when you want your coding agent to turn analytics data into review-ready growth experiments.
+
+The inner loop generates, critiques, synthesizes, and blind-ranks candidates. The outer loop waits for real behavior, pulls the experiment data back into the next brief, and runs again from evidence.
+
+This skill is based on [Andrei Karpathy's `autoresearch`](https://github.com/karpathy/autoresearch) pattern: keep the loop simple, let an external coding agent read the markdown instructions, write artifacts to disk, and iterate.
+
+Agent Analytics adapts that pattern for growth work in the public template repo:
+
+- [Agent Analytics Autoresearch Growth](https://github.com/Agent-Analytics/autoresearch-growth)
+- [Agent Analytics](https://agentanalytics.sh)
+
+The important change is the outer evidence loop. Karpathy's original loop is useful for generating and judging ideas. The growth version uses measured experiment behavior to seed the next run, so the loop does not stop at what LLM judges think sounds good.
+
+## Install
+
+Install from the public skill repo:
+
+```bash
+npx skills add Agent-Analytics/agent-analytics-skill
+```
+
+If the installer asks which skill to install, choose `agent-analytics-autoresearch`.
+
+You can also install it explicitly:
+
+```bash
+npx skills add Agent-Analytics/agent-analytics-skill --skill agent-analytics-autoresearch
+```
+
+The regular `agent-analytics` skill can be installed from the same repo. Use it first when the site still needs project setup, tracking, or basic experiment wiring.
+
+## What The Skill Needs
+
+The skill works with any analytics source, but works best with Agent Analytics because the agent can collect the evidence itself.
+
+Give the agent:
+
+- the target surface, such as homepage hero, pricing page, onboarding step, or signup CTA
+- the current control copy or screenshot
+- the product truth that must not drift
+- the audience
+- one primary event, such as `signup`, `checkout`, or `activation_completed`
+- one proxy event, such as `cta_click`
+- guardrails, such as bounce, scroll depth, time on page, errors, performance, source quality, or signup quality
+- recent analytics data or permission to fetch it
+
+The skill can also run on demo data from the template repo, so you can try the workflow before connecting an account.
+
+## Run The Inner Loop
+
+Start with a review-only run:
+
+```text
+Run the autoresearch growth loop for this landing page. Use signup as the primary event and cta_click as the proxy. Fetch the latest analytics data if you can; otherwise use the data I provide. Keep product truth intact, run 5 rounds, and produce two distinct variants for review. Do not wire the experiment yet.
+```
+
+The skill should create or update the normal run artifacts:
+
+- `brief.md`
+- `results.tsv`
+- `final_variants.md`
+- a dated data snapshot when live data is available
+
+`results.tsv` is the round log. The final decision artifact is `final_variants.md`.
+
+## Run The Outer Loop
+
+Only move into production after human approval.
+
+Once you approve a variant, ask:
+
+```text
+Implement the approved variants on the landing page, create an experiment with control plus the two candidates, verify signup and cta_click tracking, and show me the QA links before launch.
+```
+
+After the experiment has collected behavior, ask:
+
+```text
+Pull the experiment results and guardrails into a new snapshot. Summarize what won, what lost, what is still too sparse to trust, and run the next autoresearch loop from that evidence.
+```
+
+That is the loop on top of the loop:
+
+1. run several LLM judging rounds
+2. pick two variants for human review
+3. ship an approved experiment
+4. wait for real behavior
+5. collect the measured result
+6. feed the next autoresearch run
+
+LLM judges are useful for pressure-testing options. They are not the final judge. User behavior is the final judge.
+
+## Try It With Sample Data
+
+Clone or open the public template repo:
+
+```bash
+git clone https://github.com/Agent-Analytics/autoresearch-growth.git
+cd autoresearch-growth
+```
+
+Then ask your agent:
+
+```text
+Use the demo SaaS data in examples/demo-saas. Run the autoresearch growth loop and show me final_variants.md so I can judge the two winners.
+```
+
+No Agent Analytics account is required for the demo data.
+
+## Related
+
+- [Agent Analytics Skill](/guides/agent-analytics-skill/)
+- [AI Agent Experiment Tracking](/guides/ai-agent-experiment-tracking/)
+- [Session Paths](/guides/session-paths/)
+- [CLI](/reference/cli/)
+- [Karpathy autoresearch](https://github.com/karpathy/autoresearch)
+- [Autoresearch Growth repo](https://github.com/Agent-Analytics/autoresearch-growth)
+- [Autoresearch Growth Loops Need Reality Checks](https://blog.agentanalytics.sh/blog/autoresearch-growth-loop-agent-analytics/)
 
 ## First Project in 5 Minutes
 
@@ -827,6 +1046,8 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
+If the installer asks which skill to install, choose `agent-analytics` for setup and reporting. Choose `agent-analytics-autoresearch` when you want Cursor to run a structured growth loop for experiment candidates.
+
 Then ask Cursor:
 
 ```text
@@ -890,6 +1111,8 @@ That keeps Cursor on the same shell-first path without switching to manual auth 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Agent Analytics Skill](/guides/agent-analytics-skill/)
+- [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/)
 - [Set up Agent Analytics for your Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [CLI](/reference/cli/)
@@ -928,6 +1151,8 @@ The hosted listing is here:
 - [Agent Analytics on ClawHub](https://clawhub.ai/dannyshmueli/agent-analytics)
 
 Once installed, OpenClaw can create projects, generate tracking snippets, query stats, inspect funnels, and manage experiments from the same conversation loop.
+
+The public skill repo also includes `agent-analytics-autoresearch`, which is the growth-loop skill for producing experiment candidates from analytics data. Use the regular Agent Analytics skill for setup and reporting; use the autoresearch skill when you want the loop to generate, critique, judge, and rerun variants from measured evidence.
 
 Then ask OpenClaw:
 
@@ -974,6 +1199,8 @@ If you have not created your first real project yet, continue with [First Projec
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Agent Analytics Skill](/guides/agent-analytics-skill/)
+- [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/)
 - [Set up Agent Analytics for your 📎Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [Claude Code](/installation/claude-code/)
@@ -1006,6 +1233,8 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
+If the installer asks which skill to install, choose `agent-analytics` for setup and reporting. Choose `agent-analytics-autoresearch` when you want Codex to run a structured growth loop for experiment candidates.
+
 Then ask Codex:
 
 ```text
@@ -1034,6 +1263,8 @@ If you have not created your first real project yet, continue with [First Projec
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Agent Analytics Skill](/guides/agent-analytics-skill/)
+- [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/)
 - [Set up Agent Analytics for your Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [CLI](/reference/cli/)

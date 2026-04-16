@@ -24,6 +24,8 @@ If you are doing this from a Paperclip company, use [Set up Agent Analytics for 
 npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
+If the installer asks which skill to install, choose `agent-analytics` for setup and reporting. Choose `agent-analytics-autoresearch` when you want Cursor to run a structured growth loop for experiment candidates.
+
 Then ask Cursor:
 
 ```text
@@ -87,6 +89,8 @@ That keeps Cursor on the same shell-first path without switching to manual auth 
 ## Related
 
 - [Getting Started](/getting-started/)
+- [Agent Analytics Skill](/guides/agent-analytics-skill/)
+- [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/)
 - [Set up Agent Analytics for your Paperclip company](/guides/paperclip/)
 - [First Project in 5 Minutes](/guides/first-project-in-5-minutes/)
 - [CLI](/reference/cli/)
