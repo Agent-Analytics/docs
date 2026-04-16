@@ -7,9 +7,11 @@ The Agent Analytics CLI is the official shell-first wrapper around the documente
 
 The published package is `@agent-analytics/cli`. For one-off use, run it through `npx` with a pinned version:
 
+<!--email_off-->
 ```bash
 npx @agent-analytics/cli@0.5.15 --help
 ```
+<!--/email_off-->
 
 Source repo: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
 
@@ -30,6 +32,7 @@ If you are deciding between access paths rather than looking for CLI usage itsel
 
 Use the seeded public demo when you want an AI agent to try the real CLI/API workflow before you connect an account:
 
+<!--email_off-->
 ```bash
 npx @agent-analytics/cli@0.5.15 demo
 npx @agent-analytics/cli@0.5.15 --demo projects
@@ -38,6 +41,7 @@ npx @agent-analytics/cli@0.5.15 --demo paths agentanalytics-demo --goal signup -
 npx @agent-analytics/cli@0.5.15 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
 npx @agent-analytics/cli@0.5.15 --demo experiments list agentanalytics-demo
 ```
+<!--/email_off-->
 
 Useful prompts:
 

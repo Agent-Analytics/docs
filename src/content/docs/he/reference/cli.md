@@ -7,9 +7,11 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 
 החבילה המתפרסמת היא `@agent-analytics/cli`. לשימוש חד-פעמי, הריצו אותה דרך `npx` עם גרסה מוצמדת:
 
+<!--email_off-->
 ```bash
 npx @agent-analytics/cli@0.5.15 --help
 ```
+<!--/email_off-->
 
 מאגר מקור: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
 
@@ -30,6 +32,7 @@ npx @agent-analytics/cli@0.5.15 --help
 
 כדי לתת לסוכן AI לנסות את ה-workflow האמיתי של CLI/API לפני חיבור חשבון, השתמשו ב-public demo עם נתונים seeded:
 
+<!--email_off-->
 ```bash
 npx @agent-analytics/cli@0.5.15 demo
 npx @agent-analytics/cli@0.5.15 --demo projects
@@ -38,6 +41,7 @@ npx @agent-analytics/cli@0.5.15 --demo paths agentanalytics-demo --goal signup -
 npx @agent-analytics/cli@0.5.15 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
 npx @agent-analytics/cli@0.5.15 --demo experiments list agentanalytics-demo
 ```
+<!--/email_off-->
 
 Prompts שימושיים:
 
