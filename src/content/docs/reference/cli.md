@@ -8,7 +8,7 @@ The Agent Analytics CLI is the official shell-first wrapper around the documente
 The published package is `@agent-analytics/cli`. For one-off use, run it through `npx` with a pinned version:
 
 ```bash
-npx @agent-analytics/cli@0.5.14 --help
+npx @agent-analytics/cli@0.5.15 --help
 ```
 
 Source repo: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -25,6 +25,27 @@ Choose the CLI when:
 - you want local auth helpers such as `login`, `logout`, and `whoami`
 
 If you are deciding between access paths rather than looking for CLI usage itself, start with [Plugin vs Skill vs MCP vs API](/reference/cli-mcp-api/).
+
+## No-sign-in demo
+
+Use the seeded public demo when you want an AI agent to try the real CLI/API workflow before you connect an account:
+
+```bash
+npx @agent-analytics/cli@0.5.15 demo
+npx @agent-analytics/cli@0.5.15 --demo projects
+npx @agent-analytics/cli@0.5.15 --demo stats agentanalytics-demo --days 7
+npx @agent-analytics/cli@0.5.15 --demo paths agentanalytics-demo --goal signup --since 30d
+npx @agent-analytics/cli@0.5.15 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx @agent-analytics/cli@0.5.15 --demo experiments list agentanalytics-demo
+```
+
+Useful prompts:
+
+- "Run the Agent Analytics demo and tell me which page is leaking signups."
+- "Use the demo data to find the highest-friction signup path."
+- "Check the demo experiment and tell me whether there is a likely winner."
+
+`--demo` fetches a short-lived read-only `aas_*` session from `POST /demo/session`, then runs normal read commands against the hosted `agentanalytics-demo` project. It does not expose a raw `aak_*` API key, does not read or write your saved CLI config, and blocks mutating commands locally.
 
 ## Login and local config
 

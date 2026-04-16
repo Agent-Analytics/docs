@@ -8,7 +8,7 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 החבילה המתפרסמת היא `@agent-analytics/cli`. לשימוש חד-פעמי, הריצו אותה דרך `npx` עם גרסה מוצמדת:
 
 ```bash
-npx @agent-analytics/cli@0.5.14 --help
+npx @agent-analytics/cli@0.5.15 --help
 ```
 
 מאגר מקור: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -25,6 +25,27 @@ npx @agent-analytics/cli@0.5.14 --help
 - אתם רוצים עזרי auth מקומיים כמו `login`, `logout` ו-`whoami`
 
 אם אתם עדיין בוחרים בין מסלולי גישה שונים ולא מחפשים שימושיות CLI ספציפית, התחילו עם [Plugin מול Skill מול MCP מול API](/he/reference/cli-mcp-api/).
+
+## demo בלי התחברות
+
+כדי לתת לסוכן AI לנסות את ה-workflow האמיתי של CLI/API לפני חיבור חשבון, השתמשו ב-public demo עם נתונים seeded:
+
+```bash
+npx @agent-analytics/cli@0.5.15 demo
+npx @agent-analytics/cli@0.5.15 --demo projects
+npx @agent-analytics/cli@0.5.15 --demo stats agentanalytics-demo --days 7
+npx @agent-analytics/cli@0.5.15 --demo paths agentanalytics-demo --goal signup --since 30d
+npx @agent-analytics/cli@0.5.15 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx @agent-analytics/cli@0.5.15 --demo experiments list agentanalytics-demo
+```
+
+Prompts שימושיים:
+
+- "Run the Agent Analytics demo and tell me which page is leaking signups."
+- "Use the demo data to find the highest-friction signup path."
+- "Check the demo experiment and tell me whether there is a likely winner."
+
+`--demo` מבקש session קצר-חיים ו-read-only מסוג `aas_*` מ-`POST /demo/session`, ואז מריץ פקודות קריאה רגילות מול הפרויקט המארח `agentanalytics-demo`. הוא לא חושף API key גולמי מסוג `aak_*`, לא קורא או כותב את קובץ ה-config המקומי של ה-CLI, וחוסם פקודות כתיבה מקומית.
 
 ## התחברות וקונפיגורציה מקומית
 
