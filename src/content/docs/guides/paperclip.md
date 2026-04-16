@@ -74,12 +74,14 @@ But that is implementation detail, not the main product story. The important pat
 
 In Paperclip, the detached login flow should look like this:
 
-1. the working setup agent starts Agent Analytics login and replies with an approval URL
+1. the working setup agent starts Agent Analytics detached login, gets an approval URL, and the start command exits
 2. you open that URL in the browser
 3. you sign in with Google or GitHub
 4. the browser shows a finish code
 5. you paste that finish code back into the Paperclip issue thread
 6. the working setup agent uses that code to complete login and keep going
+
+Paperclip should not depend on a long-running polling command for this path. The finish-code reply is the handoff that lets the agent resume reliably inside the issue thread.
 
 The important product rule is simple: the user approves identity in the browser, but the working agent ends up holding the session and continues the setup.
 

@@ -38,12 +38,12 @@ The normal OpenClaw path is:
 
 1. install the skill
 2. ask OpenClaw to set up the project
-3. let OpenClaw send the browser approval link
+3. let OpenClaw start detached login, send the browser approval link, and stop waiting on that start command
 4. sign in in the browser
 5. paste back the finish code in the same thread
 6. let OpenClaw continue into project setup and first-event verification
 
-In headless OpenClaw environments, this finish-code handoff is the normal login path. The browser page should look like this:
+In headless OpenClaw environments, this finish-code handoff is the normal login path because it does not depend on a long-running polling process. The browser page should look like this:
 
 ![Agent Analytics finish-code handoff screen](/finishcode.jpg)
 

@@ -8,7 +8,7 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 החבילה המתפרסמת היא `@agent-analytics/cli`. לשימוש חד-פעמי, הריצו אותה דרך `npx` עם גרסה מוצמדת:
 
 ```bash
-npx @agent-analytics/cli@0.5.12 --help
+npx @agent-analytics/cli@0.5.14 --help
 ```
 
 מאגר מקור: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -31,7 +31,8 @@ npx @agent-analytics/cli@0.5.12 --help
 ה-CLI הוא agent-session-first:
 
 - ברירת מחדל: `agent-analytics login` פותח אישור בדפדפן עם local loopback callback
-- fallback מנותק: `agent-analytics login --detached` עבור headless או אישור מרוחק
+- handoff מנותק: `agent-analytics login --detached` מדפיס קישור אישור ויוצא, כדי שסביבות מבוססות issue או remote יוכלו להמשיך עם finish code
+- polling אופציונלי: `agent-analytics login --detached --wait` משאיר את התהליך חי עבור shell מקומי שיכול להמתין לאישור בדפדפן
 - מתקדם/ידני בלבד: `agent-analytics login --token aak_...`
 
 אל תציגו הדבקה של API keys ארוכי-חיים כנתיב onboarding ראשי. אישור בדפדפן הוא ה-flow המארח הרגיל.

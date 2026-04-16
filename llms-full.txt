@@ -200,12 +200,14 @@ But that is implementation detail, not the main product story. The important pat
 
 In Paperclip, the detached login flow should look like this:
 
-1. the working setup agent starts Agent Analytics login and replies with an approval URL
+1. the working setup agent starts Agent Analytics detached login, gets an approval URL, and the start command exits
 2. you open that URL in the browser
 3. you sign in with Google or GitHub
 4. the browser shows a finish code
 5. you paste that finish code back into the Paperclip issue thread
 6. the working setup agent uses that code to complete login and keep going
+
+Paperclip should not depend on a long-running polling command for this path. The finish-code reply is the handoff that lets the agent resume reliably inside the issue thread.
 
 The important product rule is simple: the user approves identity in the browser, but the working agent ends up holding the session and continues the setup.
 
@@ -1093,9 +1095,9 @@ Save the file and reload Cursor if the tool list does not refresh automatically.
 If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-npx @agent-analytics/cli@0.5.12 login
-npx @agent-analytics/cli@0.5.12 projects
-npx @agent-analytics/cli@0.5.12 stats my-site --days 7
+npx @agent-analytics/cli@0.5.14 login
+npx @agent-analytics/cli@0.5.14 projects
+npx @agent-analytics/cli@0.5.14 stats my-site --days 7
 ```
 
 That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).
@@ -1162,12 +1164,12 @@ The normal OpenClaw path is:
 
 1. install the skill
 2. ask OpenClaw to set up the project
-3. let OpenClaw send the browser approval link
+3. let OpenClaw start detached login, send the browser approval link, and stop waiting on that start command
 4. sign in in the browser
 5. paste back the finish code in the same thread
 6. let OpenClaw continue into project setup and first-event verification
 
-In headless OpenClaw environments, this finish-code handoff is the normal login path. The browser page should look like this:
+In headless OpenClaw environments, this finish-code handoff is the normal login path because it does not depend on a long-running polling process. The browser page should look like this:
 
 ![Agent Analytics finish-code handoff screen](/finishcode.jpg)
 
@@ -2364,7 +2366,7 @@ Interactive runtimes should send the matching `code_verifier` when the start req
 }
 ```
 
-##### Status: 400 Auth request is not ready or has already been exchanged
+##### Status: 400 Auth request is not ready
 
 ###### Content-Type: application/json
 
@@ -2386,6 +2388,27 @@ Interactive runtimes should send the matching `code_verifier` when the start req
 ```
 
 ##### Status: 401 Invalid exchange code or code verifier
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 409 Auth request has already been exchanged
 
 ###### Content-Type: application/json
 

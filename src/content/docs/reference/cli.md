@@ -8,7 +8,7 @@ The Agent Analytics CLI is the official shell-first wrapper around the documente
 The published package is `@agent-analytics/cli`. For one-off use, run it through `npx` with a pinned version:
 
 ```bash
-npx @agent-analytics/cli@0.5.12 --help
+npx @agent-analytics/cli@0.5.14 --help
 ```
 
 Source repo: [Agent-Analytics/agent-analytics-cli](https://github.com/Agent-Analytics/agent-analytics-cli)
@@ -31,7 +31,8 @@ If you are deciding between access paths rather than looking for CLI usage itsel
 The CLI is agent-session-first:
 
 - default: `agent-analytics login` opens browser approval with a local loopback callback
-- detached fallback: `agent-analytics login --detached` for headless or remote approval flows
+- detached handoff: `agent-analytics login --detached` prints an approval URL and exits so issue-based or remote runtimes can resume with a finish code
+- optional polling: `agent-analytics login --detached --wait` keeps the process alive for local shells that can wait for browser approval
 - advanced/manual only: `agent-analytics login --token aak_...`
 
 Do not treat pasted long-lived API keys as the primary onboarding path. Browser approval is the normal hosted flow.
