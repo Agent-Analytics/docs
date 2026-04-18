@@ -57,7 +57,9 @@ Useful prompts:
 
 Use `scan` before installing events when you want the fastest path to useful analytics instead of a generic tracking list. The command returns growth questions, measurement blind spots, first instrumentation decisions, what each event unlocks, and what not to track yet.
 
-Anonymous previews analyze only the root domain and return a one-analysis `rst_*` resume token. They do not create an `aas_*` agent session. Full analysis and project linking require login.
+This is the normal setup routine for agents. Run the analysis first, read `minimum_viable_instrumentation`, create or link the project from the analysis, install only the high-priority recommendations, then verify the first useful event with `events`.
+
+Public previews analyze only the root domain and return a one-analysis `rst_*` resume token. They do not create an `aas_*` agent session. Full analysis and project linking require login.
 
 <!--email_off-->
 ```bash
@@ -70,6 +72,7 @@ npx @agent-analytics/cli@0.5.16 scan \
   --project my-site \
   --json
 npx @agent-analytics/cli@0.5.16 create my-site --domain https://mysite.com --source-scan <analysis_id>
+npx @agent-analytics/cli@0.5.16 events my-site --event <first_useful_event> --days 7 --limit 20
 ```
 <!--/email_off-->
 

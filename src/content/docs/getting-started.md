@@ -11,7 +11,7 @@ Use `Connect as human` only when you need direct account access yourself, such a
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
-If you want a product-manager-style scan before installing anything, start with [Product Growth Scanner](/guides/website-analysis/). It returns the growth questions, measurement blind spots, minimum viable instrumentation, and what not to measure yet.
+If you want your agent to install analytics with product judgment instead of a generic event list, start with [Product Growth Scanner](/guides/website-analysis/). It returns the growth questions, measurement blind spots, minimum viable instrumentation, and what not to measure yet.
 
 If you want to understand the two public skills first, start with [Agent Analytics Skill](/guides/agent-analytics-skill/) for setup and reporting, then [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) for data-informed variant generation.
 
@@ -37,7 +37,7 @@ Start from the codebase or site you actually want to track.
 
 Then ask your AI agent for the full setup flow:
 
-- `Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or send me the login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking, and verify the first event.`
+- `Set up Agent Analytics for this project. Run the website analysis first so you know what my agent should track first. Install only the high-priority recommended events. Open the browser for me or send me the login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking, explain what each event enables, and verify the first useful event.`
 
 When the browser approval page opens, sign in with Google or GitHub, approve it, and let the agent continue. That approval creates or connects your account and gives the agent the session it needs.
 
@@ -50,7 +50,7 @@ After your AI agent is connected, ask it to create the first project for you:
 
 If your AI agent has code write access to your site, ask it:
 
-- `Set up analytics for my-site.com`
+- `Set up analytics for my-site.com. Analyze the public site first, then install only the first recommended events.`
 
 Your AI agent should create the project and either:
 
@@ -98,7 +98,7 @@ If you need direct HTTP access for your own runtime, you can still generate an A
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
 - Use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) when you want the full activation walkthrough from installed agent to first live project.
-- Use [Product Growth Scanner](/guides/website-analysis/) when you want a product-manager-style scan before setup.
+- Use [Product Growth Scanner](/guides/website-analysis/) when you want your agent to decide what to measure before it installs custom events.
 - Use [Agent Analytics Skill](/guides/agent-analytics-skill/) when you want the regular skill for setup, reporting, and experiments.
 - Use [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) when you want a loop that generates variants, tests approved experiments, and feeds the next run from measured behavior.
 - Use [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) when your company runs on Paperclip and you need the direct CEO-task and finish-code path.

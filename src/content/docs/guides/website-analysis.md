@@ -17,6 +17,14 @@ Start from the web page:
 
 [Scan your website](https://agentanalytics.sh/analysis/)
 
+Or ask your coding agent to start there before it installs tracking:
+
+```text
+Set up Agent Analytics for this project. Run the website analysis first so you know what my agent should track first. After approval, create the project, install only the high-priority recommended events, explain what each event enables, and verify the first useful event.
+```
+
+The goal is not to add more events. The goal is to give the agent enough product judgment to install the first events that create useful answers.
+
 ## When to use it
 
 Use the scanner before setup when:
@@ -29,6 +37,35 @@ Use the scanner before setup when:
 
 Do not use it as a full conversion audit. It is intentionally narrow: what should be measured first so the next growth questions have useful data.
 
+## Normal agent setup flow
+
+The Product Growth Scanner is part of the regular Agent Analytics setup routine.
+
+When an agent is installing analytics, it should:
+
+1. analyze the public root page
+2. read `minimum_viable_instrumentation`, `current_blindspots`, `not_needed_yet`, `goal_driven_funnels`, and `after_install_agent_behavior`
+3. request browser approval or login if full analysis is needed
+4. create or link the project from the analysis
+5. install the tracker plus only the high-priority recommendations
+6. verify the first useful recommended event
+7. summarize what the installed events now let the agent answer
+
+With the CLI, that same routine is:
+
+```bash
+npx @agent-analytics/cli@0.5.16 scan https://mysite.com --json
+npx @agent-analytics/cli@0.5.16 login
+npx @agent-analytics/cli@0.5.16 scan \
+  --resume <analysis_id> \
+  --resume-token <resume_token> \
+  --full \
+  --project my-site \
+  --json
+npx @agent-analytics/cli@0.5.16 create my-site --domain https://mysite.com --source-scan <analysis_id>
+npx @agent-analytics/cli@0.5.16 events my-site --event <first_useful_event> --days 7 --limit 20
+```
+
 ## Anonymous preview
 
 Anonymous previews analyze the supplied root domain and return a one-analysis `rst_*` resume token.
@@ -39,7 +76,7 @@ The preview is enough to see the first measurement plan. Full analysis and proje
 
 ## Agent handoff
 
-After the preview, use the handoff prompt with your coding agent. The agent should handle project creation, installation, and verification from the scan context.
+After the preview, use the handoff prompt with your coding agent. The agent should handle project creation, installation, and verification from the analysis context.
 
 ```text
 Resume this Agent Analytics website analysis.
@@ -76,7 +113,7 @@ Page views, paths, referrers, UTMs, device/browser fields, country, session ids,
 ## Good prompts
 
 ```text
-Run an Agent Analytics product growth scan for this project, then install only the high-priority recommended events. Avoid generic click tracking and verify the first useful event.
+Run an Agent Analytics product growth analysis for this project, then install only the high-priority recommended events. Avoid generic click tracking and verify the first useful event.
 ```
 
 ```text
@@ -84,7 +121,7 @@ Use the previous analysis_id and resume_token. Create or connect the Agent Analy
 ```
 
 ```text
-Review this site's Agent Analytics scan. Tell me which measurement blind spots matter now and which recommendations should wait until we have more traffic.
+Review this site's Agent Analytics analysis. Tell me which measurement blind spots matter now and which recommendations should wait until we have more traffic.
 ```
 
 ## What success looks like

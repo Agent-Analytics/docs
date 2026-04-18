@@ -33,7 +33,7 @@ The source is public:
 Start in the codebase or site you want to measure, then ask:
 
 ```text
-Set up Agent Analytics for this project. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, add tracking and key events, and verify the first event.
+Set up Agent Analytics for this project. Run the website analysis first so you know what my agent should track first. Install it here if needed. Open the browser for me or give me a login link, then wait. I will sign in with Google or GitHub, approve it, and paste back any finish code if you need it. Then create the project, install only the high-priority recommended events, explain what each event enables, and verify the first useful event.
 ```
 
 After setup, ask normal analytics questions in plain English:
@@ -56,10 +56,11 @@ The skill teaches the agent to use the official Agent Analytics CLI and API patt
 
 Typical jobs:
 
+- analyze the public site before installing custom events
 - create or find the right project
 - install `tracker.js`
-- add declarative events such as CTA clicks
-- verify the first page view or custom event
+- add only the first useful declarative events such as CTA clicks
+- verify the first useful recommended event
 - inspect pages, events, funnels, retention, and bot traffic
 - create, QA, measure, and complete experiments
 - explain gaps in the data before recommending action
