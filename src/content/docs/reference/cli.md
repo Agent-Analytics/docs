@@ -9,7 +9,7 @@ The published package is `@agent-analytics/cli`. For one-off use, run it through
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.15 --help
+npx @agent-analytics/cli@0.5.16 --help
 ```
 <!--/email_off-->
 
@@ -24,7 +24,7 @@ Choose the CLI when:
 - your agent already works in a shell-first environment
 - you want a thin wrapper over the hosted API instead of a connector flow
 - you want command composition and scripting instead of tool-call round trips
-- you want local auth helpers such as `login`, `logout`, and `whoami`
+- you want local auth helpers such as `login`, `logout`, `whoami`, and `auth status`
 
 If you are deciding between access paths rather than looking for CLI usage itself, start with [Plugin vs Skill vs MCP vs API](/reference/cli-mcp-api/).
 
@@ -34,22 +34,48 @@ Use the seeded public demo when you want an AI agent to try the real CLI/API wor
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.15 demo
-npx @agent-analytics/cli@0.5.15 --demo projects
-npx @agent-analytics/cli@0.5.15 --demo stats agentanalytics-demo --days 7
-npx @agent-analytics/cli@0.5.15 --demo paths agentanalytics-demo --goal signup --since 30d
-npx @agent-analytics/cli@0.5.15 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
-npx @agent-analytics/cli@0.5.15 --demo experiments list agentanalytics-demo
+npx @agent-analytics/cli@0.5.16 demo
+npx @agent-analytics/cli@0.5.16 --demo projects
+npx @agent-analytics/cli@0.5.16 --demo stats agentanalytics-demo --days 30
+npx @agent-analytics/cli@0.5.16 --demo paths agentanalytics-demo --goal signup --since 30d
+npx @agent-analytics/cli@0.5.16 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx @agent-analytics/cli@0.5.16 --demo breakdown agentanalytics-demo --property path --event signup_started --days 30
+npx @agent-analytics/cli@0.5.16 --demo breakdown agentanalytics-demo --property path --event signup --days 30
+npx @agent-analytics/cli@0.5.16 --demo experiments get exp_demo_signup_cta
 ```
 <!--/email_off-->
 
 Useful prompts:
 
-- "Run the Agent Analytics demo and tell me which page is leaking signups."
-- "Use the demo data to find the highest-friction signup path."
-- "Check the demo experiment and tell me whether there is a likely winner."
+- "Audit the signup leak, question the data, and tell me the next fix to test."
+- "Check whether the CTA experiment winner actually fixes the biggest signup problem."
+- "Turn the demo analytics into a developer-ready growth task with metrics and guardrails."
 
 `--demo` fetches a short-lived read-only `aas_*` session from `POST /demo/session`, then runs normal read commands against the hosted `agentanalytics-demo` project. It does not expose a raw `aak_*` API key, does not read or write your saved CLI config, and blocks mutating commands locally.
+
+## Website analysis
+
+Use `scan` before installing events when you want the fastest path to useful analytics instead of a generic tracking list. The command returns what your agent should track first, what each event unlocks, the current blind spots, and what not to track yet.
+
+Anonymous previews analyze only the root domain and return a one-analysis `rst_*` resume token. They do not create an `aas_*` agent session. Full analysis and project linking require login.
+
+<!--email_off-->
+```bash
+npx @agent-analytics/cli@0.5.16 scan https://mysite.com --json
+npx @agent-analytics/cli@0.5.16 login
+npx @agent-analytics/cli@0.5.16 scan \
+  --resume <analysis_id> \
+  --resume-token <resume_token> \
+  --full \
+  --project my-site \
+  --json
+npx @agent-analytics/cli@0.5.16 create my-site --domain https://mysite.com --source-scan <analysis_id>
+```
+<!--/email_off-->
+
+The JSON output is stable for agent skills. Agents should install only the high-priority `minimum_viable_instrumentation` first and verify the first useful recommended event with `events`.
+
+Each recommendation includes an `implementation_hint` mapped to tracker.js capabilities. Page views, paths, referrers, UTMs, device/browser fields, country, session IDs, session count, days since first visit, and first-touch attribution are automatic, so agents should not add custom duplicates for those signals. Use `data-aa-event` for named click intent, `data-aa-impression` for meaningful section exposure, `window.aa.track(...)` for computed client state, server-side tracking for durable outcomes such as completed signup, and broad script opt-ins only when they unlock the stated decision.
 
 ## Login and local config
 
@@ -64,14 +90,29 @@ Do not treat pasted long-lived API keys as the primary onboarding path. Browser 
 
 The CLI stores local config at `$XDG_CONFIG_HOME/agent-analytics/config.json`, with fallback to `~/.config/agent-analytics/config.json`.
 
+For managed agent runtimes where home-directory config may not persist, set an explicit persistent directory before login:
+
+<!--email_off-->
+```bash
+export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
+npx @agent-analytics/cli@0.5.16 login --detached
+npx @agent-analytics/cli@0.5.16 auth status
+```
+<!--/email_off-->
+
+You can also pass `--config-dir "$PWD/.openclaw/agent-analytics"` before or after any command. Resolution order is: `--config-dir`, `AGENT_ANALYTICS_CONFIG_DIR`, `$XDG_CONFIG_HOME/agent-analytics`, then `~/.config/agent-analytics`.
+
 Credential lookup still respects environment overrides first, so `AGENT_ANALYTICS_API_KEY` continues to win until you unset it.
 
 ## Common commands
 
 ```bash
+agent-analytics scan https://mysite.com --json
 agent-analytics projects
 agent-analytics whoami
+agent-analytics auth status
 agent-analytics create my-site --domain https://mysite.com
+agent-analytics create my-site --domain https://mysite.com --source-scan <analysis_id>
 agent-analytics stats my-site --days 7
 agent-analytics insights my-site --period 7d
 agent-analytics events my-site --days 7 --limit 20
@@ -85,8 +126,8 @@ agent-analytics logout
 
 The main command families are:
 
-- account and auth: `login`, `logout`, `whoami`, `revoke-key`
-- project setup: `create`, `projects`
+- account and auth: `login`, `logout`, `whoami`, `auth status`, `revoke-key`
+- project setup: `scan`, `create`, `projects`
 - reporting: `stats`, `insights`, `breakdown`, `pages`, `paths`, `sessions-dist`, `events`, `sessions`, `query`
 - live monitoring: `live`
 - schema discovery: `properties`, `properties-received`
@@ -124,6 +165,9 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 | `agent-analytics experiments list my-site` | `GET /experiments?project=my-site` |
 | `agent-analytics experiments create my-site --name signup_cta --variants control,new_cta --goal signup` | `POST /experiments` |
 | `agent-analytics experiments get exp_abc123` | `GET /experiments/{id}` |
+| `agent-analytics scan https://mysite.com --json` | `POST /website-scans` |
+| `agent-analytics scan --resume <id> --resume-token <token>` | `GET /website-scans/{id}` |
+| `agent-analytics scan --resume <id> --resume-token <token> --full --project my-site` | `POST /website-scans/{id}/upgrade` |
 | `agent-analytics projects` | `GET /projects` |
 | `agent-analytics project my-site` | `GET /projects/{id}` after resolving name or ID |
 | `agent-analytics update my-site --origins https://mysite.com` | `PATCH /projects/{id}` after resolving name or ID |

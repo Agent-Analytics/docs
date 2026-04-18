@@ -29,6 +29,24 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 
 ![Agent Analytics finish-code handoff screen](/finishcode.jpg)
 
+## אחסון auth מתמשך
+
+ב-OpenClaw ובסביבות מנוהלות דומות, אל תסתמכו על נתיב ברירת המחדל תחת home עבור auth של Agent Analytics. הגדירו נתיב מתמשך בתוך סביבת העבודה לפני login:
+
+```bash
+export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
+npx @agent-analytics/cli@0.5.16 login --detached
+npx @agent-analytics/cli@0.5.16 auth status
+```
+
+שמרו על ההגדרה הזו בכל פקודת Agent Analytics CLI באותה משימה. אם לא בטוח שמשתני shell נשמרים, הוסיפו prefix לכל פקודה:
+
+```bash
+AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx @agent-analytics/cli@0.5.16 projects
+```
+
+ל-debug חד-פעמי אפשר להשתמש ב-`--config-dir "$PWD/.openclaw/agent-analytics"` לפני או אחרי הפקודה. ודאו ש-`.openclaw/` נמצא ב-gitignore לפני login, ולעולם אל תבצעו commit ל-`.openclaw/agent-analytics/config.json`.
+
 התיעוד הציבורי עדיין חשוב כי הוא מראה בדיוק מה ה-CLI עוטף:
 
 - [CLI vs MCP vs API](/he/reference/cli-mcp-api/)
@@ -51,6 +69,7 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 
 - אם ClawHub מסמן את ה-skill בגלל `npx`, הפנו את הסוקרים אל [CLI vs MCP vs API](/he/reference/cli-mcp-api/) ו-[API Reference](/he/api/). ה-CLI הוא ה-wrapper הרשמי סביב אותן נקודות קצה מתועדות.
 - אם OpenClaw שולח קישור אישור אבל לא ממשיך, הדביקו חזרה את קוד הסיום באותו thread.
+- אם ההתחברות עבדה קודם ואז מתקבלת הודעת "Not logged in", הריצו `auth status` וודאו ש-`AGENT_ANALYTICS_CONFIG_DIR` מצביע אל הנתיב המתמשך `.openclaw/agent-analytics`.
 - אם ה-skill מותקן אבל לא מצליח לשאול נתונים אחרי ההתחברות, ודאו שהאישור בדפדפן הושלם עם אותו חשבון Agent Analytics שבו אתם מצפים להשתמש.
 - אם בחרתם במפורש במסלול המתקדם/ידני של API key, ודאו ש-`AGENT_ANALYTICS_API_KEY` זמין בסביבת OpenClaw ולא מודבק בצ'אט.
 - אם צריך דיבוג ברמת endpoint, השתמשו ב-[API reference](/he/api/) עם `curl` לפני שחוזרים ל-flow של ה-skill.

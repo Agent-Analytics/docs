@@ -47,6 +47,24 @@ In headless OpenClaw environments, this finish-code handoff is the normal login 
 
 ![Agent Analytics finish-code handoff screen](/finishcode.jpg)
 
+## Persistent auth storage
+
+OpenClaw and similar managed runtimes should not rely on the default home config path for Agent Analytics auth. Use a persistent OpenClaw-managed workspace path before login:
+
+```bash
+export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
+npx @agent-analytics/cli@0.5.16 login --detached
+npx @agent-analytics/cli@0.5.16 auth status
+```
+
+Keep that setting on every Agent Analytics CLI command in the task. If shell environment persistence is uncertain, prefix each command:
+
+```bash
+AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx @agent-analytics/cli@0.5.16 projects
+```
+
+For one-off debugging, `--config-dir "$PWD/.openclaw/agent-analytics"` works before or after the command. Ensure `.openclaw/` is gitignored before login, and never commit `.openclaw/agent-analytics/config.json`.
+
 The public docs still matter because they show exactly what the skill is wrapping:
 
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
@@ -68,6 +86,7 @@ If you have not created your first real project yet, continue with [First Projec
 
 - If ClawHub flags the skill because of `npx`, point reviewers to [CLI vs MCP vs API](/reference/cli-mcp-api/) and [API Reference](/api/). The CLI is the official wrapper around those documented endpoints.
 - If OpenClaw sends you an approval link but never resumes, paste the finish code back into the same thread.
+- If login worked earlier but later says "Not logged in", run `auth status` and confirm `AGENT_ANALYTICS_CONFIG_DIR` points at the persistent `.openclaw/agent-analytics` path.
 - If the skill installs but cannot query data after login, confirm the browser approval completed with the same Agent Analytics account you expect to use.
 - If you intentionally choose the advanced/manual API-key path, keep `AGENT_ANALYTICS_API_KEY` in the OpenClaw runtime instead of pasting it into chat.
 - If you need endpoint-level debugging, use the [API reference](/api/) with `curl` before returning to the skill flow.

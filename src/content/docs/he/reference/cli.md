@@ -9,7 +9,7 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.15 --help
+npx @agent-analytics/cli@0.5.16 --help
 ```
 <!--/email_off-->
 
@@ -24,7 +24,7 @@ npx @agent-analytics/cli@0.5.15 --help
 - הסוכן כבר עובד בסביבה שמתחילה מה-shell
 - אתם רוצים wrapper דק מעל ה-API המארח במקום connector flow
 - אתם מעדיפים הרכבת פקודות וסקריפטים על פני round trips של tool calls
-- אתם רוצים עזרי auth מקומיים כמו `login`, `logout` ו-`whoami`
+- אתם רוצים עזרי auth מקומיים כמו `login`, `logout`, `whoami` ו-`auth status`
 
 אם אתם עדיין בוחרים בין מסלולי גישה שונים ולא מחפשים שימושיות CLI ספציפית, התחילו עם [Plugin מול Skill מול MCP מול API](/he/reference/cli-mcp-api/).
 
@@ -34,12 +34,12 @@ npx @agent-analytics/cli@0.5.15 --help
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.15 demo
-npx @agent-analytics/cli@0.5.15 --demo projects
-npx @agent-analytics/cli@0.5.15 --demo stats agentanalytics-demo --days 7
-npx @agent-analytics/cli@0.5.15 --demo paths agentanalytics-demo --goal signup --since 30d
-npx @agent-analytics/cli@0.5.15 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
-npx @agent-analytics/cli@0.5.15 --demo experiments list agentanalytics-demo
+npx @agent-analytics/cli@0.5.16 demo
+npx @agent-analytics/cli@0.5.16 --demo projects
+npx @agent-analytics/cli@0.5.16 --demo stats agentanalytics-demo --days 7
+npx @agent-analytics/cli@0.5.16 --demo paths agentanalytics-demo --goal signup --since 30d
+npx @agent-analytics/cli@0.5.16 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx @agent-analytics/cli@0.5.16 --demo experiments list agentanalytics-demo
 ```
 <!--/email_off-->
 
@@ -64,6 +64,16 @@ Prompts שימושיים:
 
 ה-CLI שומר קונפיגורציה מקומית ב-`$XDG_CONFIG_HOME/agent-analytics/config.json`, עם fallback ל-`~/.config/agent-analytics/config.json`.
 
+בסביבות agent מנוהלות שבהן קונפיגורציית home לא תמיד נשמרת, הגדירו תיקייה מתמשכת לפני login:
+
+```bash
+export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
+npx @agent-analytics/cli@0.5.16 login --detached
+npx @agent-analytics/cli@0.5.16 auth status
+```
+
+אפשר גם להעביר `--config-dir "$PWD/.openclaw/agent-analytics"` לפני או אחרי כל פקודה. סדר הפתרון הוא: `--config-dir`, אחר כך `AGENT_ANALYTICS_CONFIG_DIR`, אחר כך `$XDG_CONFIG_HOME/agent-analytics`, ולבסוף `~/.config/agent-analytics`.
+
 עדיין יש עדיפות למשתני סביבה, ולכן `AGENT_ANALYTICS_API_KEY` ימשיך לנצח עד שתבטלו אותו.
 
 ## פקודות נפוצות
@@ -71,6 +81,7 @@ Prompts שימושיים:
 ```bash
 agent-analytics projects
 agent-analytics whoami
+agent-analytics auth status
 agent-analytics create my-site --domain https://mysite.com
 agent-analytics stats my-site --days 7
 agent-analytics insights my-site --period 7d
@@ -84,7 +95,7 @@ agent-analytics logout
 
 משפחות הפקודות העיקריות הן:
 
-- חשבון ו-auth: `login`, `logout`, `whoami`, `revoke-key`
+- חשבון ו-auth: `login`, `logout`, `whoami`, `auth status`, `revoke-key`
 - הקמת פרויקטים: `create`, `projects`
 - דוחות: `stats`, `insights`, `breakdown`, `pages`, `sessions-dist`, `events`, `sessions`, `query`
 - ניטור חי: `live`

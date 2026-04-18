@@ -66,6 +66,15 @@ Typical jobs:
 
 Browser approval is the normal login path. You do not need to create an API key first unless you are building a custom direct HTTP integration.
 
+For OpenClaw and similar managed runtimes, tell the agent to keep Agent Analytics CLI auth in a persistent workspace path instead of the default home config path:
+
+```bash
+export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
+npx @agent-analytics/cli@0.5.16 auth status
+```
+
+If the runtime may not preserve exported variables between commands, prefix each Agent Analytics CLI command with that same `AGENT_ANALYTICS_CONFIG_DIR=...` value or pass `--config-dir "$PWD/.openclaw/agent-analytics"`. Do not commit `.openclaw/agent-analytics/config.json`.
+
 ## When To Use The Autoresearch Skill Instead
 
 Use [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) when the task is not just "read analytics" or "create an experiment," but:
