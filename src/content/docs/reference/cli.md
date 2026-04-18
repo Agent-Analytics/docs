@@ -55,7 +55,7 @@ Useful prompts:
 
 ## Website analysis
 
-Use `scan` before installing events when you want the fastest path to useful analytics instead of a generic tracking list. The command returns what your agent should track first, what each event unlocks, the current blind spots, and what not to track yet.
+Use `scan` before installing events when you want the fastest path to useful analytics instead of a generic tracking list. The command returns growth questions, measurement blind spots, first instrumentation decisions, what each event unlocks, and what not to track yet.
 
 Anonymous previews analyze only the root domain and return a one-analysis `rst_*` resume token. They do not create an `aas_*` agent session. Full analysis and project linking require login.
 

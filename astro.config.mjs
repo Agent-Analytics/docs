@@ -154,6 +154,7 @@ export default defineConfig({
             { slug: 'guides/agent-analytics-skill' },
             { slug: 'guides/autoresearch-growth-skill' },
             { slug: 'guides/first-project-in-5-minutes' },
+            { slug: 'guides/website-analysis' },
             { slug: 'guides/ai-agent-experiment-tracking' },
             { slug: 'guides/session-paths' },
           ],

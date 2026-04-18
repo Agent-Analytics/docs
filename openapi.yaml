@@ -40,6 +40,8 @@ tags:
     description: Query analytics data. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
   - name: Projects
     description: Manage projects programmatically. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
+  - name: Website Analysis
+    description: Product Growth Scanner. Anonymous previews return growth questions, measurement blind spots, and first instrumentation decisions; full analysis and project linking require account auth.
   - name: Account
     description: Account information and feedback. Agent-session bearer auth is preferred for scoped account reads and feedback; raw API-key management is dashboard-only or API-key fallback only.
   - name: Agent Sessions
@@ -992,6 +994,225 @@ components:
           type: integer
         total_reads:
           type: integer
+        source_scan_id:
+          type: ['string', 'null']
+          description: Website analysis id linked during project creation, when present.
+
+    WebsiteScanCreateRequest:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          description: Website URL to analyze. Anonymous requests are normalized to the root domain.
+          example: https://example.com/pricing
+        full:
+          type: boolean
+          description: Request full analysis. Requires account auth.
+          default: false
+        mode:
+          type: string
+          enum: [preview, full]
+          description: Alternative way to request preview or full analysis.
+
+    WebsiteScanUpgradeRequest:
+      type: object
+      properties:
+        resume_token:
+          type: string
+          description: One-analysis `rst_*` resume token from an anonymous preview.
+          example: rst_...
+        project:
+          type: string
+          description: Optional project name used by CLI flows while upgrading.
+          example: my-site
+
+    WebsiteScanEventRecommendation:
+      type: object
+      required: [event, priority, why_this_matters_now, current_blindspot, unlocks_questions, agent_capability_after_install, properties, implementation_hint]
+      properties:
+        event:
+          type: string
+          description: Stable snake_case custom event name. Recommendations should not duplicate automatic tracker signals such as page_view.
+          example: signup_started
+        priority:
+          type: integer
+          example: 1
+        why_this_matters_now:
+          type: string
+          example: This marks the moment intent becomes commitment.
+        current_blindspot:
+          type: string
+          example: You cannot see whether CTA clicks turn into signup attempts.
+        unlocks_questions:
+          type: array
+          items:
+            type: string
+          example:
+            - Which pages create signup starts?
+            - Where does signup intent drop?
+        agent_capability_after_install:
+          type: string
+          example: Your agent can detect where intent drops before account creation.
+        properties:
+          type: array
+          description: Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+          items:
+            type: string
+          example: [page_path, entry_source, auth_method]
+        implementation_hint:
+          type: string
+          description: Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    WebsiteScanResult:
+      type: object
+      description: Decision-oriented instrumentation plan. Preview responses cap `minimum_viable_instrumentation` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page_view, attribution, device, geography, session, or visitor fields.
+      properties:
+        framing:
+          type: string
+          example: fastest_path_to_useful_analytics
+        normalized_url:
+          type: string
+          example: https://example.com/
+        hostname:
+          type: string
+          example: example.com
+        current_blindspots:
+          type: array
+          items:
+            type: string
+        minimum_viable_instrumentation:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebsiteScanEventRecommendation'
+        not_needed_yet:
+          type: array
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+              reason:
+                type: string
+              revisit_when:
+                type: string
+        goal_driven_funnels:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              steps:
+                type: array
+                items:
+                  type: string
+              decision:
+                type: string
+              bottleneck_detection:
+                type: string
+        after_install_agent_behavior:
+          type: array
+          items:
+            type: string
+        business_events_later:
+          type: array
+          description: Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+              why:
+                type: string
+              where_to_instrument:
+                type: string
+        advanced_tracking_later:
+          type: array
+          description: Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+          items:
+            type: object
+            properties:
+              capability:
+                type: string
+                example: data-aa-impression
+              why:
+                type: string
+              implementation_hint:
+                type: string
+        suggested_ab_tests:
+          type: array
+          description: Compact experiment ideas tied to the recommended page UI events.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              hypothesis:
+                type: string
+              variants:
+                type: array
+                items:
+                  type: string
+              success_event:
+                type: string
+        analytics_detected:
+          type: object
+          description: Supporting context only; the recommendation does not lead with detected providers.
+
+    WebsiteScanResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        analysis_id:
+          type: string
+          example: scan_...
+        status:
+          type: string
+          enum: [pending, running, succeeded, failed]
+          example: succeeded
+        mode:
+          type: string
+          example: anonymous_preview
+        normalized_url:
+          type: string
+          example: https://example.com/
+        hostname:
+          type: string
+          example: example.com
+        cached:
+          type: boolean
+        resume_token:
+          type: string
+          description: Present only when creating a new anonymous preview. Store the token securely; the server stores only its hash.
+          example: rst_...
+        preview:
+          $ref: '#/components/schemas/WebsiteScanResult'
+        result:
+          $ref: '#/components/schemas/WebsiteScanResult'
+        agent_handoff:
+          type: object
+          properties:
+            label:
+              type: string
+              example: Give your agent analytics judgment
+            analysis_id:
+              type: string
+            resume_token:
+              type: ['string', 'null']
+            prompt:
+              type: string
+
+    WebsiteScanBusyError:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            retry_after_seconds:
+              type: integer
+              example: 30
 
     LiveSnapshotResponse:
       type: object
@@ -3176,6 +3397,151 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /website-scans:
+    post:
+      operationId: createWebsiteScan
+      summary: Analyze product growth measurement blind spots
+      description: |
+        Creates a website analysis. Anonymous requests are root-domain only and return a preview plus a one-analysis `rst_*` resume token. They do not create `aas_*` agent sessions.
+
+        Signed-in requests can request full analysis with `full: true` or `mode: full`, subject to monthly quota.
+
+        Public product copy should frame this as the fastest path to useful analytics, not as a generic audit. Recommendations include implementation hints that map to supported tracker.js capabilities instead of duplicate custom events for automatic signals.
+      tags: [Website Analysis]
+      security:
+        - {}
+        - AgentSessionBearer: []
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebsiteScanCreateRequest'
+      responses:
+        '200':
+          description: Preview or full website analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteScanResponse'
+        '400':
+          description: Invalid or unsafe website URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Login required for full analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Anonymous analyzer busy, cooldown active, or quota reached
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds to wait before retrying.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteScanBusyError'
+        '502':
+          description: Downstream scanner failed safely
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /website-scans/{id}:
+    get:
+      operationId: getWebsiteScan
+      summary: Resume a website analysis
+      description: |
+        Returns a previously created analysis. Account owners can read their own analyses. Anonymous previews require the matching `resume_token` query parameter.
+      tags: [Website Analysis]
+      security:
+        - {}
+        - AgentSessionBearer: []
+        - ApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resume_token
+          in: query
+          required: false
+          schema:
+            type: string
+          description: One-analysis `rst_*` token returned by anonymous preview creation.
+      responses:
+        '200':
+          description: Website analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteScanResponse'
+        '404':
+          description: Analysis not found or token/account mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /website-scans/{id}/upgrade:
+    post:
+      operationId: upgradeWebsiteScan
+      summary: Claim and upgrade an analysis
+      description: |
+        Claims an anonymous preview for the authenticated account and returns the full instrumentation plan. If the analysis is already owned by the account, the resume token is not required.
+
+        Project linking is done separately by creating a project with `source_scan_id` or by hosted project-linking helpers. A resume token alone cannot attach an analysis to a project.
+      tags: [Website Analysis]
+      security:
+        - AgentSessionBearer: []
+        - ApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebsiteScanUpgradeRequest'
+      responses:
+        '200':
+          description: Full website analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteScanResponse'
+        '401':
+          description: Login required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Analysis not found or resume token mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Monthly full-analysis quota reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteScanBusyError'
+
   /projects:
     get:
       operationId: listProjects
@@ -3221,7 +3587,9 @@ paths:
         Project names must be alphanumeric with hyphens, underscores, or dots (max 64 chars).
         If a project with the same name already exists, returns the existing project (idempotent).
 
-        **CLI:** `npx @agent-analytics/cli init my-new-site`
+        Pass `source_scan_id` when creating the project from a website analysis so activation can be tied back to the recommended instrumentation plan.
+
+        **CLI:** `npx @agent-analytics/cli create my-new-site --domain https://example.com --source-scan scan_...`
       tags: [Projects]
       security:
         - ApiKey: []
@@ -3243,6 +3611,10 @@ paths:
                   description: "Allowed origins for CORS. Use `*` for any origin."
                   default: "*"
                   example: "https://example.com"
+                source_scan_id:
+                  type: string
+                  description: Optional website analysis id to link to this project. Requires account ownership and hostname/origin match.
+                  example: scan_...
       responses:
         '201':
           description: Project created
@@ -3260,6 +3632,8 @@ paths:
                     example: aat_...
                   allowed_origins:
                     type: string
+                  source_scan_id:
+                    type: ['string', 'null']
                   snippet:
                     type: string
                     description: Ready-to-use HTML tracking snippet

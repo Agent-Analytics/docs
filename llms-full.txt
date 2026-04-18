@@ -28,6 +28,8 @@ Use `Connect as human` only when you need direct account access yourself, such a
 
 If your AI agent, such as Claude Code, Cursor, Codex, or OpenClaw, is already installed and you want the clearest create-project, place-snippet, and verify-first-page-view walkthrough, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/).
 
+If you want a product-manager-style scan before installing anything, start with [Product Growth Scanner](/guides/website-analysis/). It returns the growth questions, measurement blind spots, minimum viable instrumentation, and what not to measure yet.
+
 If you want to understand the two public skills first, start with [Agent Analytics Skill](/guides/agent-analytics-skill/) for setup and reporting, then [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) for data-informed variant generation.
 
 If you are here from a Paperclip workflow, start by creating a task for your CEO in Paperclip, then follow [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) for the one-task delegation and finish-code handoff path.
@@ -113,6 +115,7 @@ If you need direct HTTP access for your own runtime, you can still generate an A
 
 - Use [Installation](/installation/) for the fastest per-agent setup.
 - Use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) when you want the full activation walkthrough from installed agent to first live project.
+- Use [Product Growth Scanner](/guides/website-analysis/) when you want a product-manager-style scan before setup.
 - Use [Agent Analytics Skill](/guides/agent-analytics-skill/) when you want the regular skill for setup, reporting, and experiments.
 - Use [Autoresearch Growth Skill](/guides/autoresearch-growth-skill/) when you want a loop that generates variants, tests approved experiments, and feeds the next run from measured behavior.
 - Use [Set up Agent Analytics for your Paperclip company](/guides/paperclip/) when your company runs on Paperclip and you need the direct CEO-task and finish-code path.
@@ -332,6 +335,15 @@ Typical jobs:
 - explain gaps in the data before recommending action
 
 Browser approval is the normal login path. You do not need to create an API key first unless you are building a custom direct HTTP integration.
+
+For OpenClaw and similar managed runtimes, tell the agent to keep Agent Analytics CLI auth in a persistent workspace path instead of the default home config path:
+
+```bash
+export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
+npx @agent-analytics/cli@0.5.16 auth status
+```
+
+If the runtime may not preserve exported variables between commands, prefix each Agent Analytics CLI command with that same `AGENT_ANALYTICS_CONFIG_DIR=...` value or pass `--config-dir "$PWD/.openclaw/agent-analytics"`. Do not commit `.openclaw/agent-analytics/config.json`.
 
 ## When To Use The Autoresearch Skill Instead
 
@@ -1095,9 +1107,9 @@ Save the file and reload Cursor if the tool list does not refresh automatically.
 If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-npx @agent-analytics/cli@0.5.15 login
-npx @agent-analytics/cli@0.5.15 projects
-npx @agent-analytics/cli@0.5.15 stats my-site --days 7
+npx @agent-analytics/cli@0.5.16 login
+npx @agent-analytics/cli@0.5.16 projects
+npx @agent-analytics/cli@0.5.16 stats my-site --days 7
 ```
 
 That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).
@@ -1173,6 +1185,24 @@ In headless OpenClaw environments, this finish-code handoff is the normal login 
 
 ![Agent Analytics finish-code handoff screen](/finishcode.jpg)
 
+## Persistent auth storage
+
+OpenClaw and similar managed runtimes should not rely on the default home config path for Agent Analytics auth. Use a persistent OpenClaw-managed workspace path before login:
+
+```bash
+export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
+npx @agent-analytics/cli@0.5.16 login --detached
+npx @agent-analytics/cli@0.5.16 auth status
+```
+
+Keep that setting on every Agent Analytics CLI command in the task. If shell environment persistence is uncertain, prefix each command:
+
+```bash
+AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx @agent-analytics/cli@0.5.16 projects
+```
+
+For one-off debugging, `--config-dir "$PWD/.openclaw/agent-analytics"` works before or after the command. Ensure `.openclaw/` is gitignored before login, and never commit `.openclaw/agent-analytics/config.json`.
+
 The public docs still matter because they show exactly what the skill is wrapping:
 
 - [CLI vs MCP vs API](/reference/cli-mcp-api/)
@@ -1194,6 +1224,7 @@ If you have not created your first real project yet, continue with [First Projec
 
 - If ClawHub flags the skill because of `npx`, point reviewers to [CLI vs MCP vs API](/reference/cli-mcp-api/) and [API Reference](/api/). The CLI is the official wrapper around those documented endpoints.
 - If OpenClaw sends you an approval link but never resumes, paste the finish code back into the same thread.
+- If login worked earlier but later says "Not logged in", run `auth status` and confirm `AGENT_ANALYTICS_CONFIG_DIR` points at the persistent `.openclaw/agent-analytics` path.
 - If the skill installs but cannot query data after login, confirm the browser approval completed with the same Agent Analytics account you expect to use.
 - If you intentionally choose the advanced/manual API-key path, keep `AGENT_ANALYTICS_API_KEY` in the OpenClaw runtime instead of pasting it into chat.
 - If you need endpoint-level debugging, use the [API reference](/api/) with `curl` before returning to the skill flow.
@@ -1304,6 +1335,8 @@ The tracker automatically collects page URL, pathname, referrer, browser, OS, de
 Automated traffic that reaches the tracker is filtered out of your normal analytics. Use [Bot Traffic](/reference/bot-traffic/) if you want to inspect those automated requests separately.
 
 If your agent can edit code, ask it to add the snippet for you. If not, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) to create the project, get the snippet, and verify the first page view.
+
+Website analysis recommendations assume these automatic fields already exist. A good `implementation_hint` should use the smallest tracker capability that unlocks the decision: declarative attributes for simple intent, `window.aa.track(...)` for computed client state, and server-side tracking for durable outcomes like account creation.
 
 ## Common options
 
@@ -5717,6 +5750,2062 @@ curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
 }
 ```
 
+### Analyze product growth measurement blind spots
+
+- **Method:** `POST`
+- **Path:** `/website-scans`
+- **Tags:** Website Analysis
+
+Creates a website analysis. Anonymous requests are root-domain only and return a preview plus a one-analysis `rst_*` resume token. They do not create `aas_*` agent sessions.
+
+Signed-in requests can request full analysis with `full: true` or `mode: full`, subject to monthly quota.
+
+Public product copy should frame this as the fastest path to useful analytics, not as a generic audit. Recommendations include implementation hints that map to supported tracker.js capabilities instead of duplicate custom events for automatic signals.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`url` (required)**
+
+  `string` — Website URL to analyze. Anonymous requests are normalized to the root domain.
+
+- **`full`**
+
+  `boolean`, default: `false` — Request full analysis. Requires account auth.
+
+- **`mode`**
+
+  `string`, possible values: `"preview", "full"` — Alternative way to request preview or full analysis.
+
+**Example:**
+
+```json
+{
+  "url": "https://example.com/pricing",
+  "full": false,
+  "mode": "preview"
+}
+```
+
+#### Responses
+
+##### Status: 200 Preview or full website analysis
+
+###### Content-Type: application/json
+
+- **`agent_handoff`**
+
+  `object`
+
+  - **`analysis_id`**
+
+    `string`
+
+  - **`label`**
+
+    `string`
+
+  - **`prompt`**
+
+    `string`
+
+  - **`resume_token`**
+
+    `string | null`
+
+- **`analysis_id`**
+
+  `string`
+
+- **`cached`**
+
+  `boolean`
+
+- **`hostname`**
+
+  `string`
+
+- **`mode`**
+
+  `string`
+
+- **`normalized_url`**
+
+  `string`
+
+- **`ok`**
+
+  `boolean`
+
+- **`preview`**
+
+  `object` — Decision-oriented instrumentation plan. Preview responses cap \`minimum\_viable\_instrumentation\` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+  - **`advanced_tracking_later`**
+
+    `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+    **Items:**
+
+    - **`capability`**
+
+      `string`
+
+    - **`implementation_hint`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`after_install_agent_behavior`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`analytics_detected`**
+
+    `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+  - **`business_events_later`**
+
+    `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`where_to_instrument`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`current_blindspots`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`framing`**
+
+    `string`
+
+  - **`goal_driven_funnels`**
+
+    `array`
+
+    **Items:**
+
+    - **`bottleneck_detection`**
+
+      `string`
+
+    - **`decision`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`steps`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+  - **`hostname`**
+
+    `string`
+
+  - **`minimum_viable_instrumentation`**
+
+    `array`
+
+    **Items:**
+
+    - **`agent_capability_after_install` (required)**
+
+      `string`
+
+    - **`current_blindspot` (required)**
+
+      `string`
+
+    - **`event` (required)**
+
+      `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+    - **`implementation_hint` (required)**
+
+      `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    - **`priority` (required)**
+
+      `integer`
+
+    - **`properties` (required)**
+
+      `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+      **Items:**
+
+      `string`
+
+    - **`unlocks_questions` (required)**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`why_this_matters_now` (required)**
+
+      `string`
+
+  - **`normalized_url`**
+
+    `string`
+
+  - **`not_needed_yet`**
+
+    `array`
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`reason`**
+
+      `string`
+
+    - **`revisit_when`**
+
+      `string`
+
+  - **`suggested_ab_tests`**
+
+    `array` — Compact experiment ideas tied to the recommended page UI events.
+
+    **Items:**
+
+    - **`hypothesis`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`success_event`**
+
+      `string`
+
+    - **`variants`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+- **`result`**
+
+  `object` — Decision-oriented instrumentation plan. Preview responses cap \`minimum\_viable\_instrumentation\` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+  - **`advanced_tracking_later`**
+
+    `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+    **Items:**
+
+    - **`capability`**
+
+      `string`
+
+    - **`implementation_hint`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`after_install_agent_behavior`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`analytics_detected`**
+
+    `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+  - **`business_events_later`**
+
+    `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`where_to_instrument`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`current_blindspots`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`framing`**
+
+    `string`
+
+  - **`goal_driven_funnels`**
+
+    `array`
+
+    **Items:**
+
+    - **`bottleneck_detection`**
+
+      `string`
+
+    - **`decision`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`steps`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+  - **`hostname`**
+
+    `string`
+
+  - **`minimum_viable_instrumentation`**
+
+    `array`
+
+    **Items:**
+
+    - **`agent_capability_after_install` (required)**
+
+      `string`
+
+    - **`current_blindspot` (required)**
+
+      `string`
+
+    - **`event` (required)**
+
+      `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+    - **`implementation_hint` (required)**
+
+      `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    - **`priority` (required)**
+
+      `integer`
+
+    - **`properties` (required)**
+
+      `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+      **Items:**
+
+      `string`
+
+    - **`unlocks_questions` (required)**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`why_this_matters_now` (required)**
+
+      `string`
+
+  - **`normalized_url`**
+
+    `string`
+
+  - **`not_needed_yet`**
+
+    `array`
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`reason`**
+
+      `string`
+
+    - **`revisit_when`**
+
+      `string`
+
+  - **`suggested_ab_tests`**
+
+    `array` — Compact experiment ideas tied to the recommended page UI events.
+
+    **Items:**
+
+    - **`hypothesis`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`success_event`**
+
+      `string`
+
+    - **`variants`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+- **`resume_token`**
+
+  `string` — Present only when creating a new anonymous preview. Store the token securely; the server stores only its hash.
+
+- **`status`**
+
+  `string`, possible values: `"pending", "running", "succeeded", "failed"`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "analysis_id": "scan_...",
+  "status": "succeeded",
+  "mode": "anonymous_preview",
+  "normalized_url": "https://example.com/",
+  "hostname": "example.com",
+  "cached": true,
+  "resume_token": "rst_...",
+  "preview": {
+    "framing": "fastest_path_to_useful_analytics",
+    "normalized_url": "https://example.com/",
+    "hostname": "example.com",
+    "current_blindspots": [
+      ""
+    ],
+    "minimum_viable_instrumentation": [
+      {
+        "event": "signup_started",
+        "priority": 1,
+        "why_this_matters_now": "This marks the moment intent becomes commitment.",
+        "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+        "unlocks_questions": [
+          "Which pages create signup starts?",
+          "Where does signup intent drop?"
+        ],
+        "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+        "properties": [
+          "page_path",
+          "entry_source",
+          "auth_method"
+        ],
+        "implementation_hint": ""
+      }
+    ],
+    "not_needed_yet": [
+      {
+        "event": "",
+        "reason": "",
+        "revisit_when": ""
+      }
+    ],
+    "goal_driven_funnels": [
+      {
+        "name": "",
+        "steps": [
+          ""
+        ],
+        "decision": "",
+        "bottleneck_detection": ""
+      }
+    ],
+    "after_install_agent_behavior": [
+      ""
+    ],
+    "business_events_later": [
+      {
+        "event": "",
+        "why": "",
+        "where_to_instrument": ""
+      }
+    ],
+    "advanced_tracking_later": [
+      {
+        "capability": "data-aa-impression",
+        "why": "",
+        "implementation_hint": ""
+      }
+    ],
+    "suggested_ab_tests": [
+      {
+        "name": "",
+        "hypothesis": "",
+        "variants": [
+          ""
+        ],
+        "success_event": ""
+      }
+    ],
+    "analytics_detected": {}
+  },
+  "result": {
+    "framing": "fastest_path_to_useful_analytics",
+    "normalized_url": "https://example.com/",
+    "hostname": "example.com",
+    "current_blindspots": [
+      ""
+    ],
+    "minimum_viable_instrumentation": [
+      {
+        "event": "signup_started",
+        "priority": 1,
+        "why_this_matters_now": "This marks the moment intent becomes commitment.",
+        "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+        "unlocks_questions": [
+          "Which pages create signup starts?",
+          "Where does signup intent drop?"
+        ],
+        "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+        "properties": [
+          "page_path",
+          "entry_source",
+          "auth_method"
+        ],
+        "implementation_hint": ""
+      }
+    ],
+    "not_needed_yet": [
+      {
+        "event": "",
+        "reason": "",
+        "revisit_when": ""
+      }
+    ],
+    "goal_driven_funnels": [
+      {
+        "name": "",
+        "steps": [
+          ""
+        ],
+        "decision": "",
+        "bottleneck_detection": ""
+      }
+    ],
+    "after_install_agent_behavior": [
+      ""
+    ],
+    "business_events_later": [
+      {
+        "event": "",
+        "why": "",
+        "where_to_instrument": ""
+      }
+    ],
+    "advanced_tracking_later": [
+      {
+        "capability": "data-aa-impression",
+        "why": "",
+        "implementation_hint": ""
+      }
+    ],
+    "suggested_ab_tests": [
+      {
+        "name": "",
+        "hypothesis": "",
+        "variants": [
+          ""
+        ],
+        "success_event": ""
+      }
+    ],
+    "analytics_detected": {}
+  },
+  "agent_handoff": {
+    "label": "Give your agent analytics judgment",
+    "analysis_id": "",
+    "resume_token": null,
+    "prompt": ""
+  }
+}
+```
+
+##### Status: 400 Invalid or unsafe website URL
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Login required for full analysis
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 429 Anonymous analyzer busy, cooldown active, or quota reached
+
+###### Content-Type: application/json
+
+**All of:**
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+* **`retry_after_seconds`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required",
+  "retry_after_seconds": 30
+}
+```
+
+##### Status: 502 Downstream scanner failed safely
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Resume a website analysis
+
+- **Method:** `GET`
+- **Path:** `/website-scans/{id}`
+- **Tags:** Website Analysis
+
+Returns a previously created analysis. Account owners can read their own analyses. Anonymous previews require the matching `resume_token` query parameter.
+
+#### Responses
+
+##### Status: 200 Website analysis
+
+###### Content-Type: application/json
+
+- **`agent_handoff`**
+
+  `object`
+
+  - **`analysis_id`**
+
+    `string`
+
+  - **`label`**
+
+    `string`
+
+  - **`prompt`**
+
+    `string`
+
+  - **`resume_token`**
+
+    `string | null`
+
+- **`analysis_id`**
+
+  `string`
+
+- **`cached`**
+
+  `boolean`
+
+- **`hostname`**
+
+  `string`
+
+- **`mode`**
+
+  `string`
+
+- **`normalized_url`**
+
+  `string`
+
+- **`ok`**
+
+  `boolean`
+
+- **`preview`**
+
+  `object` — Decision-oriented instrumentation plan. Preview responses cap \`minimum\_viable\_instrumentation\` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+  - **`advanced_tracking_later`**
+
+    `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+    **Items:**
+
+    - **`capability`**
+
+      `string`
+
+    - **`implementation_hint`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`after_install_agent_behavior`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`analytics_detected`**
+
+    `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+  - **`business_events_later`**
+
+    `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`where_to_instrument`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`current_blindspots`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`framing`**
+
+    `string`
+
+  - **`goal_driven_funnels`**
+
+    `array`
+
+    **Items:**
+
+    - **`bottleneck_detection`**
+
+      `string`
+
+    - **`decision`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`steps`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+  - **`hostname`**
+
+    `string`
+
+  - **`minimum_viable_instrumentation`**
+
+    `array`
+
+    **Items:**
+
+    - **`agent_capability_after_install` (required)**
+
+      `string`
+
+    - **`current_blindspot` (required)**
+
+      `string`
+
+    - **`event` (required)**
+
+      `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+    - **`implementation_hint` (required)**
+
+      `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    - **`priority` (required)**
+
+      `integer`
+
+    - **`properties` (required)**
+
+      `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+      **Items:**
+
+      `string`
+
+    - **`unlocks_questions` (required)**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`why_this_matters_now` (required)**
+
+      `string`
+
+  - **`normalized_url`**
+
+    `string`
+
+  - **`not_needed_yet`**
+
+    `array`
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`reason`**
+
+      `string`
+
+    - **`revisit_when`**
+
+      `string`
+
+  - **`suggested_ab_tests`**
+
+    `array` — Compact experiment ideas tied to the recommended page UI events.
+
+    **Items:**
+
+    - **`hypothesis`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`success_event`**
+
+      `string`
+
+    - **`variants`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+- **`result`**
+
+  `object` — Decision-oriented instrumentation plan. Preview responses cap \`minimum\_viable\_instrumentation\` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+  - **`advanced_tracking_later`**
+
+    `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+    **Items:**
+
+    - **`capability`**
+
+      `string`
+
+    - **`implementation_hint`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`after_install_agent_behavior`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`analytics_detected`**
+
+    `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+  - **`business_events_later`**
+
+    `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`where_to_instrument`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`current_blindspots`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`framing`**
+
+    `string`
+
+  - **`goal_driven_funnels`**
+
+    `array`
+
+    **Items:**
+
+    - **`bottleneck_detection`**
+
+      `string`
+
+    - **`decision`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`steps`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+  - **`hostname`**
+
+    `string`
+
+  - **`minimum_viable_instrumentation`**
+
+    `array`
+
+    **Items:**
+
+    - **`agent_capability_after_install` (required)**
+
+      `string`
+
+    - **`current_blindspot` (required)**
+
+      `string`
+
+    - **`event` (required)**
+
+      `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+    - **`implementation_hint` (required)**
+
+      `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    - **`priority` (required)**
+
+      `integer`
+
+    - **`properties` (required)**
+
+      `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+      **Items:**
+
+      `string`
+
+    - **`unlocks_questions` (required)**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`why_this_matters_now` (required)**
+
+      `string`
+
+  - **`normalized_url`**
+
+    `string`
+
+  - **`not_needed_yet`**
+
+    `array`
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`reason`**
+
+      `string`
+
+    - **`revisit_when`**
+
+      `string`
+
+  - **`suggested_ab_tests`**
+
+    `array` — Compact experiment ideas tied to the recommended page UI events.
+
+    **Items:**
+
+    - **`hypothesis`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`success_event`**
+
+      `string`
+
+    - **`variants`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+- **`resume_token`**
+
+  `string` — Present only when creating a new anonymous preview. Store the token securely; the server stores only its hash.
+
+- **`status`**
+
+  `string`, possible values: `"pending", "running", "succeeded", "failed"`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "analysis_id": "scan_...",
+  "status": "succeeded",
+  "mode": "anonymous_preview",
+  "normalized_url": "https://example.com/",
+  "hostname": "example.com",
+  "cached": true,
+  "resume_token": "rst_...",
+  "preview": {
+    "framing": "fastest_path_to_useful_analytics",
+    "normalized_url": "https://example.com/",
+    "hostname": "example.com",
+    "current_blindspots": [
+      ""
+    ],
+    "minimum_viable_instrumentation": [
+      {
+        "event": "signup_started",
+        "priority": 1,
+        "why_this_matters_now": "This marks the moment intent becomes commitment.",
+        "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+        "unlocks_questions": [
+          "Which pages create signup starts?",
+          "Where does signup intent drop?"
+        ],
+        "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+        "properties": [
+          "page_path",
+          "entry_source",
+          "auth_method"
+        ],
+        "implementation_hint": ""
+      }
+    ],
+    "not_needed_yet": [
+      {
+        "event": "",
+        "reason": "",
+        "revisit_when": ""
+      }
+    ],
+    "goal_driven_funnels": [
+      {
+        "name": "",
+        "steps": [
+          ""
+        ],
+        "decision": "",
+        "bottleneck_detection": ""
+      }
+    ],
+    "after_install_agent_behavior": [
+      ""
+    ],
+    "business_events_later": [
+      {
+        "event": "",
+        "why": "",
+        "where_to_instrument": ""
+      }
+    ],
+    "advanced_tracking_later": [
+      {
+        "capability": "data-aa-impression",
+        "why": "",
+        "implementation_hint": ""
+      }
+    ],
+    "suggested_ab_tests": [
+      {
+        "name": "",
+        "hypothesis": "",
+        "variants": [
+          ""
+        ],
+        "success_event": ""
+      }
+    ],
+    "analytics_detected": {}
+  },
+  "result": {
+    "framing": "fastest_path_to_useful_analytics",
+    "normalized_url": "https://example.com/",
+    "hostname": "example.com",
+    "current_blindspots": [
+      ""
+    ],
+    "minimum_viable_instrumentation": [
+      {
+        "event": "signup_started",
+        "priority": 1,
+        "why_this_matters_now": "This marks the moment intent becomes commitment.",
+        "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+        "unlocks_questions": [
+          "Which pages create signup starts?",
+          "Where does signup intent drop?"
+        ],
+        "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+        "properties": [
+          "page_path",
+          "entry_source",
+          "auth_method"
+        ],
+        "implementation_hint": ""
+      }
+    ],
+    "not_needed_yet": [
+      {
+        "event": "",
+        "reason": "",
+        "revisit_when": ""
+      }
+    ],
+    "goal_driven_funnels": [
+      {
+        "name": "",
+        "steps": [
+          ""
+        ],
+        "decision": "",
+        "bottleneck_detection": ""
+      }
+    ],
+    "after_install_agent_behavior": [
+      ""
+    ],
+    "business_events_later": [
+      {
+        "event": "",
+        "why": "",
+        "where_to_instrument": ""
+      }
+    ],
+    "advanced_tracking_later": [
+      {
+        "capability": "data-aa-impression",
+        "why": "",
+        "implementation_hint": ""
+      }
+    ],
+    "suggested_ab_tests": [
+      {
+        "name": "",
+        "hypothesis": "",
+        "variants": [
+          ""
+        ],
+        "success_event": ""
+      }
+    ],
+    "analytics_detected": {}
+  },
+  "agent_handoff": {
+    "label": "Give your agent analytics judgment",
+    "analysis_id": "",
+    "resume_token": null,
+    "prompt": ""
+  }
+}
+```
+
+##### Status: 404 Analysis not found or token/account mismatch
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Claim and upgrade an analysis
+
+- **Method:** `POST`
+- **Path:** `/website-scans/{id}/upgrade`
+- **Tags:** Website Analysis
+
+Claims an anonymous preview for the authenticated account and returns the full instrumentation plan. If the analysis is already owned by the account, the resume token is not required.
+
+Project linking is done separately by creating a project with `source_scan_id` or by hosted project-linking helpers. A resume token alone cannot attach an analysis to a project.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`project`**
+
+  `string` — Optional project name used by CLI flows while upgrading.
+
+- **`resume_token`**
+
+  `string` — One-analysis \`rst\_\*\` resume token from an anonymous preview.
+
+**Example:**
+
+```json
+{
+  "resume_token": "rst_...",
+  "project": "my-site"
+}
+```
+
+#### Responses
+
+##### Status: 200 Full website analysis
+
+###### Content-Type: application/json
+
+- **`agent_handoff`**
+
+  `object`
+
+  - **`analysis_id`**
+
+    `string`
+
+  - **`label`**
+
+    `string`
+
+  - **`prompt`**
+
+    `string`
+
+  - **`resume_token`**
+
+    `string | null`
+
+- **`analysis_id`**
+
+  `string`
+
+- **`cached`**
+
+  `boolean`
+
+- **`hostname`**
+
+  `string`
+
+- **`mode`**
+
+  `string`
+
+- **`normalized_url`**
+
+  `string`
+
+- **`ok`**
+
+  `boolean`
+
+- **`preview`**
+
+  `object` — Decision-oriented instrumentation plan. Preview responses cap \`minimum\_viable\_instrumentation\` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+  - **`advanced_tracking_later`**
+
+    `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+    **Items:**
+
+    - **`capability`**
+
+      `string`
+
+    - **`implementation_hint`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`after_install_agent_behavior`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`analytics_detected`**
+
+    `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+  - **`business_events_later`**
+
+    `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`where_to_instrument`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`current_blindspots`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`framing`**
+
+    `string`
+
+  - **`goal_driven_funnels`**
+
+    `array`
+
+    **Items:**
+
+    - **`bottleneck_detection`**
+
+      `string`
+
+    - **`decision`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`steps`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+  - **`hostname`**
+
+    `string`
+
+  - **`minimum_viable_instrumentation`**
+
+    `array`
+
+    **Items:**
+
+    - **`agent_capability_after_install` (required)**
+
+      `string`
+
+    - **`current_blindspot` (required)**
+
+      `string`
+
+    - **`event` (required)**
+
+      `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+    - **`implementation_hint` (required)**
+
+      `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    - **`priority` (required)**
+
+      `integer`
+
+    - **`properties` (required)**
+
+      `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+      **Items:**
+
+      `string`
+
+    - **`unlocks_questions` (required)**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`why_this_matters_now` (required)**
+
+      `string`
+
+  - **`normalized_url`**
+
+    `string`
+
+  - **`not_needed_yet`**
+
+    `array`
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`reason`**
+
+      `string`
+
+    - **`revisit_when`**
+
+      `string`
+
+  - **`suggested_ab_tests`**
+
+    `array` — Compact experiment ideas tied to the recommended page UI events.
+
+    **Items:**
+
+    - **`hypothesis`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`success_event`**
+
+      `string`
+
+    - **`variants`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+- **`result`**
+
+  `object` — Decision-oriented instrumentation plan. Preview responses cap \`minimum\_viable\_instrumentation\` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+  - **`advanced_tracking_later`**
+
+    `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+    **Items:**
+
+    - **`capability`**
+
+      `string`
+
+    - **`implementation_hint`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`after_install_agent_behavior`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`analytics_detected`**
+
+    `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+  - **`business_events_later`**
+
+    `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`where_to_instrument`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`current_blindspots`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`framing`**
+
+    `string`
+
+  - **`goal_driven_funnels`**
+
+    `array`
+
+    **Items:**
+
+    - **`bottleneck_detection`**
+
+      `string`
+
+    - **`decision`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`steps`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+  - **`hostname`**
+
+    `string`
+
+  - **`minimum_viable_instrumentation`**
+
+    `array`
+
+    **Items:**
+
+    - **`agent_capability_after_install` (required)**
+
+      `string`
+
+    - **`current_blindspot` (required)**
+
+      `string`
+
+    - **`event` (required)**
+
+      `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+    - **`implementation_hint` (required)**
+
+      `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    - **`priority` (required)**
+
+      `integer`
+
+    - **`properties` (required)**
+
+      `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+      **Items:**
+
+      `string`
+
+    - **`unlocks_questions` (required)**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`why_this_matters_now` (required)**
+
+      `string`
+
+  - **`normalized_url`**
+
+    `string`
+
+  - **`not_needed_yet`**
+
+    `array`
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`reason`**
+
+      `string`
+
+    - **`revisit_when`**
+
+      `string`
+
+  - **`suggested_ab_tests`**
+
+    `array` — Compact experiment ideas tied to the recommended page UI events.
+
+    **Items:**
+
+    - **`hypothesis`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`success_event`**
+
+      `string`
+
+    - **`variants`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+- **`resume_token`**
+
+  `string` — Present only when creating a new anonymous preview. Store the token securely; the server stores only its hash.
+
+- **`status`**
+
+  `string`, possible values: `"pending", "running", "succeeded", "failed"`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "analysis_id": "scan_...",
+  "status": "succeeded",
+  "mode": "anonymous_preview",
+  "normalized_url": "https://example.com/",
+  "hostname": "example.com",
+  "cached": true,
+  "resume_token": "rst_...",
+  "preview": {
+    "framing": "fastest_path_to_useful_analytics",
+    "normalized_url": "https://example.com/",
+    "hostname": "example.com",
+    "current_blindspots": [
+      ""
+    ],
+    "minimum_viable_instrumentation": [
+      {
+        "event": "signup_started",
+        "priority": 1,
+        "why_this_matters_now": "This marks the moment intent becomes commitment.",
+        "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+        "unlocks_questions": [
+          "Which pages create signup starts?",
+          "Where does signup intent drop?"
+        ],
+        "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+        "properties": [
+          "page_path",
+          "entry_source",
+          "auth_method"
+        ],
+        "implementation_hint": ""
+      }
+    ],
+    "not_needed_yet": [
+      {
+        "event": "",
+        "reason": "",
+        "revisit_when": ""
+      }
+    ],
+    "goal_driven_funnels": [
+      {
+        "name": "",
+        "steps": [
+          ""
+        ],
+        "decision": "",
+        "bottleneck_detection": ""
+      }
+    ],
+    "after_install_agent_behavior": [
+      ""
+    ],
+    "business_events_later": [
+      {
+        "event": "",
+        "why": "",
+        "where_to_instrument": ""
+      }
+    ],
+    "advanced_tracking_later": [
+      {
+        "capability": "data-aa-impression",
+        "why": "",
+        "implementation_hint": ""
+      }
+    ],
+    "suggested_ab_tests": [
+      {
+        "name": "",
+        "hypothesis": "",
+        "variants": [
+          ""
+        ],
+        "success_event": ""
+      }
+    ],
+    "analytics_detected": {}
+  },
+  "result": {
+    "framing": "fastest_path_to_useful_analytics",
+    "normalized_url": "https://example.com/",
+    "hostname": "example.com",
+    "current_blindspots": [
+      ""
+    ],
+    "minimum_viable_instrumentation": [
+      {
+        "event": "signup_started",
+        "priority": 1,
+        "why_this_matters_now": "This marks the moment intent becomes commitment.",
+        "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+        "unlocks_questions": [
+          "Which pages create signup starts?",
+          "Where does signup intent drop?"
+        ],
+        "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+        "properties": [
+          "page_path",
+          "entry_source",
+          "auth_method"
+        ],
+        "implementation_hint": ""
+      }
+    ],
+    "not_needed_yet": [
+      {
+        "event": "",
+        "reason": "",
+        "revisit_when": ""
+      }
+    ],
+    "goal_driven_funnels": [
+      {
+        "name": "",
+        "steps": [
+          ""
+        ],
+        "decision": "",
+        "bottleneck_detection": ""
+      }
+    ],
+    "after_install_agent_behavior": [
+      ""
+    ],
+    "business_events_later": [
+      {
+        "event": "",
+        "why": "",
+        "where_to_instrument": ""
+      }
+    ],
+    "advanced_tracking_later": [
+      {
+        "capability": "data-aa-impression",
+        "why": "",
+        "implementation_hint": ""
+      }
+    ],
+    "suggested_ab_tests": [
+      {
+        "name": "",
+        "hypothesis": "",
+        "variants": [
+          ""
+        ],
+        "success_event": ""
+      }
+    ],
+    "analytics_detected": {}
+  },
+  "agent_handoff": {
+    "label": "Give your agent analytics judgment",
+    "analysis_id": "",
+    "resume_token": null,
+    "prompt": ""
+  }
+}
+```
+
+##### Status: 401 Login required
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Analysis not found or resume token mismatch
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 429 Monthly full-analysis quota reached
+
+###### Content-Type: application/json
+
+**All of:**
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+* **`retry_after_seconds`**
+
+  `integer`
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required",
+  "retry_after_seconds": 30
+}
+```
+
 ### List all projects
 
 - **Method:** `GET`
@@ -5759,6 +7848,10 @@ Returns all projects under your account with event/read counts and tier info.
 
     `string`
 
+  - **`source_scan_id`**
+
+    `string | null` — Website analysis id linked during project creation, when present.
+
   - **`total_events`**
 
     `integer`
@@ -5782,7 +7875,8 @@ Returns all projects under your account with event/read counts and tier info.
       "project_token": "aat_...",
       "allowed_origins": "*",
       "total_events": 1,
-      "total_reads": 1
+      "total_reads": 1,
+      "source_scan_id": null
     }
   ],
   "has_api_key": true,
@@ -5821,7 +7915,9 @@ Creates a new project and provisions a D1 database if needed. Returns the projec
 
 Project names must be alphanumeric with hyphens, underscores, or dots (max 64 chars). If a project with the same name already exists, returns the existing project (idempotent).
 
-**CLI:** `npx @agent-analytics/cli init my-new-site`
+Pass `source_scan_id` when creating the project from a website analysis so activation can be tied back to the recommended instrumentation plan.
+
+**CLI:** `npx @agent-analytics/cli create my-new-site --domain https://example.com --source-scan scan_...`
 
 #### Request Body
 
@@ -5835,12 +7931,17 @@ Project names must be alphanumeric with hyphens, underscores, or dots (max 64 ch
 
   `string`, default: `"*"` — Allowed origins for CORS. Use \`\*\` for any origin.
 
+- **`source_scan_id`**
+
+  `string` — Optional website analysis id to link to this project. Requires account ownership and hostname/origin match.
+
 **Example:**
 
 ```json
 {
   "name": "my-new-site",
-  "allowed_origins": "https://example.com"
+  "allowed_origins": "https://example.com",
+  "source_scan_id": "scan_..."
 }
 ```
 
@@ -5905,6 +8006,10 @@ Project names must be alphanumeric with hyphens, underscores, or dots (max 64 ch
 
   `string` — Ready-to-use HTML tracking snippet
 
+- **`source_scan_id`**
+
+  `string | null`
+
 **Example:**
 
 ```json
@@ -5913,6 +8018,7 @@ Project names must be alphanumeric with hyphens, underscores, or dots (max 64 ch
   "name": "",
   "project_token": "aat_...",
   "allowed_origins": "",
+  "source_scan_id": null,
   "snippet": "",
   "api_example": ""
 }
@@ -10440,6 +12546,10 @@ true
 
   `string`
 
+* **`source_scan_id`**
+
+  `string | null` — Website analysis id linked during project creation, when present.
+
 * **`total_events`**
 
   `integer`
@@ -10457,9 +12567,993 @@ true
   "project_token": "aat_...",
   "allowed_origins": "*",
   "total_events": 1,
-  "total_reads": 1
+  "total_reads": 1,
+  "source_scan_id": null
 }
 ```
+
+### WebsiteScanCreateRequest
+
+- **Type:**`object`
+
+* **`url` (required)**
+
+  `string` — Website URL to analyze. Anonymous requests are normalized to the root domain.
+
+* **`full`**
+
+  `boolean`, default: `false` — Request full analysis. Requires account auth.
+
+* **`mode`**
+
+  `string`, possible values: `"preview", "full"` — Alternative way to request preview or full analysis.
+
+**Example:**
+
+```json
+{
+  "url": "https://example.com/pricing",
+  "full": false,
+  "mode": "preview"
+}
+```
+
+### WebsiteScanUpgradeRequest
+
+- **Type:**`object`
+
+* **`project`**
+
+  `string` — Optional project name used by CLI flows while upgrading.
+
+* **`resume_token`**
+
+  `string` — One-analysis \`rst\_\*\` resume token from an anonymous preview.
+
+**Example:**
+
+```json
+{
+  "resume_token": "rst_...",
+  "project": "my-site"
+}
+```
+
+### WebsiteScanEventRecommendation
+
+- **Type:**`object`
+
+* **`agent_capability_after_install` (required)**
+
+  `string`
+
+* **`current_blindspot` (required)**
+
+  `string`
+
+* **`event` (required)**
+
+  `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+* **`implementation_hint` (required)**
+
+  `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+* **`priority` (required)**
+
+  `integer`
+
+* **`properties` (required)**
+
+  `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+  **Items:**
+
+  `string`
+
+* **`unlocks_questions` (required)**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+* **`why_this_matters_now` (required)**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "event": "signup_started",
+  "priority": 1,
+  "why_this_matters_now": "This marks the moment intent becomes commitment.",
+  "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+  "unlocks_questions": [
+    "Which pages create signup starts?",
+    "Where does signup intent drop?"
+  ],
+  "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+  "properties": [
+    "page_path",
+    "entry_source",
+    "auth_method"
+  ],
+  "implementation_hint": ""
+}
+```
+
+### WebsiteScanResult
+
+- **Type:**`object`
+
+Decision-oriented instrumentation plan. Preview responses cap `minimum_viable_instrumentation` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+- **`advanced_tracking_later`**
+
+  `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+  **Items:**
+
+  - **`capability`**
+
+    `string`
+
+  - **`implementation_hint`**
+
+    `string`
+
+  - **`why`**
+
+    `string`
+
+- **`after_install_agent_behavior`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+- **`analytics_detected`**
+
+  `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+- **`business_events_later`**
+
+  `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+  **Items:**
+
+  - **`event`**
+
+    `string`
+
+  - **`where_to_instrument`**
+
+    `string`
+
+  - **`why`**
+
+    `string`
+
+- **`current_blindspots`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+- **`framing`**
+
+  `string`
+
+- **`goal_driven_funnels`**
+
+  `array`
+
+  **Items:**
+
+  - **`bottleneck_detection`**
+
+    `string`
+
+  - **`decision`**
+
+    `string`
+
+  - **`name`**
+
+    `string`
+
+  - **`steps`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+- **`hostname`**
+
+  `string`
+
+- **`minimum_viable_instrumentation`**
+
+  `array`
+
+  **Items:**
+
+  - **`agent_capability_after_install` (required)**
+
+    `string`
+
+  - **`current_blindspot` (required)**
+
+    `string`
+
+  - **`event` (required)**
+
+    `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+  - **`implementation_hint` (required)**
+
+    `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+  - **`priority` (required)**
+
+    `integer`
+
+  - **`properties` (required)**
+
+    `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+    **Items:**
+
+    `string`
+
+  - **`unlocks_questions` (required)**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`why_this_matters_now` (required)**
+
+    `string`
+
+- **`normalized_url`**
+
+  `string`
+
+- **`not_needed_yet`**
+
+  `array`
+
+  **Items:**
+
+  - **`event`**
+
+    `string`
+
+  - **`reason`**
+
+    `string`
+
+  - **`revisit_when`**
+
+    `string`
+
+- **`suggested_ab_tests`**
+
+  `array` — Compact experiment ideas tied to the recommended page UI events.
+
+  **Items:**
+
+  - **`hypothesis`**
+
+    `string`
+
+  - **`name`**
+
+    `string`
+
+  - **`success_event`**
+
+    `string`
+
+  - **`variants`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+**Example:**
+
+```json
+{
+  "framing": "fastest_path_to_useful_analytics",
+  "normalized_url": "https://example.com/",
+  "hostname": "example.com",
+  "current_blindspots": [
+    ""
+  ],
+  "minimum_viable_instrumentation": [
+    {
+      "event": "signup_started",
+      "priority": 1,
+      "why_this_matters_now": "This marks the moment intent becomes commitment.",
+      "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+      "unlocks_questions": [
+        "Which pages create signup starts?",
+        "Where does signup intent drop?"
+      ],
+      "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+      "properties": [
+        "page_path",
+        "entry_source",
+        "auth_method"
+      ],
+      "implementation_hint": ""
+    }
+  ],
+  "not_needed_yet": [
+    {
+      "event": "",
+      "reason": "",
+      "revisit_when": ""
+    }
+  ],
+  "goal_driven_funnels": [
+    {
+      "name": "",
+      "steps": [
+        ""
+      ],
+      "decision": "",
+      "bottleneck_detection": ""
+    }
+  ],
+  "after_install_agent_behavior": [
+    ""
+  ],
+  "business_events_later": [
+    {
+      "event": "",
+      "why": "",
+      "where_to_instrument": ""
+    }
+  ],
+  "advanced_tracking_later": [
+    {
+      "capability": "data-aa-impression",
+      "why": "",
+      "implementation_hint": ""
+    }
+  ],
+  "suggested_ab_tests": [
+    {
+      "name": "",
+      "hypothesis": "",
+      "variants": [
+        ""
+      ],
+      "success_event": ""
+    }
+  ],
+  "analytics_detected": {}
+}
+```
+
+### WebsiteScanResponse
+
+- **Type:**`object`
+
+* **`agent_handoff`**
+
+  `object`
+
+  - **`analysis_id`**
+
+    `string`
+
+  - **`label`**
+
+    `string`
+
+  - **`prompt`**
+
+    `string`
+
+  - **`resume_token`**
+
+    `string | null`
+
+* **`analysis_id`**
+
+  `string`
+
+* **`cached`**
+
+  `boolean`
+
+* **`hostname`**
+
+  `string`
+
+* **`mode`**
+
+  `string`
+
+* **`normalized_url`**
+
+  `string`
+
+* **`ok`**
+
+  `boolean`
+
+* **`preview`**
+
+  `object` — Decision-oriented instrumentation plan. Preview responses cap \`minimum\_viable\_instrumentation\` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+  - **`advanced_tracking_later`**
+
+    `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+    **Items:**
+
+    - **`capability`**
+
+      `string`
+
+    - **`implementation_hint`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`after_install_agent_behavior`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`analytics_detected`**
+
+    `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+  - **`business_events_later`**
+
+    `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`where_to_instrument`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`current_blindspots`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`framing`**
+
+    `string`
+
+  - **`goal_driven_funnels`**
+
+    `array`
+
+    **Items:**
+
+    - **`bottleneck_detection`**
+
+      `string`
+
+    - **`decision`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`steps`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+  - **`hostname`**
+
+    `string`
+
+  - **`minimum_viable_instrumentation`**
+
+    `array`
+
+    **Items:**
+
+    - **`agent_capability_after_install` (required)**
+
+      `string`
+
+    - **`current_blindspot` (required)**
+
+      `string`
+
+    - **`event` (required)**
+
+      `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+    - **`implementation_hint` (required)**
+
+      `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    - **`priority` (required)**
+
+      `integer`
+
+    - **`properties` (required)**
+
+      `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+      **Items:**
+
+      `string`
+
+    - **`unlocks_questions` (required)**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`why_this_matters_now` (required)**
+
+      `string`
+
+  - **`normalized_url`**
+
+    `string`
+
+  - **`not_needed_yet`**
+
+    `array`
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`reason`**
+
+      `string`
+
+    - **`revisit_when`**
+
+      `string`
+
+  - **`suggested_ab_tests`**
+
+    `array` — Compact experiment ideas tied to the recommended page UI events.
+
+    **Items:**
+
+    - **`hypothesis`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`success_event`**
+
+      `string`
+
+    - **`variants`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+* **`result`**
+
+  `object` — Decision-oriented instrumentation plan. Preview responses cap \`minimum\_viable\_instrumentation\` at 3-5 events; full results cap it at 5-8 events. Recommendations are tracker-aware and should not spend custom event slots on automatic page\_view, attribution, device, geography, session, or visitor fields.
+
+  - **`advanced_tracking_later`**
+
+    `array` — Agent Analytics tracker capabilities to consider after the first useful page event is installed.
+
+    **Items:**
+
+    - **`capability`**
+
+      `string`
+
+    - **`implementation_hint`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`after_install_agent_behavior`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`analytics_detected`**
+
+    `object` — Supporting context only; the recommendation does not lead with detected providers.
+
+  - **`business_events_later`**
+
+    `array` — Valuable inferred product, backend, or post-signup events that are not part of the first supplied-page install list.
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`where_to_instrument`**
+
+      `string`
+
+    - **`why`**
+
+      `string`
+
+  - **`current_blindspots`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`framing`**
+
+    `string`
+
+  - **`goal_driven_funnels`**
+
+    `array`
+
+    **Items:**
+
+    - **`bottleneck_detection`**
+
+      `string`
+
+    - **`decision`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`steps`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+  - **`hostname`**
+
+    `string`
+
+  - **`minimum_viable_instrumentation`**
+
+    `array`
+
+    **Items:**
+
+    - **`agent_capability_after_install` (required)**
+
+      `string`
+
+    - **`current_blindspot` (required)**
+
+      `string`
+
+    - **`event` (required)**
+
+      `string` — Stable snake\_case custom event name. Recommendations should not duplicate automatic tracker signals such as page\_view.
+
+    - **`implementation_hint` (required)**
+
+      `string` — Tracker-aware implementation guidance, for example data-aa-event attributes, data-aa-impression attributes, window\.aa.track(...), server-side tracking for durable outcomes, aa.identify()/aa.set(...) after auth, or script opt-ins when they unlock a concrete decision.
+
+    - **`priority` (required)**
+
+      `integer`
+
+    - **`properties` (required)**
+
+      `array` — Practical property names to capture with the event. Automatic tracker properties such as path, referrer, UTMs, device fields, country, session IDs, and first-touch attribution are already present on every event.
+
+      **Items:**
+
+      `string`
+
+    - **`unlocks_questions` (required)**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`why_this_matters_now` (required)**
+
+      `string`
+
+  - **`normalized_url`**
+
+    `string`
+
+  - **`not_needed_yet`**
+
+    `array`
+
+    **Items:**
+
+    - **`event`**
+
+      `string`
+
+    - **`reason`**
+
+      `string`
+
+    - **`revisit_when`**
+
+      `string`
+
+  - **`suggested_ab_tests`**
+
+    `array` — Compact experiment ideas tied to the recommended page UI events.
+
+    **Items:**
+
+    - **`hypothesis`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`success_event`**
+
+      `string`
+
+    - **`variants`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+* **`resume_token`**
+
+  `string` — Present only when creating a new anonymous preview. Store the token securely; the server stores only its hash.
+
+* **`status`**
+
+  `string`, possible values: `"pending", "running", "succeeded", "failed"`
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "analysis_id": "scan_...",
+  "status": "succeeded",
+  "mode": "anonymous_preview",
+  "normalized_url": "https://example.com/",
+  "hostname": "example.com",
+  "cached": true,
+  "resume_token": "rst_...",
+  "preview": {
+    "framing": "fastest_path_to_useful_analytics",
+    "normalized_url": "https://example.com/",
+    "hostname": "example.com",
+    "current_blindspots": [
+      ""
+    ],
+    "minimum_viable_instrumentation": [
+      {
+        "event": "signup_started",
+        "priority": 1,
+        "why_this_matters_now": "This marks the moment intent becomes commitment.",
+        "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+        "unlocks_questions": [
+          "Which pages create signup starts?",
+          "Where does signup intent drop?"
+        ],
+        "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+        "properties": [
+          "page_path",
+          "entry_source",
+          "auth_method"
+        ],
+        "implementation_hint": ""
+      }
+    ],
+    "not_needed_yet": [
+      {
+        "event": "",
+        "reason": "",
+        "revisit_when": ""
+      }
+    ],
+    "goal_driven_funnels": [
+      {
+        "name": "",
+        "steps": [
+          ""
+        ],
+        "decision": "",
+        "bottleneck_detection": ""
+      }
+    ],
+    "after_install_agent_behavior": [
+      ""
+    ],
+    "business_events_later": [
+      {
+        "event": "",
+        "why": "",
+        "where_to_instrument": ""
+      }
+    ],
+    "advanced_tracking_later": [
+      {
+        "capability": "data-aa-impression",
+        "why": "",
+        "implementation_hint": ""
+      }
+    ],
+    "suggested_ab_tests": [
+      {
+        "name": "",
+        "hypothesis": "",
+        "variants": [
+          ""
+        ],
+        "success_event": ""
+      }
+    ],
+    "analytics_detected": {}
+  },
+  "result": {
+    "framing": "fastest_path_to_useful_analytics",
+    "normalized_url": "https://example.com/",
+    "hostname": "example.com",
+    "current_blindspots": [
+      ""
+    ],
+    "minimum_viable_instrumentation": [
+      {
+        "event": "signup_started",
+        "priority": 1,
+        "why_this_matters_now": "This marks the moment intent becomes commitment.",
+        "current_blindspot": "You cannot see whether CTA clicks turn into signup attempts.",
+        "unlocks_questions": [
+          "Which pages create signup starts?",
+          "Where does signup intent drop?"
+        ],
+        "agent_capability_after_install": "Your agent can detect where intent drops before account creation.",
+        "properties": [
+          "page_path",
+          "entry_source",
+          "auth_method"
+        ],
+        "implementation_hint": ""
+      }
+    ],
+    "not_needed_yet": [
+      {
+        "event": "",
+        "reason": "",
+        "revisit_when": ""
+      }
+    ],
+    "goal_driven_funnels": [
+      {
+        "name": "",
+        "steps": [
+          ""
+        ],
+        "decision": "",
+        "bottleneck_detection": ""
+      }
+    ],
+    "after_install_agent_behavior": [
+      ""
+    ],
+    "business_events_later": [
+      {
+        "event": "",
+        "why": "",
+        "where_to_instrument": ""
+      }
+    ],
+    "advanced_tracking_later": [
+      {
+        "capability": "data-aa-impression",
+        "why": "",
+        "implementation_hint": ""
+      }
+    ],
+    "suggested_ab_tests": [
+      {
+        "name": "",
+        "hypothesis": "",
+        "variants": [
+          ""
+        ],
+        "success_event": ""
+      }
+    ],
+    "analytics_detected": {}
+  },
+  "agent_handoff": {
+    "label": "Give your agent analytics judgment",
+    "analysis_id": "",
+    "resume_token": null,
+    "prompt": ""
+  }
+}
+```
+
+### WebsiteScanBusyError
+
+- **Type:**
+
+**Example:**
 
 ### LiveSnapshotResponse
 

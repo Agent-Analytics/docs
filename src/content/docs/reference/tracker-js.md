@@ -28,6 +28,8 @@ Automated traffic that reaches the tracker is filtered out of your normal analyt
 
 If your agent can edit code, ask it to add the snippet for you. If not, use [First Project in 5 Minutes](/guides/first-project-in-5-minutes/) to create the project, get the snippet, and verify the first page view.
 
+Website analysis recommendations assume these automatic fields already exist. A good `implementation_hint` should use the smallest tracker capability that unlocks the decision: declarative attributes for simple intent, `window.aa.track(...)` for computed client state, and server-side tracking for durable outcomes like account creation.
+
 ## Common options
 
 | Attribute | What it does |
