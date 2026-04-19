@@ -20,10 +20,12 @@ Start from the web page:
 Or ask your coding agent to start there before it installs tracking:
 
 ```text
-Set up Agent Analytics for this project. Run the website analysis first so you know what my agent should track first. After approval, create the project, install only the high-priority recommended events, explain what each event enables, and verify the first useful event.
+Set up Agent Analytics for this project. Run the website analysis first so you know what my agent should track first. If this product has other owned public websites or pages that shape the growth loop, scan those too and tell me what data we are not collecting yet. After approval, create the project, install only the high-priority recommended events, explain what each event enables, and verify the first useful event.
 ```
 
 The goal is not to add more events. The goal is to give the agent enough product judgment to install the first events that create useful answers.
+
+The scanner also gives your agent eyes on data that does not exist in your analytics yet. For deeper work, ask it to scan additional public websites you own, such as marketing, docs, pricing, signup, support, changelog, or launch pages, then compare the blind spots before it instruments the code.
 
 ## When to use it
 
@@ -31,8 +33,10 @@ Use the scanner before setup when:
 
 - your site is live but analytics is not installed yet
 - a product, landing page, docs site, or signup flow needs clearer growth measurement
+- you own multiple public sites or pages that all shape the same growth loop
 - page views alone will not answer what to improve next
 - you want to avoid random click tracking
+- you want the agent to find useful data you are not collecting yet
 - you want a short plan the agent can continue from
 
 Do not use it as a full conversion audit. It is intentionally narrow: what should be measured first so the next growth questions have useful data.
@@ -44,17 +48,20 @@ The Product Growth Scanner is part of the regular Agent Analytics setup routine.
 When an agent is installing analytics, it should:
 
 1. analyze the public root page
-2. read `minimum_viable_instrumentation`, `current_blindspots`, `not_needed_yet`, `goal_driven_funnels`, and `after_install_agent_behavior`
-3. request browser approval or login if full analysis is needed
-4. create or link the project from the analysis
-5. install the tracker plus only the high-priority recommendations
-6. verify the first useful recommended event
-7. summarize what the installed events now let the agent answer
+2. scan any additional owned public surfaces the user names for the same growth loop
+3. read `minimum_viable_instrumentation`, `current_blindspots`, `not_needed_yet`, `goal_driven_funnels`, and `after_install_agent_behavior`
+4. compare blind spots across scans before deciding what to install first
+5. request browser approval or login if full analysis is needed
+6. create or link the project from the analysis
+7. install the tracker plus only the high-priority recommendations
+8. verify the first useful recommended event
+9. summarize what the installed events now let the agent answer
 
 With the CLI, that same routine is:
 
 ```bash
 npx --yes @agent-analytics/cli@0.5.20 scan https://mysite.com --json
+npx --yes @agent-analytics/cli@0.5.20 scan https://docs.mysite.com --json
 npx --yes @agent-analytics/cli@0.5.20 login
 npx --yes @agent-analytics/cli@0.5.20 scan \
   --resume <analysis_id> \
@@ -80,6 +87,7 @@ After the preview, use the handoff prompt with your coding agent. The agent shou
 
 ```text
 Resume this Agent Analytics website analysis.
+Scan any additional owned public sites I name for the same growth loop.
 Install only the high-priority measurement plan.
 Do not add generic click tracking.
 Verify the first useful recommended event.
@@ -114,6 +122,10 @@ Page views, paths, referrers, UTMs, device/browser fields, country, session ids,
 
 ```text
 Run an Agent Analytics product growth analysis for this project, then install only the high-priority recommended events. Avoid generic click tracking and verify the first useful event.
+```
+
+```text
+Scan our owned marketing site, docs site, and signup surface before setup. Compare the measurement blind spots and tell me which data we are not collecting yet, then install only the first high-priority events.
 ```
 
 ```text
