@@ -332,16 +332,19 @@ Typical jobs:
 - add only the first useful declarative events such as CTA clicks
 - verify the first useful recommended event
 - inspect pages, events, funnels, retention, and bot traffic
+- store compact project goals, activation events, and event-name glossary context so later analytics reads include the product meaning
 - create, QA, measure, and complete experiments
 - explain gaps in the data before recommending action
 
 Browser approval is the normal login path. You do not need to create an API key first unless you are building a custom direct HTTP integration.
 
+When a product has its own activation definition or human vocabulary, ask the agent to keep project context updated. The skill tells the agent to check `properties` or `properties-received` first, then use `context set` with short entries tied to real event names through `event_name`. That context is returned as `project_context` on project-scoped analytics results, so future reads can explain metrics in the product's own language without carrying a long prompt.
+
 For OpenClaw and similar managed runtimes, tell the agent to keep Agent Analytics CLI auth in a persistent workspace path instead of the default home config path:
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx @agent-analytics/cli@0.5.16 auth status
+npx --yes @agent-analytics/cli@0.5.19 auth status
 ```
 
 If the runtime may not preserve exported variables between commands, prefix each Agent Analytics CLI command with that same `AGENT_ANALYTICS_CONFIG_DIR=...` value or pass `--config-dir "$PWD/.openclaw/agent-analytics"`. Do not commit `.openclaw/agent-analytics/config.json`.
@@ -1108,9 +1111,9 @@ Save the file and reload Cursor if the tool list does not refresh automatically.
 If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-npx @agent-analytics/cli@0.5.16 login
-npx @agent-analytics/cli@0.5.16 projects
-npx @agent-analytics/cli@0.5.16 stats my-site --days 7
+npx --yes @agent-analytics/cli@0.5.19 login
+npx --yes @agent-analytics/cli@0.5.19 projects
+npx --yes @agent-analytics/cli@0.5.19 stats my-site --days 7
 ```
 
 That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).
@@ -1192,14 +1195,14 @@ OpenClaw and similar managed runtimes should not rely on the default home config
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx @agent-analytics/cli@0.5.16 login --detached
-npx @agent-analytics/cli@0.5.16 auth status
+npx --yes @agent-analytics/cli@0.5.19 login --detached
+npx --yes @agent-analytics/cli@0.5.19 auth status
 ```
 
 Keep that setting on every Agent Analytics CLI command in the task. If shell environment persistence is uncertain, prefix each command:
 
 ```bash
-AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx @agent-analytics/cli@0.5.16 projects
+AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx --yes @agent-analytics/cli@0.5.19 projects
 ```
 
 For one-off debugging, `--config-dir "$PWD/.openclaw/agent-analytics"` works before or after the command. Ensure `.openclaw/` is gitignored before login, and never commit `.openclaw/agent-analytics/config.json`.
@@ -1558,8 +1561,8 @@ Project and account views return:
 ### CLI
 
 ```bash
-npx @agent-analytics/cli bot-traffic my-site --period 7d --limit 5
-npx @agent-analytics/cli bot-traffic --all --period 7d --limit 10
+npx --yes @agent-analytics/cli@0.5.19 bot-traffic my-site --period 7d --limit 5
+npx --yes @agent-analytics/cli@0.5.19 bot-traffic --all --period 7d --limit 10
 ```
 
 ### MCP
@@ -1677,10 +1680,10 @@ Do not put the API key in the client-side tracker. The tracker uses the public p
 
 If you use the official CLI, it provides three local auth convenience commands:
 
-- `npx @agent-analytics/cli login` starts browser approval and saves a local CLI session.
-- `npx @agent-analytics/cli login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
-- `npx @agent-analytics/cli login --token aak_...` saves an API key locally as the advanced/manual fallback.
-- `npx @agent-analytics/cli logout` clears the saved local CLI auth.
+- `npx --yes @agent-analytics/cli@0.5.19 login` starts browser approval and saves a local CLI session.
+- `npx --yes @agent-analytics/cli@0.5.19 login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
+- `npx --yes @agent-analytics/cli@0.5.19 login --token aak_...` saves an API key locally as the advanced/manual fallback.
+- `npx --yes @agent-analytics/cli@0.5.19 logout` clears the saved local CLI auth.
 
 `logout` is local-only for CLI state. If you want to revoke the hosted session itself, disconnect that session from the web app's `Agent Sessions` section.
 
@@ -3224,6 +3227,44 @@ Bounce metrics are computed from event names at query time. A session is a bounc
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 - **`sessions`**
 
   `object`
@@ -3283,6 +3324,17 @@ Bounce metrics are computed from event names at query time. A session is a bounc
 ```json
 {
   "project": "my-site",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "period": {
     "from": "2025-01-01",
     "to": "2025-01-07",
@@ -3623,6 +3675,44 @@ Invalid filter fields fail the query with `400` and include `/properties`-style 
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 - **`rows`**
 
   `array`
@@ -3634,6 +3724,17 @@ Invalid filter fields fail the query with `400` and include `/properties`-style 
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "period": {
     "from": "",
     "to": ""
@@ -4016,6 +4117,44 @@ Use `property=country` to see visitor geography (ISO 3166-1 alpha-2 codes). Coun
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 - **`property`**
 
   `string`
@@ -4051,6 +4190,17 @@ Use `property=country` to see visitor geography (ISO 3166-1 alpha-2 codes). Coun
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "property": "path",
   "event": null,
   "values": [
@@ -4257,6 +4407,44 @@ Compares the current period against the previous period of the same length. Retu
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 - **`trend`**
 
   `string`, possible values: `"growing", "stable", "declining"`
@@ -4266,6 +4454,17 @@ Compares the current period against the previous period of the same length. Retu
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "current_period": {
     "from": "",
     "to": ""
@@ -4434,11 +4633,60 @@ Returns top entry pages, exit pages, or both — with session count, bounce rate
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 **Example:**
 
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "entry_pages": [
     {
       "page": "/pricing",
@@ -4560,11 +4808,60 @@ Returns a histogram of session durations in predefined buckets, with the median 
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 **Example:**
 
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "distribution": [
     {
       "bucket": "0s",
@@ -4801,11 +5098,60 @@ Session attribution is local to the session: the `goal_event` only counts if it 
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 **Example:**
 
 ```json
 {
   "project": "my-site",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "goal_event": "signup",
   "period": {
     "from": "2026-03-11",
@@ -4994,11 +5340,60 @@ Returns a grid of events by day-of-week and hour-of-day (UTC), with peak detecti
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 **Example:**
 
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "heatmap": [
     {
       "day": 1,
@@ -5190,6 +5585,44 @@ Step 1 is capped at 10,000 users to prevent unbounded scans.
 
   `number` — Fraction of step 1 users that completed the final step
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 - **`steps`**
 
   `array`
@@ -5224,6 +5657,17 @@ Step 1 is capped at 10,000 users to prevent unbounded scans.
 
 ```json
 {
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "steps": [
     {
       "step": 1,
@@ -5379,6 +5823,44 @@ Capped at 10,000 users per query. Older cohorts appear first (top-down).
 
   `string`, possible values: `"day", "week", "month"`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 - **`users_analyzed`**
 
   `integer` — Total users across all cohorts (capped at 10K per query)
@@ -5387,6 +5869,17 @@ Capped at 10,000 users per query. Older cohorts appear first (top-down).
 
 ```json
 {
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "period": "week",
   "cohorts": [
     {
@@ -5618,6 +6111,44 @@ curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 - **`recent_events`**
 
   `array` — Last 10 events, newest first
@@ -5681,6 +6212,17 @@ curl "https://api.agentanalytics.sh/live?project=my-site&window=60" \
 ```json
 {
   "project": "my-site",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "window_seconds": 60,
   "timestamp": 1708000060000,
   "active_visitors": 12,
@@ -7807,6 +8349,346 @@ Project linking is done separately by creating a project with `source_scan_id` o
 }
 ```
 
+### Get project analytics context
+
+- **Method:** `GET`
+- **Path:** `/project-context`
+- **Tags:** Project Context
+
+Returns compact project goals, activation events, and event-name glossary entries. Project-scoped analytics result endpoints include this data as `project_context` when it is non-empty.
+
+Use `/properties` or `/properties/received` to inspect current event names before building or refreshing glossary entries.
+
+#### Responses
+
+##### Status: 200 Project context
+
+###### Content-Type: application/json
+
+- **`project` (required)**
+
+  `string`
+
+- **`project_context` (required)**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
+- **`project_id` (required)**
+
+  `string`
+
+- **`ok`**
+
+  `boolean` — Present on successful updates.
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "project": "my-site",
+  "project_id": "proj_123",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  }
+}
+```
+
+##### Status: 401 Auth required
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found or unauthorized
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+### Set project analytics context
+
+- **Method:** `PUT`
+- **Path:** `/project-context`
+- **Tags:** Project Context
+
+Replaces the compact context for one project. Keep entries short because the context is returned with project-scoped analytics results for agents.
+
+Each glossary entry must include `event_name`; agents should use `/properties` or `/properties/received` first to discover current project event names.
+
+**CLI:** `npx --yes @agent-analytics/cli@0.5.19 context set my-site --json '{"goals":["Improve activation"],"activation_events":["signup_completed"],"glossary":[{"event_name":"signup_completed","term":"Signup","definition":"A verified account completed signup."}]}'`
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`project` (required)**
+
+  `string` — Project name or ID.
+
+- **`activation_events`**
+
+  `array`, default: `[]` — Event names that define activation or the main success path.
+
+  **Items:**
+
+  `string`
+
+- **`glossary`**
+
+  `array`, default: `[]`
+
+  **Items:**
+
+  - **`definition` (required)**
+
+    `string` — Short meaning that helps an agent interpret analytics results.
+
+  - **`event_name` (required)**
+
+    `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+  - **`term` (required)**
+
+    `string` — Human or product term for the event.
+
+- **`goals`**
+
+  `array`, default: `[]`
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "goals": [
+    "Increase activated Agent Analytics accounts"
+  ],
+  "activation_events": [
+    "signup_completed",
+    "project_created",
+    "first_event_received"
+  ],
+  "glossary": []
+}
+```
+
+#### Responses
+
+##### Status: 200 Project context updated
+
+###### Content-Type: application/json
+
+- **`project` (required)**
+
+  `string`
+
+- **`project_context` (required)**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
+- **`project_id` (required)**
+
+  `string`
+
+- **`ok`**
+
+  `boolean` — Present on successful updates.
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "project": "my-site",
+  "project_id": "proj_123",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  }
+}
+```
+
+##### Status: 400 Invalid body or context limits exceeded
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 401 Auth required
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
+##### Status: 404 Project not found or unauthorized
+
+###### Content-Type: application/json
+
+- **`error` (required)**
+
+  `string` — Machine-readable error code
+
+- **`message` (required)**
+
+  `string` — Human-readable error message
+
+**Example:**
+
+```json
+{
+  "error": "AUTH_REQUIRED",
+  "message": "API key required"
+}
+```
+
 ### List all projects
 
 - **Method:** `GET`
@@ -8626,6 +9508,44 @@ This is **not** full site bot visibility like CDN logs. It only includes automat
 
   `string`
 
+- **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 - **`scope`**
 
   `string`, possible values: `"project"`
@@ -8702,6 +9622,17 @@ This is **not** full site bot visibility like CDN logs. It only includes automat
 {
   "scope": "project",
   "project": "my-site",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "period": {
     "label": "7d",
     "from": "2026-03-03",
@@ -10686,6 +11617,220 @@ true
 }
 ```
 
+### ProjectContextGlossaryEntry
+
+- **Type:**`object`
+
+* **`definition` (required)**
+
+  `string` — Short meaning that helps an agent interpret analytics results.
+
+* **`event_name` (required)**
+
+  `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+* **`term` (required)**
+
+  `string` — Human or product term for the event.
+
+**Example:**
+
+```json
+{
+  "event_name": "first_event_received",
+  "term": "AA Activation",
+  "definition": "Signup, project created, and first event received."
+}
+```
+
+### ProjectContext
+
+- **Type:**`object`
+
+* **`activation_events`**
+
+  `array`, default: `[]` — Event names that define activation or the main success path.
+
+  **Items:**
+
+  `string`
+
+* **`glossary`**
+
+  `array`, default: `[]`
+
+  **Items:**
+
+  - **`definition` (required)**
+
+    `string` — Short meaning that helps an agent interpret analytics results.
+
+  - **`event_name` (required)**
+
+    `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+  - **`term` (required)**
+
+    `string` — Human or product term for the event.
+
+* **`goals`**
+
+  `array`, default: `[]`
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "goals": [
+    "Increase activated Agent Analytics accounts"
+  ],
+  "activation_events": [
+    "signup_completed",
+    "project_created",
+    "first_event_received"
+  ],
+  "glossary": []
+}
+```
+
+### ProjectContextRequest
+
+- **Type:**`object`
+
+* **`project` (required)**
+
+  `string` — Project name or ID.
+
+* **`activation_events`**
+
+  `array`, default: `[]` — Event names that define activation or the main success path.
+
+  **Items:**
+
+  `string`
+
+* **`glossary`**
+
+  `array`, default: `[]`
+
+  **Items:**
+
+  - **`definition` (required)**
+
+    `string` — Short meaning that helps an agent interpret analytics results.
+
+  - **`event_name` (required)**
+
+    `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+  - **`term` (required)**
+
+    `string` — Human or product term for the event.
+
+* **`goals`**
+
+  `array`, default: `[]`
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "project": "my-site",
+  "goals": [
+    "Increase activated Agent Analytics accounts"
+  ],
+  "activation_events": [
+    "signup_completed",
+    "project_created",
+    "first_event_received"
+  ],
+  "glossary": []
+}
+```
+
+### ProjectContextResponse
+
+- **Type:**`object`
+
+* **`project` (required)**
+
+  `string`
+
+* **`project_context` (required)**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
+* **`project_id` (required)**
+
+  `string`
+
+* **`ok`**
+
+  `boolean` — Present on successful updates.
+
+**Example:**
+
+```json
+{
+  "ok": true,
+  "project": "my-site",
+  "project_id": "proj_123",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  }
+}
+```
+
 ### TrackRequest
 
 - **Type:**`object`
@@ -10825,6 +11970,44 @@ true
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 * **`sessions`**
 
   `object`
@@ -10884,6 +12067,17 @@ true
 ```json
 {
   "project": "my-site",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "period": {
     "from": "2025-01-01",
     "to": "2025-01-07",
@@ -11104,6 +12298,44 @@ true
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 * **`rows`**
 
   `array`
@@ -11115,6 +12347,17 @@ true
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "period": {
     "from": "",
     "to": ""
@@ -11212,6 +12455,44 @@ true
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 * **`property`**
 
   `string`
@@ -11247,6 +12528,17 @@ true
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "property": "path",
   "event": null,
   "values": [
@@ -11397,6 +12689,44 @@ true
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 * **`trend`**
 
   `string`, possible values: `"growing", "stable", "declining"`
@@ -11406,6 +12736,17 @@ true
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "current_period": {
     "from": "",
     "to": ""
@@ -11549,11 +12890,60 @@ true
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 **Example:**
 
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "entry_pages": [
     {
       "page": "/pricing",
@@ -12001,11 +13391,60 @@ true
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 **Example:**
 
 ```json
 {
   "project": "my-site",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "goal_event": "signup",
   "period": {
     "from": "2026-03-11",
@@ -12136,11 +13575,60 @@ true
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 **Example:**
 
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "distribution": [
     {
       "bucket": "0s",
@@ -12221,11 +13709,60 @@ true
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 **Example:**
 
 ```json
 {
   "project": "",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "heatmap": [
     {
       "day": 1,
@@ -12380,6 +13917,44 @@ true
 
   `number` — Fraction of step 1 users that completed the final step
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 * **`steps`**
 
   `array`
@@ -12414,6 +13989,17 @@ true
 
 ```json
 {
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "steps": [
     {
       "step": 1,
@@ -12490,6 +14076,44 @@ true
 
   `string`, possible values: `"day", "week", "month"`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 * **`users_analyzed`**
 
   `integer` — Total users across all cohorts (capped at 10K per query)
@@ -12498,6 +14122,17 @@ true
 
 ```json
 {
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "period": "week",
   "cohorts": [
     {
@@ -13576,6 +15211,44 @@ Decision-oriented instrumentation plan. Preview responses cap `minimum_viable_in
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 * **`recent_events`**
 
   `array` — Last 10 events, newest first
@@ -13639,6 +15312,17 @@ Decision-oriented instrumentation plan. Preview responses cap `minimum_viable_in
 ```json
 {
   "project": "my-site",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "window_seconds": 60,
   "timestamp": 1708000060000,
   "active_visitors": 12,
@@ -14378,6 +16062,44 @@ Decision-oriented instrumentation plan. Preview responses cap `minimum_viable_in
 
   `string`
 
+* **`project_context`**
+
+  `object`
+
+  - **`activation_events`**
+
+    `array`, default: `[]` — Event names that define activation or the main success path.
+
+    **Items:**
+
+    `string`
+
+  - **`glossary`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    - **`definition` (required)**
+
+      `string` — Short meaning that helps an agent interpret analytics results.
+
+    - **`event_name` (required)**
+
+      `string` — Event name this glossary entry explains. Use \`/properties\` or \`/properties/received\` to inspect current project event names before updating.
+
+    - **`term` (required)**
+
+      `string` — Human or product term for the event.
+
+  - **`goals`**
+
+    `array`, default: `[]`
+
+    **Items:**
+
+    `string`
+
 * **`scope`**
 
   `string`, possible values: `"project"`
@@ -14454,6 +16176,17 @@ Decision-oriented instrumentation plan. Preview responses cap `minimum_viable_in
 {
   "scope": "project",
   "project": "my-site",
+  "project_context": {
+    "goals": [
+      "Increase activated Agent Analytics accounts"
+    ],
+    "activation_events": [
+      "signup_completed",
+      "project_created",
+      "first_event_received"
+    ],
+    "glossary": []
+  },
   "period": {
     "label": "7d",
     "from": "2026-03-03",

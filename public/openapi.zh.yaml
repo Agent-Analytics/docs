@@ -40,6 +40,8 @@ tags:
     description: Query analytics data. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
   - name: Projects
     description: Manage projects programmatically. Requires account auth. Agent-session bearer auth is preferred; API keys remain a supported fallback.
+  - name: Project Context
+    description: Store compact goals, activation events, and event-name glossary entries so agents can interpret analytics results with project-specific meaning.
   - name: Website Analysis
     description: Product Growth Scanner. Anonymous previews return growth questions, measurement blind spots, and first instrumentation decisions; full analysis and project linking require account auth.
   - name: Account
@@ -165,6 +167,104 @@ components:
           description: Human-readable error message
           example: API key required
 
+    ProjectContextGlossaryEntry:
+      type: object
+      required: [event_name, term, definition]
+      properties:
+        event_name:
+          type: string
+          maxLength: 96
+          description: Event name this glossary entry explains. Use `/properties` or `/properties/received` to inspect current project event names before updating.
+          example: first_event_received
+        term:
+          type: string
+          maxLength: 64
+          description: Human or product term for the event.
+          example: AA Activation
+        definition:
+          type: string
+          maxLength: 240
+          description: Short meaning that helps an agent interpret analytics results.
+          example: Signup, project created, and first event received.
+
+    ProjectContext:
+      type: object
+      additionalProperties: false
+      properties:
+        goals:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+            maxLength: 160
+          default: []
+          example: [Increase activated Agent Analytics accounts]
+        activation_events:
+          type: array
+          maxItems: 8
+          items:
+            type: string
+            maxLength: 96
+          default: []
+          description: Event names that define activation or the main success path.
+          example: [signup_completed, project_created, first_event_received]
+        glossary:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ProjectContextGlossaryEntry'
+          default: []
+
+    ProjectContextRequest:
+      type: object
+      required: [project]
+      additionalProperties: false
+      properties:
+        project:
+          type: string
+          description: Project name or ID.
+          example: my-site
+        goals:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+            maxLength: 160
+          default: []
+          example: [Increase activated Agent Analytics accounts]
+        activation_events:
+          type: array
+          maxItems: 8
+          items:
+            type: string
+            maxLength: 96
+          default: []
+          description: Event names that define activation or the main success path.
+          example: [signup_completed, project_created, first_event_received]
+        glossary:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ProjectContextGlossaryEntry'
+          default: []
+
+    ProjectContextResponse:
+      type: object
+      required: [project, project_id, project_context]
+      properties:
+        ok:
+          type: boolean
+          description: Present on successful updates.
+          example: true
+        project:
+          type: string
+          example: my-site
+        project_id:
+          type: string
+          example: proj_123
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
+
     TrackRequest:
       type: object
       required: [token, event]
@@ -232,6 +332,8 @@ components:
         project:
           type: string
           example: my-site
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         period:
           type: object
           properties:
@@ -392,6 +494,8 @@ components:
       properties:
         project:
           type: string
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         period:
           type: object
           properties:
@@ -452,6 +556,8 @@ components:
       properties:
         project:
           type: string
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         property:
           type: string
           example: path
@@ -481,6 +587,8 @@ components:
       properties:
         project:
           type: string
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         current_period:
           type: object
           properties:
@@ -530,6 +638,8 @@ components:
       properties:
         project:
           type: string
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         entry_pages:
           type: array
           items:
@@ -681,6 +791,8 @@ components:
         project:
           type: string
           example: my-site
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         goal_event:
           type: string
           example: signup
@@ -730,6 +842,8 @@ components:
       properties:
         project:
           type: string
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         distribution:
           type: array
           items:
@@ -759,6 +873,8 @@ components:
       properties:
         project:
           type: string
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         heatmap:
           type: array
           items:
@@ -868,6 +984,8 @@ components:
     FunnelResponse:
       type: object
       properties:
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         steps:
           type: array
           items:
@@ -935,6 +1053,8 @@ components:
     RetentionResponse:
       type: object
       properties:
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         period:
           type: string
           enum: [day, week, month]
@@ -1220,6 +1340,8 @@ components:
         project:
           type: string
           example: my-site
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         window_seconds:
           type: integer
           example: 60
@@ -1519,6 +1641,8 @@ components:
         project:
           type: string
           example: my-site
+        project_context:
+          $ref: '#/components/schemas/ProjectContext'
         period:
           $ref: '#/components/schemas/AllSitesPeriod'
         summary:
@@ -3541,6 +3665,89 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WebsiteScanBusyError'
+
+  /project-context:
+    get:
+      operationId: getProjectContext
+      summary: Get project analytics context
+      description: |
+        Returns compact project goals, activation events, and event-name glossary entries. Project-scoped analytics result endpoints include this data as `project_context` when it is non-empty.
+
+        Use `/properties` or `/properties/received` to inspect current event names before building or refreshing glossary entries.
+      tags: [Project Context]
+      security:
+        - AgentSessionBearer: []
+        - ApiKey: []
+      parameters:
+        - name: project
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Project name or ID.
+      responses:
+        '200':
+          description: Project context
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectContextResponse'
+        '401':
+          description: Auth required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: setProjectContext
+      summary: Set project analytics context
+      description: |
+        Replaces the compact context for one project. Keep entries short because the context is returned with project-scoped analytics results for agents.
+
+        Each glossary entry must include `event_name`; agents should use `/properties` or `/properties/received` first to discover current project event names.
+
+        **CLI:** `npx --yes @agent-analytics/cli@0.5.19 context set my-site --json '{"goals":["Improve activation"],"activation_events":["signup_completed"],"glossary":[{"event_name":"signup_completed","term":"Signup","definition":"A verified account completed signup."}]}'`
+      tags: [Project Context]
+      security:
+        - AgentSessionBearer: []
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectContextRequest'
+      responses:
+        '200':
+          description: Project context updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectContextResponse'
+        '400':
+          description: Invalid body or context limits exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Auth required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects:
     get:

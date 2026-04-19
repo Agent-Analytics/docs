@@ -53,14 +53,14 @@ OpenClaw and similar managed runtimes should not rely on the default home config
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx @agent-analytics/cli@0.5.16 login --detached
-npx @agent-analytics/cli@0.5.16 auth status
+npx --yes @agent-analytics/cli@0.5.19 login --detached
+npx --yes @agent-analytics/cli@0.5.19 auth status
 ```
 
 Keep that setting on every Agent Analytics CLI command in the task. If shell environment persistence is uncertain, prefix each command:
 
 ```bash
-AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx @agent-analytics/cli@0.5.16 projects
+AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx --yes @agent-analytics/cli@0.5.19 projects
 ```
 
 For one-off debugging, `--config-dir "$PWD/.openclaw/agent-analytics"` works before or after the command. Ensure `.openclaw/` is gitignored before login, and never commit `.openclaw/agent-analytics/config.json`.

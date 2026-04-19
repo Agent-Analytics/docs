@@ -70,10 +70,10 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 
 אם אתם משתמשים ב-CLI הרשמי, הוא מספק שלוש פקודות auth נוחות:
 
-- `npx @agent-analytics/cli login` מפעיל אישור בדפדפן ושומר session מקומי של ה-CLI.
-- `npx @agent-analytics/cli login --detached` מפעיל את אותו flow עבור runtimes חסרי ממשק או מבוססי issues, שבהם הסוכן שולח לכם קישור אישור ועלול לבקש finish code.
-- `npx @agent-analytics/cli login --token aak_...` שומר מקומית מפתח API כ-fallback הידני/המתקדם.
-- `npx @agent-analytics/cli logout` מוחק את auth המקומי השמור של ה-CLI.
+- `npx --yes @agent-analytics/cli@0.5.19 login` מפעיל אישור בדפדפן ושומר session מקומי של ה-CLI.
+- `npx --yes @agent-analytics/cli@0.5.19 login --detached` מפעיל את אותו flow עבור runtimes חסרי ממשק או מבוססי issues, שבהם הסוכן שולח לכם קישור אישור ועלול לבקש finish code.
+- `npx --yes @agent-analytics/cli@0.5.19 login --token aak_...` שומר מקומית מפתח API כ-fallback הידני/המתקדם.
+- `npx --yes @agent-analytics/cli@0.5.19 logout` מוחק את auth המקומי השמור של ה-CLI.
 
 `logout` הוא מקומי בלבד עבור מצב ה-CLI. אם אתם רוצים לבטל גם את ה-session המארח עצמו, נתקו את אותו session מתוך `Agent Sessions` באפליקציית הווב.
 

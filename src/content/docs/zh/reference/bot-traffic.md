@@ -36,8 +36,8 @@ Bot Traffic 展示的是那些到达 Agent Analytics 但被排除在正常分析
 ### CLI
 
 ```bash
-npx @agent-analytics/cli bot-traffic my-site --period 7d --limit 5
-npx @agent-analytics/cli bot-traffic --all --period 7d --limit 10
+npx --yes @agent-analytics/cli@0.5.19 bot-traffic my-site --period 7d --limit 5
+npx --yes @agent-analytics/cli@0.5.19 bot-traffic --all --period 7d --limit 10
 ```
 
 ### MCP

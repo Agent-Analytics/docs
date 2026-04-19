@@ -36,8 +36,8 @@ Project and account views return:
 ### CLI
 
 ```bash
-npx @agent-analytics/cli bot-traffic my-site --period 7d --limit 5
-npx @agent-analytics/cli bot-traffic --all --period 7d --limit 10
+npx --yes @agent-analytics/cli@0.5.19 bot-traffic my-site --period 7d --limit 5
+npx --yes @agent-analytics/cli@0.5.19 bot-traffic --all --period 7d --limit 10
 ```
 
 ### MCP

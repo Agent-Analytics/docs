@@ -9,7 +9,7 @@ Agent Analytics CLI 是已文档化 HTTP API 的官方 shell-first 包装层。�
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.16 --help
+npx --yes @agent-analytics/cli@0.5.19 --help
 ```
 <!--/email_off-->
 
@@ -34,12 +34,12 @@ npx @agent-analytics/cli@0.5.16 --help
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.16 demo
-npx @agent-analytics/cli@0.5.16 --demo projects
-npx @agent-analytics/cli@0.5.16 --demo stats agentanalytics-demo --days 7
-npx @agent-analytics/cli@0.5.16 --demo paths agentanalytics-demo --goal signup --since 30d
-npx @agent-analytics/cli@0.5.16 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
-npx @agent-analytics/cli@0.5.16 --demo experiments list agentanalytics-demo
+npx --yes @agent-analytics/cli@0.5.19 demo
+npx --yes @agent-analytics/cli@0.5.19 --demo projects
+npx --yes @agent-analytics/cli@0.5.19 --demo stats agentanalytics-demo --days 7
+npx --yes @agent-analytics/cli@0.5.19 --demo paths agentanalytics-demo --goal signup --since 30d
+npx --yes @agent-analytics/cli@0.5.19 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx --yes @agent-analytics/cli@0.5.19 --demo experiments list agentanalytics-demo
 ```
 <!--/email_off-->
 
@@ -68,8 +68,8 @@ CLI 会把本地配置保存到 `$XDG_CONFIG_HOME/agent-analytics/config.json`�
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx @agent-analytics/cli@0.5.16 login --detached
-npx @agent-analytics/cli@0.5.16 auth status
+npx --yes @agent-analytics/cli@0.5.19 login --detached
+npx --yes @agent-analytics/cli@0.5.19 auth status
 ```
 
 你也可以在任意命令前后传入 `--config-dir "$PWD/.openclaw/agent-analytics"`。解析顺序是：`--config-dir`、`AGENT_ANALYTICS_CONFIG_DIR`、`$XDG_CONFIG_HOME/agent-analytics`，最后是 `~/.config/agent-analytics`。

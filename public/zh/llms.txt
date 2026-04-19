@@ -101,6 +101,10 @@ npx skills add Agent-Analytics/agent-analytics-skill
 - `PATCH /projects/{id}` — Update a project
 - `DELETE /projects/{id}` — Delete a project
 
+### Project Context
+- `GET /project-context` — Get project analytics context
+- `PUT /project-context` — Set project analytics context
+
 ### Website Analysis
 - `POST /website-scans` — Analyze product growth measurement blind spots
 - `GET /website-scans/{id}` — Resume a website analysis

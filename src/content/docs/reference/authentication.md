@@ -70,10 +70,10 @@ Do not put the API key in the client-side tracker. The tracker uses the public p
 
 If you use the official CLI, it provides three local auth convenience commands:
 
-- `npx @agent-analytics/cli login` starts browser approval and saves a local CLI session.
-- `npx @agent-analytics/cli login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
-- `npx @agent-analytics/cli login --token aak_...` saves an API key locally as the advanced/manual fallback.
-- `npx @agent-analytics/cli logout` clears the saved local CLI auth.
+- `npx --yes @agent-analytics/cli@0.5.19 login` starts browser approval and saves a local CLI session.
+- `npx --yes @agent-analytics/cli@0.5.19 login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
+- `npx --yes @agent-analytics/cli@0.5.19 login --token aak_...` saves an API key locally as the advanced/manual fallback.
+- `npx --yes @agent-analytics/cli@0.5.19 logout` clears the saved local CLI auth.
 
 `logout` is local-only for CLI state. If you want to revoke the hosted session itself, disconnect that session from the web app's `Agent Sessions` section.
 

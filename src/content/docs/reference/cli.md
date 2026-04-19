@@ -9,7 +9,7 @@ The published package is `@agent-analytics/cli`. For one-off use, run it through
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.16 --help
+npx --yes @agent-analytics/cli@0.5.19 --help
 ```
 <!--/email_off-->
 
@@ -34,14 +34,14 @@ Use the seeded public demo when you want an AI agent to try the real CLI/API wor
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.16 demo
-npx @agent-analytics/cli@0.5.16 --demo projects
-npx @agent-analytics/cli@0.5.16 --demo stats agentanalytics-demo --days 30
-npx @agent-analytics/cli@0.5.16 --demo paths agentanalytics-demo --goal signup --since 30d
-npx @agent-analytics/cli@0.5.16 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
-npx @agent-analytics/cli@0.5.16 --demo breakdown agentanalytics-demo --property path --event signup_started --days 30
-npx @agent-analytics/cli@0.5.16 --demo breakdown agentanalytics-demo --property path --event signup --days 30
-npx @agent-analytics/cli@0.5.16 --demo experiments get exp_demo_signup_cta
+npx --yes @agent-analytics/cli@0.5.19 demo
+npx --yes @agent-analytics/cli@0.5.19 --demo projects
+npx --yes @agent-analytics/cli@0.5.19 --demo stats agentanalytics-demo --days 30
+npx --yes @agent-analytics/cli@0.5.19 --demo paths agentanalytics-demo --goal signup --since 30d
+npx --yes @agent-analytics/cli@0.5.19 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx --yes @agent-analytics/cli@0.5.19 --demo breakdown agentanalytics-demo --property path --event signup_started --days 30
+npx --yes @agent-analytics/cli@0.5.19 --demo breakdown agentanalytics-demo --property path --event signup --days 30
+npx --yes @agent-analytics/cli@0.5.19 --demo experiments get exp_demo_signup_cta
 ```
 <!--/email_off-->
 
@@ -63,16 +63,16 @@ Public previews analyze only the root domain and return a one-analysis `rst_*` r
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.16 scan https://mysite.com --json
-npx @agent-analytics/cli@0.5.16 login
-npx @agent-analytics/cli@0.5.16 scan \
+npx --yes @agent-analytics/cli@0.5.19 scan https://mysite.com --json
+npx --yes @agent-analytics/cli@0.5.19 login
+npx --yes @agent-analytics/cli@0.5.19 scan \
   --resume <analysis_id> \
   --resume-token <resume_token> \
   --full \
   --project my-site \
   --json
-npx @agent-analytics/cli@0.5.16 create my-site --domain https://mysite.com --source-scan <analysis_id>
-npx @agent-analytics/cli@0.5.16 events my-site --event <first_useful_event> --days 7 --limit 20
+npx --yes @agent-analytics/cli@0.5.19 create my-site --domain https://mysite.com --source-scan <analysis_id>
+npx --yes @agent-analytics/cli@0.5.19 events my-site --event <first_useful_event> --days 7 --limit 20
 ```
 <!--/email_off-->
 
@@ -98,8 +98,8 @@ For managed agent runtimes where home-directory config may not persist, set an e
 <!--email_off-->
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx @agent-analytics/cli@0.5.16 login --detached
-npx @agent-analytics/cli@0.5.16 auth status
+npx --yes @agent-analytics/cli@0.5.19 login --detached
+npx --yes @agent-analytics/cli@0.5.19 auth status
 ```
 <!--/email_off-->
 
@@ -119,6 +119,8 @@ agent-analytics create my-site --domain https://mysite.com --source-scan <analys
 agent-analytics stats my-site --days 7
 agent-analytics insights my-site --period 7d
 agent-analytics events my-site --days 7 --limit 20
+agent-analytics context get my-site
+agent-analytics context set my-site --json '{"goals":["Increase activated accounts"],"activation_events":["signup_completed","project_created","first_event_received"],"glossary":[{"event_name":"first_event_received","term":"AA Activation","definition":"Signup, project created, and first event received."}]}'
 agent-analytics breakdown my-site --property path --event page_view --days 7 --limit 10
 agent-analytics paths my-site --goal signup --since 30d --max-steps 5
 agent-analytics funnel my-site --steps "page_view,signup,purchase"
@@ -133,7 +135,7 @@ The main command families are:
 - project setup: `scan`, `create`, `projects`
 - reporting: `stats`, `insights`, `breakdown`, `pages`, `paths`, `sessions-dist`, `events`, `sessions`, `query`
 - live monitoring: `live`
-- schema discovery: `properties`, `properties-received`
+- schema and context: `properties`, `properties-received`, `context get`, `context set`
 - analysis workflows: `funnel`, `retention`, `experiments`
 - product feedback: `feedback`
 
@@ -149,6 +151,37 @@ Use `update` to change allowed origins without leaving the CLI. For local browse
 agent-analytics update stylio --origins 'https://stylio.app,http://lvh.me:3101'
 ```
 
+## Project context
+
+Use `context get` and `context set` when a project has custom goals, activation events, or event meanings that should travel with analytics results.
+
+Project context is intentionally compact. Project-scoped analytics result endpoints return it as `project_context` when it is non-empty, so long notes would make every agent read noisier.
+
+The stored shape is:
+
+- `goals`: up to 5 short business goals
+- `activation_events`: up to 8 event names that define activation or the main success path
+- `glossary`: up to 10 entries, each with `event_name`, `term`, and `definition`
+
+Before setting or refreshing a glossary, inspect the project's real event names:
+
+```bash
+agent-analytics properties my-site
+agent-analytics properties-received my-site
+```
+
+Then store the compact context:
+
+```bash
+agent-analytics context set my-site --json '{"goals":["Increase activated accounts"],"activation_events":["signup_completed","project_created","first_event_received"],"glossary":[{"event_name":"first_event_received","term":"AA Activation","definition":"Signup, project created, and first event received."}]}'
+```
+
+Read it back with:
+
+```bash
+agent-analytics context get my-site
+```
+
 ## CLI to API mapping
 
 Most CLI workflows map directly to an HTTP endpoint. The main exception is local auth convenience commands such as `logout`, which only modify local CLI state.
@@ -160,6 +193,8 @@ Most CLI workflows map directly to an HTTP endpoint. The main exception is local
 | `agent-analytics bot-traffic my-site --period 7d` | `GET /bot-traffic?project=my-site&period=7d` |
 | `agent-analytics bot-traffic --all --period 7d` | `GET /account/bot-traffic?period=7d` |
 | `agent-analytics events my-site` | `GET /events?project=my-site` |
+| `agent-analytics context get my-site` | `GET /project-context?project=my-site` |
+| `agent-analytics context set my-site --json '{...}'` | `PUT /project-context` |
 | `agent-analytics query my-site --metrics event_count` | `POST /query` |
 | `agent-analytics query my-site --metrics event_count --count-mode raw` | `POST /query` |
 | `agent-analytics paths my-site --goal signup` | `POST /paths` |

@@ -9,7 +9,7 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.16 --help
+npx --yes @agent-analytics/cli@0.5.19 --help
 ```
 <!--/email_off-->
 
@@ -34,12 +34,12 @@ npx @agent-analytics/cli@0.5.16 --help
 
 <!--email_off-->
 ```bash
-npx @agent-analytics/cli@0.5.16 demo
-npx @agent-analytics/cli@0.5.16 --demo projects
-npx @agent-analytics/cli@0.5.16 --demo stats agentanalytics-demo --days 7
-npx @agent-analytics/cli@0.5.16 --demo paths agentanalytics-demo --goal signup --since 30d
-npx @agent-analytics/cli@0.5.16 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
-npx @agent-analytics/cli@0.5.16 --demo experiments list agentanalytics-demo
+npx --yes @agent-analytics/cli@0.5.19 demo
+npx --yes @agent-analytics/cli@0.5.19 --demo projects
+npx --yes @agent-analytics/cli@0.5.19 --demo stats agentanalytics-demo --days 7
+npx --yes @agent-analytics/cli@0.5.19 --demo paths agentanalytics-demo --goal signup --since 30d
+npx --yes @agent-analytics/cli@0.5.19 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx --yes @agent-analytics/cli@0.5.19 --demo experiments list agentanalytics-demo
 ```
 <!--/email_off-->
 
@@ -68,8 +68,8 @@ Prompts שימושיים:
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx @agent-analytics/cli@0.5.16 login --detached
-npx @agent-analytics/cli@0.5.16 auth status
+npx --yes @agent-analytics/cli@0.5.19 login --detached
+npx --yes @agent-analytics/cli@0.5.19 auth status
 ```
 
 אפשר גם להעביר `--config-dir "$PWD/.openclaw/agent-analytics"` לפני או אחרי כל פקודה. סדר הפתרון הוא: `--config-dir`, אחר כך `AGENT_ANALYTICS_CONFIG_DIR`, אחר כך `$XDG_CONFIG_HOME/agent-analytics`, ולבסוף `~/.config/agent-analytics`.
