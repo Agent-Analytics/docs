@@ -70,14 +70,14 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 
 אם אתם משתמשים ב-CLI הרשמי, הוא מספק שלוש פקודות auth נוחות:
 
-- `npx --yes @agent-analytics/cli@0.5.19 login` מפעיל אישור בדפדפן ושומר session מקומי של ה-CLI.
-- `npx --yes @agent-analytics/cli@0.5.19 login --detached` מפעיל את אותו flow עבור runtimes חסרי ממשק או מבוססי issues, שבהם הסוכן שולח לכם קישור אישור ועלול לבקש finish code.
-- `npx --yes @agent-analytics/cli@0.5.19 login --token aak_...` שומר מקומית מפתח API כ-fallback הידני/המתקדם.
-- `npx --yes @agent-analytics/cli@0.5.19 logout` מוחק את auth המקומי השמור של ה-CLI.
+- `npx --yes @agent-analytics/cli@0.5.20 login` מפעיל אישור בדפדפן ושומר session מקומי של ה-CLI.
+- `npx --yes @agent-analytics/cli@0.5.20 login --detached` מפעיל את אותו flow עבור runtimes חסרי ממשק או מבוססי issues, שבהם הסוכן שולח לכם קישור אישור ועלול לבקש finish code.
+- `npx --yes @agent-analytics/cli@0.5.20 upgrade-link --detached` יוצר קישור תשלום לאדם כשחשבון free נתקל במשימת אנליטיקה בתשלום.
+- `npx --yes @agent-analytics/cli@0.5.20 logout` מוחק את auth המקומי השמור של ה-CLI.
 
 `logout` הוא מקומי בלבד עבור מצב ה-CLI. אם אתם רוצים לבטל גם את ה-session המארח עצמו, נתקו את אותו session מתוך `Agent Sessions` באפליקציית הווב.
 
-אם התחברתם עם `--token`, `logout` לא מבטל את מפתח ה-API בשרת. השתמשו ב-`revoke-key` כשאתם רוצים לפסול את המפתח הישן ולהנפיק חדש.
+Scoped agent sessions לא יכולים ליצור או לסובב API keys גולמיים. נהלו compatibility API keys מתוך הדשבורד.
 
 אם הגדרתם `AGENT_ANALYTICS_API_KEY` בסביבת shell, ה-CLI ימשיך להשתמש במשתנה הזה גם אחרי `logout` עד שתבטלו אותו.
 

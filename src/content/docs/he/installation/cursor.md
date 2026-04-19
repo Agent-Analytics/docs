@@ -67,9 +67,9 @@ Set up Agent Analytics for this project. Install it here if needed. Open the bro
 אם אתם לא רוצים את שכבת ה-skill, עברו קודם ל-CLI הרשמי לפני שאתם יורדים ל-HTTP גולמי:
 
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 login
-npx --yes @agent-analytics/cli@0.5.19 projects
-npx --yes @agent-analytics/cli@0.5.19 stats my-site --days 7
+npx --yes @agent-analytics/cli@0.5.20 login
+npx --yes @agent-analytics/cli@0.5.20 projects
+npx --yes @agent-analytics/cli@0.5.20 stats my-site --days 7
 ```
 
 כך Cursor נשאר על אותו מסלול shell-first בלי לעבור ל-auth headers ידניים ול-payloads גולמיים. עבור התנהגות login, כיסוי פקודות ומיפוי CLI ל-API, השתמשו בעמוד [CLI](/he/reference/cli/).

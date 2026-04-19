@@ -54,16 +54,16 @@ When an agent is installing analytics, it should:
 With the CLI, that same routine is:
 
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 scan https://mysite.com --json
-npx --yes @agent-analytics/cli@0.5.19 login
-npx --yes @agent-analytics/cli@0.5.19 scan \
+npx --yes @agent-analytics/cli@0.5.20 scan https://mysite.com --json
+npx --yes @agent-analytics/cli@0.5.20 login
+npx --yes @agent-analytics/cli@0.5.20 scan \
   --resume <analysis_id> \
   --resume-token <resume_token> \
   --full \
   --project my-site \
   --json
-npx --yes @agent-analytics/cli@0.5.19 create my-site --domain https://mysite.com --source-scan <analysis_id>
-npx --yes @agent-analytics/cli@0.5.19 events my-site --event <first_useful_event> --days 7 --limit 20
+npx --yes @agent-analytics/cli@0.5.20 create my-site --domain https://mysite.com --source-scan <analysis_id>
+npx --yes @agent-analytics/cli@0.5.20 events my-site --event <first_useful_event> --days 7 --limit 20
 ```
 
 ## Anonymous preview

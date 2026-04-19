@@ -45,7 +45,7 @@ If you do not want the full plugin, use the skill path before raw MCP:
 npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
-This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It uses browser approval and agent sessions by default. Use a raw API key only as the advanced/manual fallback.
+This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It uses browser approval, agent sessions, and human-owned upgrade handoffs by default.
 
 ## Lower-level fallback: add only the MCP server
 
@@ -61,7 +61,7 @@ Use `--transport http`. The hosted MCP server is not configured for legacy SSE t
 
 - Make sure Claude Code completes browser approval with the same GitHub or Google account you want connected to Agent Analytics.
 - If the skill or plugin pauses on approval, complete the browser sign-in and let Claude Code continue.
-- If you intentionally use the advanced/manual API-key path, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
+- If you intentionally use a compatibility API key for direct HTTP debugging, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
 - If the MCP command fails, verify you used `--transport http`.
 
 ## Related

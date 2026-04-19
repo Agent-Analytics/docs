@@ -9,7 +9,7 @@ The published package is `@agent-analytics/cli`. For one-off use, run it through
 
 <!--email_off-->
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 --help
+npx --yes @agent-analytics/cli@0.5.20 --help
 ```
 <!--/email_off-->
 
@@ -34,14 +34,14 @@ Use the seeded public demo when you want an AI agent to try the real CLI/API wor
 
 <!--email_off-->
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 demo
-npx --yes @agent-analytics/cli@0.5.19 --demo projects
-npx --yes @agent-analytics/cli@0.5.19 --demo stats agentanalytics-demo --days 30
-npx --yes @agent-analytics/cli@0.5.19 --demo paths agentanalytics-demo --goal signup --since 30d
-npx --yes @agent-analytics/cli@0.5.19 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
-npx --yes @agent-analytics/cli@0.5.19 --demo breakdown agentanalytics-demo --property path --event signup_started --days 30
-npx --yes @agent-analytics/cli@0.5.19 --demo breakdown agentanalytics-demo --property path --event signup --days 30
-npx --yes @agent-analytics/cli@0.5.19 --demo experiments get exp_demo_signup_cta
+npx --yes @agent-analytics/cli@0.5.20 demo
+npx --yes @agent-analytics/cli@0.5.20 --demo projects
+npx --yes @agent-analytics/cli@0.5.20 --demo stats agentanalytics-demo --days 30
+npx --yes @agent-analytics/cli@0.5.20 --demo paths agentanalytics-demo --goal signup --since 30d
+npx --yes @agent-analytics/cli@0.5.20 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx --yes @agent-analytics/cli@0.5.20 --demo breakdown agentanalytics-demo --property path --event signup_started --days 30
+npx --yes @agent-analytics/cli@0.5.20 --demo breakdown agentanalytics-demo --property path --event signup --days 30
+npx --yes @agent-analytics/cli@0.5.20 --demo experiments get exp_demo_signup_cta
 ```
 <!--/email_off-->
 
@@ -63,16 +63,16 @@ Public previews analyze only the root domain and return a one-analysis `rst_*` r
 
 <!--email_off-->
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 scan https://mysite.com --json
-npx --yes @agent-analytics/cli@0.5.19 login
-npx --yes @agent-analytics/cli@0.5.19 scan \
+npx --yes @agent-analytics/cli@0.5.20 scan https://mysite.com --json
+npx --yes @agent-analytics/cli@0.5.20 login
+npx --yes @agent-analytics/cli@0.5.20 scan \
   --resume <analysis_id> \
   --resume-token <resume_token> \
   --full \
   --project my-site \
   --json
-npx --yes @agent-analytics/cli@0.5.19 create my-site --domain https://mysite.com --source-scan <analysis_id>
-npx --yes @agent-analytics/cli@0.5.19 events my-site --event <first_useful_event> --days 7 --limit 20
+npx --yes @agent-analytics/cli@0.5.20 create my-site --domain https://mysite.com --source-scan <analysis_id>
+npx --yes @agent-analytics/cli@0.5.20 events my-site --event <first_useful_event> --days 7 --limit 20
 ```
 <!--/email_off-->
 
@@ -87,9 +87,8 @@ The CLI is agent-session-first:
 - default: `agent-analytics login` opens browser approval with a local loopback callback
 - detached handoff: `agent-analytics login --detached` prints an approval URL and exits so issue-based or remote runtimes can resume with a finish code
 - optional polling: `agent-analytics login --detached --wait` keeps the process alive for local shells that can wait for browser approval
-- advanced/manual only: `agent-analytics login --token aak_...`
 
-Do not treat pasted long-lived API keys as the primary onboarding path. Browser approval is the normal hosted flow.
+Do not ask users to paste long-lived API keys into an agent thread. Browser approval is the normal hosted flow.
 
 The CLI stores local config at `$XDG_CONFIG_HOME/agent-analytics/config.json`, with fallback to `~/.config/agent-analytics/config.json`.
 
@@ -98,14 +97,30 @@ For managed agent runtimes where home-directory config may not persist, set an e
 <!--email_off-->
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx --yes @agent-analytics/cli@0.5.19 login --detached
-npx --yes @agent-analytics/cli@0.5.19 auth status
+npx --yes @agent-analytics/cli@0.5.20 login --detached
+npx --yes @agent-analytics/cli@0.5.20 auth status
 ```
 <!--/email_off-->
 
 You can also pass `--config-dir "$PWD/.openclaw/agent-analytics"` before or after any command. Resolution order is: `--config-dir`, `AGENT_ANALYTICS_CONFIG_DIR`, `$XDG_CONFIG_HOME/agent-analytics`, then `~/.config/agent-analytics`.
 
-Credential lookup still respects environment overrides first, so `AGENT_ANALYTICS_API_KEY` continues to win until you unset it.
+Credential lookup still respects compatibility environment overrides first, so `AGENT_ANALYTICS_API_KEY` continues to win until you unset it.
+
+## Pro upgrade handoff
+
+Free accounts can prove the workflow with core setup and basic reads. Pro unlocks deeper agent analysis: funnels, retention, sessions, pages, heatmaps, insights, live reads, experiments, no monthly agent/API read cap, no monthly event cap, and 365-day retention.
+
+When a CLI command returns `PRO_REQUIRED` or a free-tier read cap, ask the agent to create a human payment handoff:
+
+```bash
+agent-analytics upgrade-link --detached \
+  --reason "Need funnel and retention reads for this analysis" \
+  --command "agent-analytics funnel my-site --steps page_view,signup,purchase"
+```
+
+`upgrade-link --detached` prints an `app.agentanalytics.sh` link and exits. The human opens the link, the dashboard confirms the logged-in account, Lemon Squeezy handles payment, and the webhook activates Pro.
+
+Use `upgrade-link --wait` when the local shell should keep polling until `whoami` would show Pro.
 
 ## Common commands
 
@@ -131,7 +146,7 @@ agent-analytics logout
 
 The main command families are:
 
-- account and auth: `login`, `logout`, `whoami`, `auth status`, `revoke-key`
+- account and auth: `login`, `logout`, `whoami`, `auth status`, `upgrade-link`
 - project setup: `scan`, `create`, `projects`
 - reporting: `stats`, `insights`, `breakdown`, `pages`, `paths`, `sessions-dist`, `events`, `sessions`, `query`
 - live monitoring: `live`
@@ -139,7 +154,7 @@ The main command families are:
 - analysis workflows: `funnel`, `retention`, `experiments`
 - product feedback: `feedback`
 
-`revoke-key` only applies when the CLI is using a saved raw API key from `login --token`. Scoped agent sessions cannot rotate raw account API keys; manage those keys from the dashboard.
+Scoped agent sessions cannot generate or rotate raw account API keys; manage compatibility keys from the dashboard.
 
 ## Project management
 

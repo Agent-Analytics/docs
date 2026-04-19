@@ -35,7 +35,7 @@ Use the API key for:
 - reading analytics data
 - creating or listing projects
 - account-level endpoints
-- direct API access from scripts, tools, and agents
+- direct API access from server-side scripts and tools that cannot use agent sessions
 
 Pass it with the `X-API-Key` header or the `?key=` query parameter.
 
@@ -68,16 +68,16 @@ Do not put the API key in the client-side tracker. The tracker uses the public p
 
 ## CLI auth helpers
 
-If you use the official CLI, it provides three local auth convenience commands:
+If you use the official CLI, it provides browser-approved local auth helpers:
 
-- `npx --yes @agent-analytics/cli@0.5.19 login` starts browser approval and saves a local CLI session.
-- `npx --yes @agent-analytics/cli@0.5.19 login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
-- `npx --yes @agent-analytics/cli@0.5.19 login --token aak_...` saves an API key locally as the advanced/manual fallback.
-- `npx --yes @agent-analytics/cli@0.5.19 logout` clears the saved local CLI auth.
+- `npx --yes @agent-analytics/cli@0.5.20 login` starts browser approval and saves a local CLI session.
+- `npx --yes @agent-analytics/cli@0.5.20 login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
+- `npx --yes @agent-analytics/cli@0.5.20 upgrade-link --detached` prints a human-owned Pro payment handoff when a free account hits a paid-only analytics task.
+- `npx --yes @agent-analytics/cli@0.5.20 logout` clears the saved local CLI auth.
 
 `logout` is local-only for CLI state. If you want to revoke the hosted session itself, disconnect that session from the web app's `Agent Sessions` section.
 
-If you logged in with `--token`, `logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate that saved raw API key and issue a new one. Scoped agent sessions cannot generate or rotate raw account API keys.
+Scoped agent sessions cannot generate or rotate raw account API keys. Manage compatibility API keys from the dashboard.
 
 If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will continue to use that env var even after `logout` until you unset it.
 

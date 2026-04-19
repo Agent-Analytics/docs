@@ -35,14 +35,14 @@ description: התקינו את Agent Analytics skill ב-OpenClaw דרך ClawHub,
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx --yes @agent-analytics/cli@0.5.19 login --detached
-npx --yes @agent-analytics/cli@0.5.19 auth status
+npx --yes @agent-analytics/cli@0.5.20 login --detached
+npx --yes @agent-analytics/cli@0.5.20 auth status
 ```
 
 שמרו על ההגדרה הזו בכל פקודת Agent Analytics CLI באותה משימה. אם לא בטוח שמשתני shell נשמרים, הוסיפו prefix לכל פקודה:
 
 ```bash
-AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx --yes @agent-analytics/cli@0.5.19 projects
+AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx --yes @agent-analytics/cli@0.5.20 projects
 ```
 
 ל-debug חד-פעמי אפשר להשתמש ב-`--config-dir "$PWD/.openclaw/agent-analytics"` לפני או אחרי הפקודה. ודאו ש-`.openclaw/` נמצא ב-gitignore לפני login, ולעולם אל תבצעו commit ל-`.openclaw/agent-analytics/config.json`.

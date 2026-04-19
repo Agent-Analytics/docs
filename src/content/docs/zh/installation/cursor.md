@@ -67,9 +67,9 @@ Set up Agent Analytics for this project. Install it here if needed. Open the bro
 如果你不想要 skill 这一层，那么在降到原始 HTTP 之前，应该先回退到官方 CLI：
 
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 login
-npx --yes @agent-analytics/cli@0.5.19 projects
-npx --yes @agent-analytics/cli@0.5.19 stats my-site --days 7
+npx --yes @agent-analytics/cli@0.5.20 login
+npx --yes @agent-analytics/cli@0.5.20 projects
+npx --yes @agent-analytics/cli@0.5.20 stats my-site --days 7
 ```
 
 这样 Cursor 仍然停留在同一条 shell-first 路径上，不需要切换到手写 auth header 和原始请求 payload。关于登录行为、命令覆盖范围以及 CLI 到 API 的映射，请看独立的 [CLI 页面](/zh/reference/cli/)。

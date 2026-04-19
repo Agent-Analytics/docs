@@ -90,9 +90,9 @@ Once the install is working and the tracker is live, ask your AI agent one of th
 
 If the setup is correct, the agent should answer without you hand-writing requests or opening a reporting UI.
 
-## Advanced fallback: API key
+## Compatibility API keys
 
-If you need direct HTTP access for your own runtime, you can still generate an API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). That is the advanced/manual path. CLI, MCP, and agent onboarding should use browser approval and agent sessions instead.
+If you need direct HTTP access for a server-side runtime that cannot use agent sessions, generate an API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). CLI, MCP, paid upgrades, and agent onboarding should use browser approval and agent sessions instead.
 
 ## Next
 

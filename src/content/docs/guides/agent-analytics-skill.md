@@ -66,7 +66,7 @@ Typical jobs:
 - create, QA, measure, and complete experiments
 - explain gaps in the data before recommending action
 
-Browser approval is the normal login path. You do not need to create an API key first unless you are building a custom direct HTTP integration.
+Browser approval is the normal login path. Setup, paid upgrade, and resumed agent work do not require an API key.
 
 When a product has its own activation definition or human vocabulary, ask the agent to keep project context updated. The skill tells the agent to check `properties` or `properties-received` first, then use `context set` with short entries tied to real event names through `event_name`. That context is returned as `project_context` on project-scoped analytics results, so future reads can explain metrics in the product's own language without carrying a long prompt.
 
@@ -74,7 +74,7 @@ For OpenClaw and similar managed runtimes, tell the agent to keep Agent Analytic
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx --yes @agent-analytics/cli@0.5.19 auth status
+npx --yes @agent-analytics/cli@0.5.20 auth status
 ```
 
 If the runtime may not preserve exported variables between commands, prefix each Agent Analytics CLI command with that same `AGENT_ANALYTICS_CONFIG_DIR=...` value or pass `--config-dir "$PWD/.openclaw/agent-analytics"`. Do not commit `.openclaw/agent-analytics/config.json`.

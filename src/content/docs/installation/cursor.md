@@ -71,9 +71,9 @@ Save the file and reload Cursor if the tool list does not refresh automatically.
 If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 login
-npx --yes @agent-analytics/cli@0.5.19 projects
-npx --yes @agent-analytics/cli@0.5.19 stats my-site --days 7
+npx --yes @agent-analytics/cli@0.5.20 login
+npx --yes @agent-analytics/cli@0.5.20 projects
+npx --yes @agent-analytics/cli@0.5.20 stats my-site --days 7
 ```
 
 That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).
@@ -81,7 +81,7 @@ That keeps Cursor on the same shell-first path without switching to manual auth 
 ## Troubleshooting
 
 - If the skill installs but the setup pauses on approval, complete the browser sign-in and paste back any finish code if Cursor asks for it.
-- If you intentionally use the advanced/manual API-key path, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
+- If you intentionally use a compatibility API key for direct HTTP debugging, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
 - Confirm the `mcp.json` entry is valid JSON if you choose the MCP path.
 - Reload Cursor after adding the custom MCP server if the tools panel still shows the old state.
 - If Cursor can see the MCP server but not your projects, verify the hosted sign-in completed with the correct account.

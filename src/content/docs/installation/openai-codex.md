@@ -46,7 +46,7 @@ If you have not created your first real project yet, continue with [First Projec
 ## Troubleshooting
 
 - If the skill installs but the setup pauses on approval, complete the browser sign-in and paste back any finish code if Codex asks for it.
-- If you intentionally use the advanced/manual API-key path, check that `AGENT_ANALYTICS_API_KEY` is present in the environment the agent actually runs in.
+- If you intentionally use a compatibility API key for direct HTTP debugging, check that `AGENT_ANALYTICS_API_KEY` is present in the environment the agent actually runs in.
 - If `npx` is unavailable, install the required Node.js runtime first or use the direct API route temporarily.
 - If you need endpoint-level debugging, use the [API reference](/api/) and test with `curl`.
 

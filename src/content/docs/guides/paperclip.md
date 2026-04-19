@@ -11,7 +11,7 @@ description: Ask the user to create one CEO task, then review the blocked task w
 
 Use `Connect as agent` if you want the agent to own that blocked-login handoff from start to finish. Use `Connect as human` only when you need direct account access yourself, not because the setup flow has changed.
 
-For normal Paperclip setup, keep browser approval and finish-code handoff as the default path. Raw API keys are only there as an advanced fallback for custom runtimes.
+For normal Paperclip setup, keep browser approval and finish-code handoff as the default path. Paid upgrades use the CLI handoff link, not a pasted API key.
 
 If you want the strategic context before you set this up, read [If You Use Paperclip, You Need End-User Analytics](https://blog.agentanalytics.sh/blog/paperclip-companies-need-agent-readable-analytics/).
 
@@ -114,9 +114,9 @@ Use this order if you want the shortest path to first value:
 6. ask the analyst one real traffic or signup question
 7. add the recurring 8:00 AM analyst brief once the first traffic question works
 
-## Advanced/manual fallback
+## Compatibility API keys
 
-If you need direct HTTP access for a custom runtime later, you can still generate a raw API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). Treat that as the advanced/manual fallback.
+If you need direct HTTP access for a custom server-side runtime later, you can still generate a raw API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). Keep that outside the normal Paperclip setup and upgrade path.
 
 For the normal Paperclip setup path, prefer browser approval plus finish code handoff.
 

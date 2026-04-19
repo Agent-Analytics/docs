@@ -70,14 +70,14 @@ curl "https://api.agentanalytics.sh/stats?project=my-site&since=7d" \
 
 如果你使用官方 CLI，它提供了三个方便的 auth 命令：
 
-- `npx --yes @agent-analytics/cli@0.5.19 login`：启动浏览器审批，并保存本地 CLI session。
-- `npx --yes @agent-analytics/cli@0.5.19 login --detached`：为无界面或 issue/thread 风格的运行环境启动同样的流程，此时代理会把审批链接发给你，也可能要求你回贴 finish code。
-- `npx --yes @agent-analytics/cli@0.5.19 login --token aak_...`：把 API 密钥保存在本地，作为高级/手动 fallback。
-- `npx --yes @agent-analytics/cli@0.5.19 logout`：清除本地保存的 CLI auth。
+- `npx --yes @agent-analytics/cli@0.5.20 login`：启动浏览器审批，并保存本地 CLI session。
+- `npx --yes @agent-analytics/cli@0.5.20 login --detached`：为无界面或 issue/thread 风格的运行环境启动同样的流程，此时代理会把审批链接发给你，也可能要求你回贴 finish code。
+- `npx --yes @agent-analytics/cli@0.5.20 upgrade-link --detached`：当 free 账户遇到付费分析任务时，生成给真人确认付款的交接链接。
+- `npx --yes @agent-analytics/cli@0.5.20 logout`：清除本地保存的 CLI auth。
 
 `logout` 只会清除 CLI 本地状态。如果你还想撤销服务器端保存的托管 session，请到 Web 应用里的 `Agent Sessions` 区域断开对应连接。
 
-如果你是通过 `--token` 登录的，`logout` 不会在服务器端吊销 API 密钥。当你想让旧 key 失效并签发新 key 时，请使用 `revoke-key`。
+Scoped agent sessions 不能生成或轮换原始账户 API key。兼容性 API key 请在 dashboard 中管理。
 
 如果你在 shell 环境里设置了 `AGENT_ANALYTICS_API_KEY`，那么即使执行了 `logout`，CLI 仍会继续使用这个环境变量，直到你主动取消它。
 

@@ -107,9 +107,9 @@ Once the install is working and the tracker is live, ask your AI agent one of th
 
 If the setup is correct, the agent should answer without you hand-writing requests or opening a reporting UI.
 
-## Advanced fallback: API key
+## Compatibility API keys
 
-If you need direct HTTP access for your own runtime, you can still generate an API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). That is the advanced/manual path. CLI, MCP, and agent onboarding should use browser approval and agent sessions instead.
+If you need direct HTTP access for a server-side runtime that cannot use agent sessions, generate an API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). CLI, MCP, paid upgrades, and agent onboarding should use browser approval and agent sessions instead.
 
 ## Next
 
@@ -140,7 +140,7 @@ Ask the user to create one CEO task, then review the blocked task when login app
 
 Use `Connect as agent` if you want the agent to own that blocked-login handoff from start to finish. Use `Connect as human` only when you need direct account access yourself, not because the setup flow has changed.
 
-For normal Paperclip setup, keep browser approval and finish-code handoff as the default path. Raw API keys are only there as an advanced fallback for custom runtimes.
+For normal Paperclip setup, keep browser approval and finish-code handoff as the default path. Paid upgrades use the CLI handoff link, not a pasted API key.
 
 If you want the strategic context before you set this up, read [If You Use Paperclip, You Need End-User Analytics](https://blog.agentanalytics.sh/blog/paperclip-companies-need-agent-readable-analytics/).
 
@@ -243,9 +243,9 @@ Use this order if you want the shortest path to first value:
 6. ask the analyst one real traffic or signup question
 7. add the recurring 8:00 AM analyst brief once the first traffic question works
 
-## Advanced/manual fallback
+## Compatibility API keys
 
-If you need direct HTTP access for a custom runtime later, you can still generate a raw API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). Treat that as the advanced/manual fallback.
+If you need direct HTTP access for a custom server-side runtime later, you can still generate a raw API key from [app.agentanalytics.sh](https://app.agentanalytics.sh). Keep that outside the normal Paperclip setup and upgrade path.
 
 For the normal Paperclip setup path, prefer browser approval plus finish code handoff.
 
@@ -336,7 +336,7 @@ Typical jobs:
 - create, QA, measure, and complete experiments
 - explain gaps in the data before recommending action
 
-Browser approval is the normal login path. You do not need to create an API key first unless you are building a custom direct HTTP integration.
+Browser approval is the normal login path. Setup, paid upgrade, and resumed agent work do not require an API key.
 
 When a product has its own activation definition or human vocabulary, ask the agent to keep project context updated. The skill tells the agent to check `properties` or `properties-received` first, then use `context set` with short entries tied to real event names through `event_name`. That context is returned as `project_context` on project-scoped analytics results, so future reads can explain metrics in the product's own language without carrying a long prompt.
 
@@ -344,7 +344,7 @@ For OpenClaw and similar managed runtimes, tell the agent to keep Agent Analytic
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx --yes @agent-analytics/cli@0.5.19 auth status
+npx --yes @agent-analytics/cli@0.5.20 auth status
 ```
 
 If the runtime may not preserve exported variables between commands, prefix each Agent Analytics CLI command with that same `AGENT_ANALYTICS_CONFIG_DIR=...` value or pass `--config-dir "$PWD/.openclaw/agent-analytics"`. Do not commit `.openclaw/agent-analytics/config.json`.
@@ -946,7 +946,7 @@ If you do not want the full plugin, use the skill path before raw MCP:
 npx skills add Agent-Analytics/agent-analytics-skill
 ```
 
-This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It uses browser approval and agent sessions by default. Use a raw API key only as the advanced/manual fallback.
+This path teaches Claude Code how to set up tracking, query analytics, and run experiments. It uses browser approval, agent sessions, and human-owned upgrade handoffs by default.
 
 ## Lower-level fallback: add only the MCP server
 
@@ -962,7 +962,7 @@ Use `--transport http`. The hosted MCP server is not configured for legacy SSE t
 
 - Make sure Claude Code completes browser approval with the same GitHub or Google account you want connected to Agent Analytics.
 - If the skill or plugin pauses on approval, complete the browser sign-in and let Claude Code continue.
-- If you intentionally use the advanced/manual API-key path, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
+- If you intentionally use a compatibility API key for direct HTTP debugging, confirm the environment exposes `AGENT_ANALYTICS_API_KEY`.
 - If the MCP command fails, verify you used `--transport http`.
 
 ## Related
@@ -1111,9 +1111,9 @@ Save the file and reload Cursor if the tool list does not refresh automatically.
 If you do not want the skill layer, fall back to the official CLI before you drop to raw HTTP:
 
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 login
-npx --yes @agent-analytics/cli@0.5.19 projects
-npx --yes @agent-analytics/cli@0.5.19 stats my-site --days 7
+npx --yes @agent-analytics/cli@0.5.20 login
+npx --yes @agent-analytics/cli@0.5.20 projects
+npx --yes @agent-analytics/cli@0.5.20 stats my-site --days 7
 ```
 
 That keeps Cursor on the same shell-first path without switching to manual auth headers and raw request payloads. For login behavior, command coverage, and CLI-to-API mapping, use the dedicated [CLI page](/reference/cli/).
@@ -1121,7 +1121,7 @@ That keeps Cursor on the same shell-first path without switching to manual auth 
 ## Troubleshooting
 
 - If the skill installs but the setup pauses on approval, complete the browser sign-in and paste back any finish code if Cursor asks for it.
-- If you intentionally use the advanced/manual API-key path, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
+- If you intentionally use a compatibility API key for direct HTTP debugging, confirm `AGENT_ANALYTICS_API_KEY` is available in the environment Cursor actually uses.
 - Confirm the `mcp.json` entry is valid JSON if you choose the MCP path.
 - Reload Cursor after adding the custom MCP server if the tools panel still shows the old state.
 - If Cursor can see the MCP server but not your projects, verify the hosted sign-in completed with the correct account.
@@ -1195,14 +1195,14 @@ OpenClaw and similar managed runtimes should not rely on the default home config
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx --yes @agent-analytics/cli@0.5.19 login --detached
-npx --yes @agent-analytics/cli@0.5.19 auth status
+npx --yes @agent-analytics/cli@0.5.20 login --detached
+npx --yes @agent-analytics/cli@0.5.20 auth status
 ```
 
 Keep that setting on every Agent Analytics CLI command in the task. If shell environment persistence is uncertain, prefix each command:
 
 ```bash
-AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx --yes @agent-analytics/cli@0.5.19 projects
+AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx --yes @agent-analytics/cli@0.5.20 projects
 ```
 
 For one-off debugging, `--config-dir "$PWD/.openclaw/agent-analytics"` works before or after the command. Ensure `.openclaw/` is gitignored before login, and never commit `.openclaw/agent-analytics/config.json`.
@@ -1230,7 +1230,7 @@ If you have not created your first real project yet, continue with [First Projec
 - If OpenClaw sends you an approval link but never resumes, paste the finish code back into the same thread.
 - If login worked earlier but later says "Not logged in", run `auth status` and confirm `AGENT_ANALYTICS_CONFIG_DIR` points at the persistent `.openclaw/agent-analytics` path.
 - If the skill installs but cannot query data after login, confirm the browser approval completed with the same Agent Analytics account you expect to use.
-- If you intentionally choose the advanced/manual API-key path, keep `AGENT_ANALYTICS_API_KEY` in the OpenClaw runtime instead of pasting it into chat.
+- If you intentionally use a compatibility API key for direct HTTP debugging, keep `AGENT_ANALYTICS_API_KEY` in the OpenClaw runtime instead of pasting it into chat.
 - If you need endpoint-level debugging, use the [API reference](/api/) with `curl` before returning to the skill flow.
 
 ## Related
@@ -1293,7 +1293,7 @@ If you have not created your first real project yet, continue with [First Projec
 ## Troubleshooting
 
 - If the skill installs but the setup pauses on approval, complete the browser sign-in and paste back any finish code if Codex asks for it.
-- If you intentionally use the advanced/manual API-key path, check that `AGENT_ANALYTICS_API_KEY` is present in the environment the agent actually runs in.
+- If you intentionally use a compatibility API key for direct HTTP debugging, check that `AGENT_ANALYTICS_API_KEY` is present in the environment the agent actually runs in.
 - If `npx` is unavailable, install the required Node.js runtime first or use the direct API route temporarily.
 - If you need endpoint-level debugging, use the [API reference](/api/) and test with `curl`.
 
@@ -1561,8 +1561,8 @@ Project and account views return:
 ### CLI
 
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 bot-traffic my-site --period 7d --limit 5
-npx --yes @agent-analytics/cli@0.5.19 bot-traffic --all --period 7d --limit 10
+npx --yes @agent-analytics/cli@0.5.20 bot-traffic my-site --period 7d --limit 5
+npx --yes @agent-analytics/cli@0.5.20 bot-traffic --all --period 7d --limit 10
 ```
 
 ### MCP
@@ -1645,7 +1645,7 @@ Use the API key for:
 - reading analytics data
 - creating or listing projects
 - account-level endpoints
-- direct API access from scripts, tools, and agents
+- direct API access from server-side scripts and tools that cannot use agent sessions
 
 Pass it with the `X-API-Key` header or the `?key=` query parameter.
 
@@ -1678,16 +1678,16 @@ Do not put the API key in the client-side tracker. The tracker uses the public p
 
 ## CLI auth helpers
 
-If you use the official CLI, it provides three local auth convenience commands:
+If you use the official CLI, it provides browser-approved local auth helpers:
 
-- `npx --yes @agent-analytics/cli@0.5.19 login` starts browser approval and saves a local CLI session.
-- `npx --yes @agent-analytics/cli@0.5.19 login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
-- `npx --yes @agent-analytics/cli@0.5.19 login --token aak_...` saves an API key locally as the advanced/manual fallback.
-- `npx --yes @agent-analytics/cli@0.5.19 logout` clears the saved local CLI auth.
+- `npx --yes @agent-analytics/cli@0.5.20 login` starts browser approval and saves a local CLI session.
+- `npx --yes @agent-analytics/cli@0.5.20 login --detached` starts the same flow for headless or issue-based runtimes where the agent sends you an approval link and may ask for a finish code.
+- `npx --yes @agent-analytics/cli@0.5.20 upgrade-link --detached` prints a human-owned Pro payment handoff when a free account hits a paid-only analytics task.
+- `npx --yes @agent-analytics/cli@0.5.20 logout` clears the saved local CLI auth.
 
 `logout` is local-only for CLI state. If you want to revoke the hosted session itself, disconnect that session from the web app's `Agent Sessions` section.
 
-If you logged in with `--token`, `logout` does not revoke the API key on the server. Use `revoke-key` when you want to invalidate that saved raw API key and issue a new one. Scoped agent sessions cannot generate or rotate raw account API keys.
+Scoped agent sessions cannot generate or rotate raw account API keys. Manage compatibility API keys from the dashboard.
 
 If you set `AGENT_ANALYTICS_API_KEY` in your shell environment, the CLI will continue to use that env var even after `logout` until you unset it.
 

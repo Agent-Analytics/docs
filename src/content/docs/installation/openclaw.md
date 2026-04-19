@@ -53,14 +53,14 @@ OpenClaw and similar managed runtimes should not rely on the default home config
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx --yes @agent-analytics/cli@0.5.19 login --detached
-npx --yes @agent-analytics/cli@0.5.19 auth status
+npx --yes @agent-analytics/cli@0.5.20 login --detached
+npx --yes @agent-analytics/cli@0.5.20 auth status
 ```
 
 Keep that setting on every Agent Analytics CLI command in the task. If shell environment persistence is uncertain, prefix each command:
 
 ```bash
-AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx --yes @agent-analytics/cli@0.5.19 projects
+AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics" npx --yes @agent-analytics/cli@0.5.20 projects
 ```
 
 For one-off debugging, `--config-dir "$PWD/.openclaw/agent-analytics"` works before or after the command. Ensure `.openclaw/` is gitignored before login, and never commit `.openclaw/agent-analytics/config.json`.
@@ -88,7 +88,7 @@ If you have not created your first real project yet, continue with [First Projec
 - If OpenClaw sends you an approval link but never resumes, paste the finish code back into the same thread.
 - If login worked earlier but later says "Not logged in", run `auth status` and confirm `AGENT_ANALYTICS_CONFIG_DIR` points at the persistent `.openclaw/agent-analytics` path.
 - If the skill installs but cannot query data after login, confirm the browser approval completed with the same Agent Analytics account you expect to use.
-- If you intentionally choose the advanced/manual API-key path, keep `AGENT_ANALYTICS_API_KEY` in the OpenClaw runtime instead of pasting it into chat.
+- If you intentionally use a compatibility API key for direct HTTP debugging, keep `AGENT_ANALYTICS_API_KEY` in the OpenClaw runtime instead of pasting it into chat.
 - If you need endpoint-level debugging, use the [API reference](/api/) with `curl` before returning to the skill flow.
 
 ## Related

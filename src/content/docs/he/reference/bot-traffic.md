@@ -36,8 +36,8 @@ Bot Traffic מציג בקשות אוטומטיות שהגיעו אל Agent Analy
 ### CLI
 
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 bot-traffic my-site --period 7d --limit 5
-npx --yes @agent-analytics/cli@0.5.19 bot-traffic --all --period 7d --limit 10
+npx --yes @agent-analytics/cli@0.5.20 bot-traffic my-site --period 7d --limit 5
+npx --yes @agent-analytics/cli@0.5.20 bot-traffic --all --period 7d --limit 10
 ```
 
 ### MCP

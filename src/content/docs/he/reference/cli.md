@@ -9,7 +9,7 @@ description: השתמשו ב-CLI של Agent Analytics כ-wrapper רשמי ומו
 
 <!--email_off-->
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 --help
+npx --yes @agent-analytics/cli@0.5.20 --help
 ```
 <!--/email_off-->
 
@@ -34,12 +34,12 @@ npx --yes @agent-analytics/cli@0.5.19 --help
 
 <!--email_off-->
 ```bash
-npx --yes @agent-analytics/cli@0.5.19 demo
-npx --yes @agent-analytics/cli@0.5.19 --demo projects
-npx --yes @agent-analytics/cli@0.5.19 --demo stats agentanalytics-demo --days 7
-npx --yes @agent-analytics/cli@0.5.19 --demo paths agentanalytics-demo --goal signup --since 30d
-npx --yes @agent-analytics/cli@0.5.19 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
-npx --yes @agent-analytics/cli@0.5.19 --demo experiments list agentanalytics-demo
+npx --yes @agent-analytics/cli@0.5.20 demo
+npx --yes @agent-analytics/cli@0.5.20 --demo projects
+npx --yes @agent-analytics/cli@0.5.20 --demo stats agentanalytics-demo --days 7
+npx --yes @agent-analytics/cli@0.5.20 --demo paths agentanalytics-demo --goal signup --since 30d
+npx --yes @agent-analytics/cli@0.5.20 --demo funnel agentanalytics-demo --steps "page_view,signup_started,signup"
+npx --yes @agent-analytics/cli@0.5.20 --demo experiments list agentanalytics-demo
 ```
 <!--/email_off-->
 
@@ -58,7 +58,7 @@ Prompts שימושיים:
 - ברירת מחדל: `agent-analytics login` פותח אישור בדפדפן עם local loopback callback
 - handoff מנותק: `agent-analytics login --detached` מדפיס קישור אישור ויוצא, כדי שסביבות מבוססות issue או remote יוכלו להמשיך עם finish code
 - polling אופציונלי: `agent-analytics login --detached --wait` משאיר את התהליך חי עבור shell מקומי שיכול להמתין לאישור בדפדפן
-- מתקדם/ידני בלבד: `agent-analytics login --token aak_...`
+- שדרוג Pro: `agent-analytics upgrade-link --detached`
 
 אל תציגו הדבקה של API keys ארוכי-חיים כנתיב onboarding ראשי. אישור בדפדפן הוא ה-flow המארח הרגיל.
 
@@ -68,8 +68,8 @@ Prompts שימושיים:
 
 ```bash
 export AGENT_ANALYTICS_CONFIG_DIR="$PWD/.openclaw/agent-analytics"
-npx --yes @agent-analytics/cli@0.5.19 login --detached
-npx --yes @agent-analytics/cli@0.5.19 auth status
+npx --yes @agent-analytics/cli@0.5.20 login --detached
+npx --yes @agent-analytics/cli@0.5.20 auth status
 ```
 
 אפשר גם להעביר `--config-dir "$PWD/.openclaw/agent-analytics"` לפני או אחרי כל פקודה. סדר הפתרון הוא: `--config-dir`, אחר כך `AGENT_ANALYTICS_CONFIG_DIR`, אחר כך `$XDG_CONFIG_HOME/agent-analytics`, ולבסוף `~/.config/agent-analytics`.
@@ -95,7 +95,7 @@ agent-analytics logout
 
 משפחות הפקודות העיקריות הן:
 
-- חשבון ו-auth: `login`, `logout`, `whoami`, `auth status`, `revoke-key`
+- חשבון ו-auth: `login`, `logout`, `whoami`, `auth status`, `upgrade-link`
 - הקמת פרויקטים: `create`, `projects`
 - דוחות: `stats`, `insights`, `breakdown`, `pages`, `sessions-dist`, `events`, `sessions`, `query`
 - ניטור חי: `live`
